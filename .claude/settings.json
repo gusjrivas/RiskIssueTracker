@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(**)",
+      "Write(backend/**)",
+      "Write(frontend/**)",
+      "Write(database/**)",
+      "Write(.claude/**)",
+      "Bash(python *)",
+      "Bash(uvicorn *)",
+      "Bash(alembic revision *)",
+      "Bash(alembic upgrade *)",
+      "Bash(alembic history *)",
+      "Bash(alembic current *)",
+      "Bash(npm *)",
+      "Bash(git status)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)",
+      "Bash(docker compose up *)",
+      "Bash(docker compose down *)",
+      "Bash(docker compose build *)",
+      "Bash(docker compose ps)"
+    ],
+    "deny": [
+      "Bash(git push *)",
+      "Bash(git reset --hard *)",
+      "Bash(rm -rf *)",
+      "Bash(*DROP TABLE*)"
+    ],
+    "ask": [
+      "Bash(git commit *)",
+      "Bash(git merge *)",
+      "Bash(alembic downgrade *)"
+    ]
+  }
+}
