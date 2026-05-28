@@ -2,7 +2,7 @@
 
 ## Propósito del proyecto
 
-Aplicación web para la gestión de riesgos y problemas (risks & issues) organizados por proyecto/cliente. Permite registrar riesgos, calcular su severidad, derivarlos a issues, definir planes de mitigación con acciones, y mantener un historial completo de cambios de estado.
+Aplicación web para la gestión de riesgos y problemas (risks & issues) organizados por proyecto/cliente. Permite registrar riesgos, calcular su severidad usando la metodología de la empresa, derivarlos a issues cuando se materializan, definir planes de mitigación y contingencia, y mantener un historial completo de cambios con auditoría de todas las acciones.
 
 ---
 
@@ -15,16 +15,21 @@ RiskIssueTracker/
 │   │   ├── api/                    # Routers HTTP: solo reciben/devuelven JSON, sin lógica
 │   │   ├── models/                 # Modelos SQLAlchemy: solo estructura de tablas
 │   │   ├── schemas/                # Schemas Pydantic: validación y serialización
-│   │   │   └── common.py           # Enums del dominio (única fuente de verdad)
+│   │   │   └── common.py           # Enums del dominio + PaginatedResponse (única fuente de verdad)
 │   │   ├── services/               # Toda la lógica de negocio
-│   │   │   └── severity_calculator.py  # Fórmula de severidad (única fuente de verdad)
+│   │   │   ├── severity_calculator.py  # Fórmula de severidad (única fuente de verdad)
+│   │   │   ├── auth_service.py     # JWT, Google OAuth, email/password
+│   │   │   └── audit_service.py    # Registro de todas las acciones mutantes
 │   │   ├── db/
 │   │   │   ├── base.py             # DeclarativeBase de SQLAlchemy
 │   │   │   └── session.py          # Engine, SessionLocal, get_db()
 │   │   ├── config.py               # Settings con pydantic-settings
 │   │   └── main.py                 # Instancia FastAPI, CORS, routers, /health
 │   ├── migrations/                 # Migraciones Alembic
-│   │   └── versions/               # Archivos de migración generados automáticamente
+│   │   ├── env.py                  # Configuración de autogenerate
+│   │   ├── script.py.mako          # Template de migraciones
+│   │   └── versions/               # Archivos de migración generados
+│   ├── alembic.ini                 # Configuración de Alembic
 │   ├── pyproject.toml              # Dependencias del proyecto Python
 │   └── Dockerfile                  # Imagen Docker del backend
 ├── frontend/                       # SPA React + Vite
@@ -35,6 +40,7 @@ RiskIssueTracker/
 │   │   └── api/                    # Funciones puras de llamada HTTP
 │   ├── index.html                  # Entry point HTML
 │   ├── vite.config.js              # Configuración Vite
+│   ├── Dockerfile                  # Imagen Docker del frontend
 │   └── package.json                # Dependencias npm
 ├── database/
 │   ├── init.sql                    # DDL completo: extensiones, enums, tablas, índices
@@ -48,9 +54,17 @@ RiskIssueTracker/
     │   ├── frontend.md             # Convenciones de capas frontend
     │   └── database.md             # Convenciones de migraciones y esquema
     ├── skills/
-    │   └── severity-calculator.md  # Fórmula completa de cálculo de severidad
+    │   ├── severity-calculator.md  # Fórmula completa (2 pasos: exposición → severidad)
+    │   ├── add-endpoint.md         # Checklist para agregar un endpoint completo
+    │   ├── backend-practices.md    # SQLAlchemy 2.0, Pydantic v2, JWT, audit
+    │   ├── frontend-practices.md   # Hooks, auth, Google OAuth, paginación
+    │   ├── status-transitions.md   # Máquina de estados Risk/Issue + flujo derive
+    │   └── api-conventions.md      # Errores HTTP, paginación, auth header, códigos
     └── commands/
-        └── calc-severity.md        # Slash command /calc-severity
+        ├── calc-severity.md        # /calc-severity
+        ├── new-migration.md        # /new-migration
+        ├── audit-layers.md         # /audit-layers
+        └── audit-severity.md       # /audit-severity
 ```
 
 ---
@@ -61,18 +75,18 @@ RiskIssueTracker/
 
 | Entidad | Descripción |
 |---|---|
+| **User** | Usuario de la aplicación con rol admin o user, autenticable via Google o email/password |
 | **Project** | Proyecto o cliente al que pertenecen los riesgos e issues |
-| **Risk** | Riesgo identificado con probabilidad, impacto, urgencia y alcance |
-| **Issue** | Problema activo, puede originarse desde un Risk |
-| **MitigationPlan** | Plan de mitigación asociado a un Risk o Issue |
-| **MitigationAction** | Acción individual dentro de un MitigationPlan |
-| **HistoryEntry** | Registro append-only de cambios de estado (Risk o Issue) |
+| **Risk** | Riesgo identificado con probabilidad, impacto, proximidad, categoría y severidad calculada |
+| **Issue** | Problema activo derivado de un Risk no mitigado |
+| **HistoryEntry** | Timeline de transiciones de estado (Risk o Issue), append-only |
+| **AuditLog** | Registro de TODAS las acciones de cualquier usuario, append-only |
 
 ### Estados de Risk
 
 ```
-open → in_progress → closed
-         └──────────────────→ [deriva en Issue]
+open → in_progress → closed    (riesgo mitigado)
+open → in_progress → derived   (riesgo materializado → Issue abierto y vinculado)
 ```
 
 ### Estados de Issue
@@ -81,22 +95,56 @@ open → in_progress → closed
 open → in_progress → closed
 ```
 
-### Niveles de severidad
+### Cálculo de Severidad (2 pasos)
 
-| Nivel | Score |
-|---|---|
-| **low** | 0.00 – 0.39 |
-| **medium** | 0.40 – 0.59 |
-| **high** | 0.60 – 0.79 |
-| **critical** | 0.80 – 1.00 |
+**Paso 1 — Exposición** = `probability_weight × impact_weight`
+
+| Nivel prob/impact | Muy bajo/baja | Bajo/baja | Medio/media | Alto/alta | Muy alto/alta |
+|---|---|---|---|---|---|
+| Peso | 0.056 / 0.10 | 0.10 / 0.30 | 0.20 / 0.50 | 0.40 / 0.70 | 0.80 / 0.90 |
+
+**Paso 2 — Severidad** = lookup `proximity × exposure_zone` → entero 1–9 (1=más crítico)
+
+```
+                  Zona Bajo   Zona Medio   Zona Alto
+corto_plazo:          5           2            1
+mediano_plazo:        7           4            3
+largo_plazo:          9           8            6
+```
+
+Zonas: bajo ≤ 0.09 | medio 0.10–0.24 | alto ≥ 0.28
+
+### Categorías de Risk
+
+`calendario` | `alcance` | `ingresos` | `costos` | `presupuesto` | `equipo` | `gestion`
+
+### Roles de usuario
+
+- **admin**: aprueba/desactiva usuarios, accede a endpoints `/admin/*`
+- **user**: crea y gestiona risks/issues dentro de sus proyectos asignados
+
+### Flujo de registro de usuarios
+
+1. Usuario se registra (Google OAuth o email/password) → estado `pending`
+2. Admin aprueba → estado `active`
+3. Admin puede desactivar → estado `inactive` (baja lógica, no se borra)
+
+---
+
+## Paginación
+
+Todos los endpoints de lista usan `?page=1&size=20` y devuelven:
+```json
+{ "items": [...], "total": N, "page": N, "size": N, "pages": N }
+```
 
 ---
 
 ## Convenciones por capa
 
-- **Backend API**: ver [.claude/rules/backend.md](.claude/rules/backend.md) — routers, services, models, schemas
-- **Frontend**: ver [.claude/rules/frontend.md](.claude/rules/frontend.md) — pages, components, hooks, api/
-- **Base de datos**: ver [.claude/rules/database.md](.claude/rules/database.md) — migraciones, índices, history
+- **Backend API**: ver [.claude/rules/backend.md](.claude/rules/backend.md)
+- **Frontend**: ver [.claude/rules/frontend.md](.claude/rules/frontend.md)
+- **Base de datos**: ver [.claude/rules/database.md](.claude/rules/database.md)
 
 ---
 
@@ -104,4 +152,7 @@ open → in_progress → closed
 
 | Comando | Descripción |
 |---|---|
-| `/calc-severity` | Calcula el score y nivel de severidad dado probability, impact, urgency y scope |
+| `/calc-severity` | Calcula exposición y severidad dado probability, impact y proximity |
+| `/new-migration` | Genera el comando alembic correcto + checklist de convenciones DB |
+| `/audit-layers` | Detecta violaciones de separación de capas en backend y frontend |
+| `/audit-severity` | Detecta inconsistencias entre severidad almacenada y fórmula actual |

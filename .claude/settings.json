@@ -26,7 +26,8 @@
       "Bash(git push *)",
       "Bash(git reset --hard *)",
       "Bash(rm -rf *)",
-      "Bash(*DROP TABLE*)"
+      "Bash(*DROP TABLE*)",
+      "Read(.env)"
     ],
     "ask": [
       "Bash(git commit *)",
