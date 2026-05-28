@@ -1,48 +1,88 @@
 # Skill: Severity Calculator
 
-## Fórmula de cálculo de severidad
+La severidad se calcula en **dos pasos** usando la metodología de la empresa.
+La implementación canónica está en `backend/app/services/severity_calculator.py`.
 
-El score de severidad se calcula combinando cuatro factores con pesos distintos:
+---
+
+## Paso 1 — Exposición
+
+`exposure = probability_weight × impact_weight`
+
+### Pesos de Probabilidad
+
+| Nivel | Valor enum | Peso |
+|---|---|---|
+| Muy baja | `muy_baja` | 0.10 |
+| Baja | `baja` | 0.30 |
+| Media | `media` | 0.50 |
+| Alta | `alta` | 0.70 |
+| Muy Alta | `muy_alta` | 0.90 |
+
+### Pesos de Impacto
+
+| Nivel | Valor enum | Peso |
+|---|---|---|
+| Muy bajo | `muy_bajo` | 0.056 |
+| Bajo | `bajo` | 0.10 |
+| Medio | `medio` | 0.20 |
+| Alto | `alto` | 0.40 |
+| Muy Alto | `muy_alto` | 0.80 |
+
+### Matriz de exposición resultante (referencia)
 
 ```
-score = (probability * 0.35 + impact * 0.35 + urgency_norm * 0.15 + scope_norm * 0.15) / 5
+             Muy Bajo  Bajo   Medio  Alto   Muy Alto
+Muy Alta:      0.05    0.09   0.18   0.36   0.72
+Alta:          0.04    0.07   0.14   0.28   0.56
+Media:         0.03    0.05   0.10   0.20   0.40
+Baja:          0.02    0.03   0.06   0.12   0.24
+Muy Baja:      0.01    0.01   0.02   0.04   0.08
 ```
 
-Donde:
-- `probability`: valor 1–5 (sin normalizar)
-- `impact`: valor 1–5 (sin normalizar)
-- `urgency_norm`: urgency (1–3) normalizado a escala 1–5
-- `scope_norm`: scope (1–3) normalizado a escala 1–5
+---
 
-## Normalización de urgency y scope
+## Paso 2 — Zona de exposición
 
-Urgency y scope tienen escala 1–3 y deben normalizarse a 1–5 antes de aplicar la fórmula:
-
-```
-valor_norm = 1 + (valor - 1) * (4 / (max - 1))
-           = 1 + (valor - 1) * 2
-```
-
-Ejemplos:
-- urgency=1 → norm=1.0
-- urgency=2 → norm=3.0
-- urgency=3 → norm=5.0
-
-## Tabla de rangos
-
-| Score | Nivel |
+| Zona | Rango de exposición |
 |---|---|
-| 0.00 – 0.39 | **LOW** |
-| 0.40 – 0.59 | **MEDIUM** |
-| 0.60 – 0.79 | **HIGH** |
-| 0.80 – 1.00 | **CRITICAL** |
+| `bajo` | ≤ 0.09 |
+| `medio` | 0.10 – 0.24 |
+| `alto` | ≥ 0.28 |
 
-## Implementación
+---
 
-La implementación canónica está en [backend/app/services/severity_calculator.py](../../backend/app/services/severity_calculator.py).
+## Paso 3 — Severidad
 
-Funciones disponibles:
-- `_normalize_to_5(value, max_value)` → float
-- `get_severity_score(probability, impact, urgency, scope)` → float
-- `score_to_severity(score)` → Severity
-- `calculate_severity(probability, impact, urgency, scope)` → Severity
+`severity = MATRIX[proximity][exposure_zone]`  → entero ordinal **1–9** (1 = más crítico)
+
+```
+                  Zona Bajo   Zona Medio   Zona Alto
+corto_plazo:          5           2            1
+mediano_plazo:        7           4            3
+largo_plazo:          9           8            6
+```
+
+Priorización: rojo (1–3) → amarillo (4–6) → verde (7–9)
+
+---
+
+## Funciones disponibles
+
+```python
+get_exposure(probability: ProbabilityLevel, impact: ImpactLevel) -> float
+get_exposure_zone(exposure: float) -> ExposureZone
+get_severity(probability, impact, proximity) -> int   # 1-9
+```
+
+---
+
+## Ejemplo
+
+```
+probability = muy_alta  → 0.90
+impact      = alto      → 0.40
+exposure    = 0.90 × 0.40 = 0.36 → zona alto
+proximity   = corto_plazo
+severity    = MATRIX[corto_plazo][alto] = 1  (CRÍTICO)
+```

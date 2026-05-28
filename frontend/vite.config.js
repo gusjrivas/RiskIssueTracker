@@ -7,4 +7,15 @@ export default defineConfig({
     port: 3000,
     host: true,
   },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: ['./vitest.setup.js'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
+      thresholds: { lines: 80 },
+      exclude: ['src/__tests__/**', 'src/main.jsx'],
+    },
+  },
 })
