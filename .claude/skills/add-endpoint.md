@@ -4,7 +4,13 @@ Checklist para agregar un endpoint completo siguiendo las convenciones del proye
 
 ---
 
-## Checklist en orden
+## Checklist en orden — TDD primero
+
+### 0. Tests (ANTES de escribir el código)
+- Crear `tests/unit/services/test_{recurso}_service.py` con los casos de uso esperados
+- Crear `tests/integration/api/test_{recurso}.py` con los endpoints y sus respuestas esperadas
+- Correr los tests: deben estar en **rojo** antes de implementar
+- El código se escribe para hacer pasar los tests, no al revés
 
 ### 1. Schema (`app/schemas/{recurso}.py`)
 - Definir `{Recurso}Create` con campos requeridos para creación
@@ -35,7 +41,12 @@ Checklist para agregar un endpoint completo siguiendo las convenciones del proye
 ### 5. Registrar en `main.py`
 - `app.include_router(router, prefix=f"{settings.api_prefix}/{recurso}", tags=[...])`
 
-### 6. Migración (si hay tabla nueva o columna nueva)
+### 6. Correr los tests
+- `pytest tests/unit/services/test_{recurso}_service.py` → todos en verde
+- `pytest tests/integration/api/test_{recurso}.py` → todos en verde
+- Si alguno falla, corregir antes de continuar al paso 7
+
+### 7. Migración (si hay tabla nueva o columna nueva)
 - Correr `/new-migration` para obtener el comando correcto
 - Nunca editar `init.sql` directamente — las migraciones van en `migrations/versions/`
 

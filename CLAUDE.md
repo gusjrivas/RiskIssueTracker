@@ -140,6 +140,52 @@ Todos los endpoints de lista usan `?page=1&size=20` y devuelven:
 
 ---
 
+## Testing y TDD
+
+### Regla obligatoria
+
+Todo código nuevo requiere tests. El flujo es siempre: **test rojo → implementación mínima → verde → refactor**. No se considera completa ninguna tarea sin tests pasando.
+
+### Estructura de tests
+
+```
+backend/tests/
+├── conftest.py                  # Solo fixtures sin DB (unit tests no tocan PostgreSQL)
+├── unit/
+│   └── services/                # Tests de lógica de negocio pura
+│       └── test_severity_calculator.py
+└── integration/
+    ├── conftest.py              # DB fixtures (SQLite en-memoria) + TestClient
+    └── api/                     # Tests de endpoints HTTP
+```
+
+```
+frontend/src/__tests__/
+├── components/                  # Tests de componentes React
+└── hooks/                       # Tests de hooks con MSW
+```
+
+### Comandos
+
+```bash
+# Backend — unit tests
+pytest tests/unit/ -v
+
+# Backend — con coverage (mínimo 80%)
+pytest --cov=app --cov-report=term-missing tests/
+
+# Frontend
+npm run test          # vitest watch
+npm run test:run      # vitest una vez
+npm run coverage      # con cobertura
+```
+
+### Patrones
+
+Ver skill detallado: [.claude/skills/testing.md](.claude/skills/testing.md)
+
+---
+
 ## Convenciones por capa
 
 - **Backend API**: ver [.claude/rules/backend.md](.claude/rules/backend.md)

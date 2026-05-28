@@ -121,6 +121,26 @@ raise HTTPException(status_code=409, detail="Risk already derived or closed")
 
 ---
 
+## TDD — regla de desarrollo
+
+Todo código nuevo requiere tests. El flujo obligatorio es:
+
+1. Escribir el test que describe el comportamiento → **rojo**
+2. Implementar el mínimo código para pasar → **verde**
+3. Refactorizar manteniendo verde
+
+```bash
+# Correr tests durante el desarrollo
+pytest tests/unit/services/test_mi_service.py -v
+
+# Con coverage antes de commitear
+pytest --cov=app --cov-report=term-missing tests/
+```
+
+Ver patrones detallados en el skill [testing.md](testing.md).
+
+---
+
 ## AuditService
 
 Llamar al final de toda operación mutante en los services:
