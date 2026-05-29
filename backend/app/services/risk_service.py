@@ -62,6 +62,11 @@ def create_risk(db: Session, data: RiskCreate, current_user) -> Risk:
     db.add(risk)
     db.commit()
     db.refresh(risk)
+
+    from app.services.audit_service import log_action
+    log_action(db, user_id=current_user.id, action="create",
+               entity_type="risk", entity_id=risk.id)
+
     return risk
 
 
@@ -103,14 +108,24 @@ def update_risk(db: Session, risk_id: uuid.UUID, data: RiskUpdate, current_user)
 
     db.commit()
     db.refresh(risk)
+
+    from app.services.audit_service import log_action
+    log_action(db, user_id=current_user.id, action="update",
+               entity_type="risk", entity_id=risk.id, changes=update_dict)
+
     return risk
 
 
 def delete_risk(db: Session, risk_id: uuid.UUID, current_user) -> None:
     risk = get_risk(db, risk_id)
     _assert_can_modify(risk, current_user)
+    risk_id_copy = risk.id
     db.delete(risk)
     db.commit()
+
+    from app.services.audit_service import log_action
+    log_action(db, user_id=current_user.id, action="delete",
+               entity_type="risk", entity_id=risk_id_copy)
 
 
 def transition_status(
@@ -139,5 +154,10 @@ def transition_status(
         to_status=new_status,
         changed_by_id=current_user.id,
     )
+
+    from app.services.audit_service import log_action
+    log_action(db, user_id=current_user.id, action="status_change",
+               entity_type="risk", entity_id=risk.id,
+               changes={"from": prev_status.value, "to": new_status.value})
 
     return risk

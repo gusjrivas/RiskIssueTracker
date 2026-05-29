@@ -2,14 +2,16 @@ import math
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.models.user import User
+from app.schemas.audit_log import AuditLogResponse
 from app.schemas.auth import UserResponse
 from app.schemas.common import PaginatedResponse, UserStatus
+from app.services import audit_service
 from app.services.auth_service import require_admin
 
 router = APIRouter()
@@ -61,3 +63,25 @@ def deactivate_user(
     db.commit()
     db.refresh(user)
     return user
+
+
+@router.get("/audit-log", response_model=PaginatedResponse[AuditLogResponse])
+def get_audit_log(
+    user_id: uuid.UUID | None = Query(default=None),
+    action: str | None = Query(default=None),
+    entity_type: str | None = Query(default=None),
+    entity_id: uuid.UUID | None = Query(default=None),
+    page: int = Query(default=1, ge=1),
+    size: int = Query(default=20, ge=1, le=100),
+    db: Session = Depends(get_db),
+    _: Annotated[User, Depends(require_admin)] = None,
+):
+    return audit_service.list_audit_log(
+        db,
+        user_id=user_id,
+        action=action,
+        entity_type=entity_type,
+        entity_id=entity_id,
+        page=page,
+        size=size,
+    )
