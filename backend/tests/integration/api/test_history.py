@@ -204,3 +204,17 @@ class TestHistoryRecordedOnTransition:
         resp = client.get(f"/api/v1/history/risk/{risk.id}",
             headers={"Authorization": f"Bearer {user_token}"})
         assert resp.json()["total"] == 2
+
+    def test_derive_issue_records_risk_history_entry(self, client, user_token, risk):
+        client.patch(f"/api/v1/risks/{risk.id}/status",
+            headers={"Authorization": f"Bearer {user_token}"},
+            json={"status": "in_progress"})
+        client.post("/api/v1/issues/derive",
+            headers={"Authorization": f"Bearer {user_token}"},
+            json={"risk_id": str(risk.id)})
+        resp = client.get(f"/api/v1/history/risk/{risk.id}",
+            headers={"Authorization": f"Bearer {user_token}"})
+        items = resp.json()["items"]
+        derived_entry = next((i for i in items if i["to_status"] == "derived"), None)
+        assert derived_entry is not None
+        assert derived_entry["from_status"] == "in_progress"

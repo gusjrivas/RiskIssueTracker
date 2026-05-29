@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 from sqlalchemy import Enum as SAEnum, ForeignKey, String, func
 from sqlalchemy.orm import Mapped, mapped_column
@@ -25,11 +26,11 @@ class HistoryEntry(Base):
     to_status: Mapped[str] = mapped_column(String(50), nullable=False)
     changed_by: Mapped[uuid.UUID | None] = mapped_column(
         Uuid(as_uuid=True, native_uuid=False),
-        ForeignKey("users.id"),
+        ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
     )
     notes: Mapped[str | None] = mapped_column(String(1000), nullable=True)
-    created_at: Mapped[str] = mapped_column(
+    created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=func.now(), nullable=False, index=True
     )

@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 from sqlalchemy import Enum as SAEnum, ForeignKey, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column
@@ -49,9 +50,9 @@ class Issue(Base):
     )
     mitigation_strategy: Mapped[str | None] = mapped_column(String(2000), nullable=True)
     contingency_plan: Mapped[str | None] = mapped_column(String(2000), nullable=True)
-    created_at: Mapped[str] = mapped_column(
+    created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=func.now(), nullable=False
     )
-    updated_at: Mapped[str] = mapped_column(
+    updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=False
     )

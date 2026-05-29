@@ -28,7 +28,13 @@
       "Bash(curl -s -X POST http://localhost:8000/api/v1/auth/register -H 'Content-Type: application/json' -d '{\"email\":\"admin@test.com\",\"password\":\"Admin1234!\",\"full_name\":\"Admin\"}')",
       "Bash(curl -v -X POST http://localhost:8000/api/v1/auth/register -H 'Content-Type: application/json' -d '{\"email\":\"admin@test.com\",\"password\":\"Admin1234!\",\"full_name\":\"Admin\"}')",
       "Bash(pg_isready -h localhost -p 5432)",
-      "Bash(kill %1)"
+      "Bash(kill %1)",
+      "Bash(Get-ChildItem -Path \"c:/Repo/RiskIssueTracker/backend\" -Recurse -Directory)",
+      "Bash(Select-Object -First 30)",
+      "Bash(Format-Table FullName)",
+      "Bash(grep -v \"^--$\")",
+      "Bash(where gh *)",
+      "Bash(powershell.exe -Command \"Get-Command gh -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source\")"
     ],
     "deny": [
       "Bash(git push *)",
