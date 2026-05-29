@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.models.issue import Issue
 from app.models.risk import Risk
-from app.schemas.common import IssueStatus, PaginatedResponse, RiskStatus, UserRole
+from app.schemas.common import EntityType, IssueStatus, PaginatedResponse, RiskStatus, UserRole
 from app.schemas.issue import IssueCreate, IssueUpdate
 
 VALID_TRANSITIONS = frozenset(
@@ -145,7 +145,19 @@ def transition_status(
             detail=f"Invalid transition from '{issue.status}' to '{new_status}'",
         )
 
+    prev_status = issue.status
     issue.status = new_status
     db.commit()
     db.refresh(issue)
+
+    from app.services.history_service import record_transition
+    record_transition(
+        db,
+        entity_type=EntityType.issue,
+        entity_id=issue.id,
+        from_status=prev_status,
+        to_status=new_status,
+        changed_by_id=current_user.id,
+    )
+
     return issue

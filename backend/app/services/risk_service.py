@@ -5,7 +5,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models.risk import Risk
-from app.schemas.common import PaginatedResponse, RiskStatus, UserRole
+from app.schemas.common import EntityType, PaginatedResponse, RiskStatus, UserRole
 from app.schemas.risk import RiskCreate, RiskUpdate
 from app.services.severity_calculator import get_severity
 
@@ -125,7 +125,19 @@ def transition_status(
             detail=f"Invalid transition from '{risk.status}' to '{new_status}'",
         )
 
+    prev_status = risk.status
     risk.status = new_status
     db.commit()
     db.refresh(risk)
+
+    from app.services.history_service import record_transition
+    record_transition(
+        db,
+        entity_type=EntityType.risk,
+        entity_id=risk.id,
+        from_status=prev_status,
+        to_status=new_status,
+        changed_by_id=current_user.id,
+    )
+
     return risk
