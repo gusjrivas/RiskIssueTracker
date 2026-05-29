@@ -1,8 +1,33 @@
+# Python
 __pycache__/
 *.py[cod]
 .venv/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment & secrets
 .env
+.env.local
+.env.*.local
+
+# Node
 node_modules/
 dist/
+coverage/
+
+# DB data (Docker volumes)
 postgres_data/
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Claude Code — local overrides (no subir al repo)
+.claude/settings.local.json
+
+# SQLite (tests locales)
+*.db
+*.db-shm
+*.db-wal
