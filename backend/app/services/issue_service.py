@@ -92,6 +92,16 @@ def derive_from_risk(db: Session, risk_id: uuid.UUID, current_user) -> Issue:
     db.commit()
     db.refresh(issue)
 
+    from app.services.history_service import record_transition
+    record_transition(
+        db,
+        entity_type=EntityType.risk,
+        entity_id=risk.id,
+        from_status=RiskStatus.in_progress,
+        to_status=RiskStatus.derived,
+        changed_by_id=current_user.id,
+    )
+
     from app.services.audit_service import log_action
     log_action(db, user_id=current_user.id, action="derive",
                entity_type="issue", entity_id=issue.id,

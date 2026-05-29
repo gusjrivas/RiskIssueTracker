@@ -39,7 +39,7 @@ def list_users(
 def approve_user(
     user_id: uuid.UUID,
     db: Session = Depends(get_db),
-    _: Annotated[User, Depends(require_admin)] = None,
+    current_admin: Annotated[User, Depends(require_admin)] = None,
 ):
     user = db.execute(select(User).where(User.id == user_id)).scalar_one_or_none()
     if user is None:
@@ -47,6 +47,11 @@ def approve_user(
     user.status = UserStatus.active
     db.commit()
     db.refresh(user)
+
+    from app.services.audit_service import log_action
+    log_action(db, user_id=current_admin.id, action="approve_user",
+               entity_type="user", entity_id=user.id)
+
     return user
 
 
@@ -54,7 +59,7 @@ def approve_user(
 def deactivate_user(
     user_id: uuid.UUID,
     db: Session = Depends(get_db),
-    _: Annotated[User, Depends(require_admin)] = None,
+    current_admin: Annotated[User, Depends(require_admin)] = None,
 ):
     user = db.execute(select(User).where(User.id == user_id)).scalar_one_or_none()
     if user is None:
@@ -62,6 +67,11 @@ def deactivate_user(
     user.status = UserStatus.inactive
     db.commit()
     db.refresh(user)
+
+    from app.services.audit_service import log_action
+    log_action(db, user_id=current_admin.id, action="deactivate_user",
+               entity_type="user", entity_id=user.id)
+
     return user
 
 

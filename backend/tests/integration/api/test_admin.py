@@ -166,3 +166,38 @@ class TestListUsers:
         body = resp.json()
         assert len(body["items"]) <= 2
         assert body["size"] == 2
+
+
+# ---------------------------------------------------------------------------
+# Audit log recorded on admin user status changes
+# ---------------------------------------------------------------------------
+
+class TestAdminActionsAudited:
+    def test_approve_user_creates_audit_entry(self, client, admin_token, pending_user):
+        import uuid as _uuid
+        client.patch(
+            f"/api/v1/admin/users/{pending_user.id}/approve",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        resp = client.get(
+            "/api/v1/admin/audit-log?action=approve_user&entity_type=user",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert resp.json()["total"] >= 1
+        entry = resp.json()["items"][0]
+        assert entry["action"] == "approve_user"
+        assert entry["entity_id"] == str(pending_user.id)
+
+    def test_deactivate_user_creates_audit_entry(self, client, admin_token, regular_user):
+        client.patch(
+            f"/api/v1/admin/users/{regular_user.id}/deactivate",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        resp = client.get(
+            "/api/v1/admin/audit-log?action=deactivate_user&entity_type=user",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert resp.json()["total"] >= 1
+        entry = resp.json()["items"][0]
+        assert entry["action"] == "deactivate_user"
+        assert entry["entity_id"] == str(regular_user.id)
