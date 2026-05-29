@@ -59,7 +59,8 @@ RiskIssueTracker/
     │   ├── backend-practices.md    # SQLAlchemy 2.0, Pydantic v2, JWT, audit
     │   ├── frontend-practices.md   # Hooks, auth, Google OAuth, paginación
     │   ├── status-transitions.md   # Máquina de estados Risk/Issue + flujo derive
-    │   └── api-conventions.md      # Errores HTTP, paginación, auth header, códigos
+    │   ├── api-conventions.md      # Errores HTTP, paginación, auth header, códigos
+    │   └── ui-design-react.md      # Estética minimalista moderna para UI en React
     └── commands/
         ├── calc-severity.md        # /calc-severity
         ├── new-migration.md        # /new-migration
