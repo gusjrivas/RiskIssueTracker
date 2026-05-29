@@ -27,6 +27,11 @@ def create_project(db: Session, data: ProjectCreate, current_user: User) -> Proj
     db.add(project)
     db.commit()
     db.refresh(project)
+
+    from app.services.audit_service import log_action
+    log_action(db, user_id=current_user.id, action="create",
+               entity_type="project", entity_id=project.id)
+
     return project
 
 
@@ -58,15 +63,26 @@ def update_project(
 ) -> Project:
     project = get_project(db, project_id)
     _assert_can_modify(project, current_user)
-    for field, value in data.model_dump(exclude_unset=True).items():
+    update_dict = data.model_dump(exclude_unset=True)
+    for field, value in update_dict.items():
         setattr(project, field, value)
     db.commit()
     db.refresh(project)
+
+    from app.services.audit_service import log_action
+    log_action(db, user_id=current_user.id, action="update",
+               entity_type="project", entity_id=project.id, changes=update_dict)
+
     return project
 
 
 def delete_project(db: Session, project_id: uuid.UUID, current_user: User) -> None:
     project = get_project(db, project_id)
     _assert_can_modify(project, current_user)
+    project_id_copy = project.id
     db.delete(project)
     db.commit()
+
+    from app.services.audit_service import log_action
+    log_action(db, user_id=current_user.id, action="delete",
+               entity_type="project", entity_id=project_id_copy)

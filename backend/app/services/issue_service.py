@@ -54,6 +54,11 @@ def create_issue(db: Session, data: IssueCreate, current_user) -> Issue:
     db.add(issue)
     db.commit()
     db.refresh(issue)
+
+    from app.services.audit_service import log_action
+    log_action(db, user_id=current_user.id, action="create",
+               entity_type="issue", entity_id=issue.id)
+
     return issue
 
 
@@ -86,6 +91,12 @@ def derive_from_risk(db: Session, risk_id: uuid.UUID, current_user) -> Issue:
 
     db.commit()
     db.refresh(issue)
+
+    from app.services.audit_service import log_action
+    log_action(db, user_id=current_user.id, action="derive",
+               entity_type="issue", entity_id=issue.id,
+               changes={"risk_id": str(risk.id)})
+
     return issue
 
 
@@ -118,19 +129,30 @@ def update_issue(db: Session, issue_id: uuid.UUID, data: IssueUpdate, current_us
     issue = get_issue(db, issue_id)
     _assert_can_modify(issue, current_user)
 
-    for field, value in data.model_dump(exclude_unset=True).items():
+    update_dict = data.model_dump(exclude_unset=True)
+    for field, value in update_dict.items():
         setattr(issue, field, value)
 
     db.commit()
     db.refresh(issue)
+
+    from app.services.audit_service import log_action
+    log_action(db, user_id=current_user.id, action="update",
+               entity_type="issue", entity_id=issue.id, changes=update_dict)
+
     return issue
 
 
 def delete_issue(db: Session, issue_id: uuid.UUID, current_user) -> None:
     issue = get_issue(db, issue_id)
     _assert_can_modify(issue, current_user)
+    issue_id_copy = issue.id
     db.delete(issue)
     db.commit()
+
+    from app.services.audit_service import log_action
+    log_action(db, user_id=current_user.id, action="delete",
+               entity_type="issue", entity_id=issue_id_copy)
 
 
 def transition_status(
@@ -159,5 +181,10 @@ def transition_status(
         to_status=new_status,
         changed_by_id=current_user.id,
     )
+
+    from app.services.audit_service import log_action
+    log_action(db, user_id=current_user.id, action="status_change",
+               entity_type="issue", entity_id=issue.id,
+               changes={"from": prev_status.value, "to": new_status.value})
 
     return issue
