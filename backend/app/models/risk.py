@@ -61,6 +61,12 @@ class Risk(Base):
         nullable=False,
         index=True,
     )
+    derived_issue_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid(as_uuid=True, native_uuid=False),
+        ForeignKey("issues.id"),
+        nullable=True,
+        index=True,
+    )
     created_at: Mapped[str] = mapped_column(
         DateTime(timezone=True), default=func.now(), nullable=False
     )
