@@ -57,6 +57,7 @@ class RiskResponse(BaseModel):
     mitigation_strategy: str | None = None
     contingency_plan: str | None = None
     owner_id: uuid.UUID | None = None
+    derived_issue_id: uuid.UUID | None = None
     created_by: uuid.UUID
     created_at: datetime
     updated_at: datetime
