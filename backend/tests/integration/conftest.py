@@ -2,17 +2,23 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 
 from app.db.base import Base
 from app.db.session import get_db
 from app.main import app
 
-# SQLite in-memory para integration tests sin PostgreSQL levantado.
-# Para tests que usan JSONB o ENUMs nativos de PostgreSQL, levantar
-# la DB con docker compose y configurar DATABASE_URL=postgresql://...
-TEST_DATABASE_URL = "sqlite:///./test_integration.db"
+# StaticPool: todas las conexiones comparten el mismo DB en-memoria.
+# El fixture `db` parchea session.commit → session.flush para que
+# los datos nunca se commiteen a nivel de transacción, y el rollback
+# al teardown limpia todo. Esto garantiza aislamiento entre tests.
+TEST_DATABASE_URL = "sqlite:///:memory:"
 
-engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
+engine = create_engine(
+    TEST_DATABASE_URL,
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
@@ -21,19 +27,25 @@ def create_tables():
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)
-    import os
-    if os.path.exists("test_integration.db"):
-        os.remove("test_integration.db")
 
 
 @pytest.fixture
 def db():
-    session = TestingSessionLocal()
+    connection = engine.connect()
+    transaction = connection.begin()
+    session = TestingSessionLocal(bind=connection)
+
+    # Patch commit → flush so data stays in the connection but never
+    # commits to the underlying transaction. Rollback on teardown
+    # undoes everything, giving each test a clean slate.
+    session.commit = session.flush
+
     try:
         yield session
     finally:
-        session.rollback()
         session.close()
+        transaction.rollback()
+        connection.close()
 
 
 @pytest.fixture
