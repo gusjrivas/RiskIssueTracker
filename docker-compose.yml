@@ -20,6 +20,8 @@ services:
       - "8000:8000"
     environment:
       DATABASE_URL: postgresql://riskuser:riskpass@db:5432/risktracker
+      AUTH_SECRET_KEY: ${AUTH_SECRET_KEY:-change-me-in-development}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
     depends_on:
       db:
         condition: service_healthy
