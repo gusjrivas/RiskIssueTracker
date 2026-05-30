@@ -105,11 +105,6 @@ export default function RiskDetailPage() {
             <StatusTransitionButton
               currentStatus={risk.status}
               onTransition={handleTransition}
-              extraActions={
-                risk.status === 'in_progress' && !risk.derived_issue_id
-                  ? [{ label: 'Derivar a Issue', status: 'derived' }]
-                  : []
-              }
             />
             {risk.status === 'in_progress' && !risk.derived_issue_id && (
               <button
