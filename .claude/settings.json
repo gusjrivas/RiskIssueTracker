@@ -45,7 +45,8 @@
       "Read(//c/Users/gusta//**)",
       "Bash(ls /c/Users/gusta/AppData/Roaming/ | grep -i nvm *)",
       "Read(//c//**)",
-      "Bash(find /c/Users/gusta/AppData -name \"node.exe\" 2>/dev/null | head -5 *)"
+      "Bash(find /c/Users/gusta/AppData -name \"node.exe\" 2>/dev/null | head -5 *)",
+      "Bash(xargs grep \"useAuth.js'\")"
     ],
     "deny": [
       "Bash(git push *)",
