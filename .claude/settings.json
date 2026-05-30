@@ -34,7 +34,18 @@
       "Bash(Format-Table FullName)",
       "Bash(grep -v \"^--$\")",
       "Bash(where gh *)",
-      "Bash(powershell.exe -Command \"Get-Command gh -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source\")"
+      "Bash(powershell.exe -Command \"Get-Command gh -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source\")",
+      "Bash(git checkout *)",
+      "Bash(git pull *)",
+      "Bash(powershell.exe -Command \"Get-Command node,npm,pnpm,yarn -ErrorAction SilentlyContinue | Select Name,Source\")",
+      "Bash(powershell.exe -Command \"& 'C:\\\\Program Files\\\\nodejs\\\\node.exe' --version\")",
+      "Bash(powershell.exe -Command \"ls 'C:\\\\Program Files\\\\nodejs\\\\' -ErrorAction SilentlyContinue | Select Name\")",
+      "Bash(powershell.exe -Command \"dir 'C:\\\\Users\\\\gusta\\\\AppData\\\\Local\\\\Programs' | Select-Object Name\")",
+      "Bash(ls /c/Users/gusta/ | head -20)",
+      "Read(//c/Users/gusta//**)",
+      "Bash(ls /c/Users/gusta/AppData/Roaming/ | grep -i nvm *)",
+      "Read(//c//**)",
+      "Bash(find /c/Users/gusta/AppData -name \"node.exe\" 2>/dev/null | head -5 *)"
     ],
     "deny": [
       "Bash(git push *)",
