@@ -47,10 +47,10 @@ def decode_token(token: str) -> dict:
     try:
         payload = jwt.decode(token, settings.auth_secret_key, algorithms=[settings.auth_algorithm])
         if "sub" not in payload:
-            raise HTTPException(status_code=401, detail="Invalid token")
+            raise HTTPException(status_code=401, detail="Token inválido")
         return payload
     except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
+        raise HTTPException(status_code=401, detail="Token inválido o expirado")
 
 
 # ---------------------------------------------------------------------------
@@ -60,7 +60,7 @@ def decode_token(token: str) -> dict:
 def register_with_password(db: Session, email: str, password: str, full_name: str) -> User:
     existing = db.execute(select(User).where(User.email == email)).scalar_one_or_none()
     if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(status_code=400, detail="El email ya está registrado")
     user = User(
         email=email,
         full_name=full_name,
@@ -95,19 +95,19 @@ def get_current_user(
 ) -> User:
     import uuid as _uuid
     if credentials is None:
-        raise HTTPException(status_code=401, detail="Not authenticated")
+        raise HTTPException(status_code=401, detail="No autenticado")
     payload = decode_token(credentials.credentials)
     try:
         user_id = _uuid.UUID(payload["sub"])
     except ValueError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        raise HTTPException(status_code=401, detail="Token inválido")
     user = db.execute(select(User).where(User.id == user_id)).scalar_one_or_none()
     if user is None:
-        raise HTTPException(status_code=401, detail="User not found")
+        raise HTTPException(status_code=401, detail="Usuario no encontrado")
     return user
 
 
 def require_admin(current_user: Annotated[User, Depends(get_current_user)]) -> User:
     if current_user.role != UserRole.admin:
-        raise HTTPException(status_code=403, detail="Admin access required")
+        raise HTTPException(status_code=403, detail="Se requieren permisos de administrador")
     return current_user

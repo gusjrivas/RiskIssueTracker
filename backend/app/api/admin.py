@@ -43,7 +43,7 @@ def approve_user(
 ):
     user = db.execute(select(User).where(User.id == user_id)).scalar_one_or_none()
     if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
     user.status = UserStatus.active
     db.commit()
     db.refresh(user)
@@ -63,7 +63,7 @@ def deactivate_user(
 ):
     user = db.execute(select(User).where(User.id == user_id)).scalar_one_or_none()
     if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
     user.status = UserStatus.inactive
     db.commit()
     db.refresh(user)

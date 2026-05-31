@@ -34,10 +34,10 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
         from app.models.user import User as UserModel
         existing = db.execute(select(UserModel).where(UserModel.email == body.email)).scalar_one_or_none()
         if existing and existing.status == UserStatus.pending:
-            raise HTTPException(status_code=403, detail="Account pending approval")
+            raise HTTPException(status_code=403, detail="Cuenta pendiente de aprobación")
         if existing and existing.status == UserStatus.inactive:
-            raise HTTPException(status_code=403, detail="Account deactivated")
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+            raise HTTPException(status_code=403, detail="Cuenta desactivada")
+        raise HTTPException(status_code=401, detail="Credenciales inválidas")
     return TokenResponse(access_token=create_access_token(user))
 
 
