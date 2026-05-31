@@ -77,7 +77,13 @@
       "Bash(sed -i 's/detail=\"Invalid transition from/detail=\"Transición inválida de/' c:/Repo/RiskIssueTracker/backend/app/services/risk_service.py)",
       "Bash(sed -i 's/detail=\"Not authorized to modify this issue\"/detail=\"Sin permiso para modificar este issue\"/' c:/Repo/RiskIssueTracker/backend/app/services/issue_service.py)",
       "Bash(git fetch *)",
-      "Bash(git stash *)"
+      "Bash(git stash *)",
+      "Bash(powershell.exe -Command \"& 'C:\\\\Program Files\\\\Docker\\\\Docker\\\\resources\\\\bin\\\\docker.exe' compose -f c:/Repo/RiskIssueTracker/docker-compose.yml logs frontend --tail 15 2>&1\")",
+      "Bash(powershell.exe -Command \"& 'C:\\\\Program Files\\\\Docker\\\\Docker\\\\resources\\\\bin\\\\docker.exe' compose -f c:/Repo/RiskIssueTracker/docker-compose.yml exec frontend cat /app/src/components/RiskForm.jsx 2>&1 | head -10\")",
+      "Bash(powershell.exe -Command \"& 'C:\\\\Program Files\\\\Docker\\\\Docker\\\\resources\\\\bin\\\\docker.exe' compose -f c:/Repo/RiskIssueTracker/docker-compose.yml logs frontend --tail 5 2>&1\")",
+      "Bash(powershell.exe -Command \"& 'C:\\\\Program Files\\\\Docker\\\\Docker\\\\resources\\\\bin\\\\docker.exe' compose up --build -d frontend 2>&1\")",
+      "Read(//tmp/**)",
+      "Read(//c/tmp/**)"
     ],
     "deny": [
       "Bash(git push *)",
