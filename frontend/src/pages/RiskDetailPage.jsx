@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ChevronLeft, Trash2, GitBranch } from 'lucide-react'
+import { ChevronLeft, Trash2, GitBranch, Lock } from 'lucide-react'
 import { getRisk, deleteRisk, transitionRiskStatus } from '../api/risks'
 import { deriveIssue } from '../api/issues'
 import SeverityBadge from '../components/SeverityBadge'
@@ -57,6 +57,8 @@ export default function RiskDetailPage() {
 
   if (!risk) return null
 
+  const isDerived = risk.status === 'derived'
+
   return (
     <div className="min-h-screen bg-canvas">
       <header className="border-b border-border bg-white">
@@ -101,11 +103,25 @@ export default function RiskDetailPage() {
             ))}
           </div>
 
+          {isDerived && (
+            <div className="flex items-center gap-2 text-sm text-muted bg-white border border-border rounded-lg px-4 py-3 mb-6">
+              <Lock size={14} strokeWidth={1.5} className="shrink-0" />
+              Este riesgo se materializó como issue. El seguimiento continúa en el issue — el riesgo es de solo lectura.
+              {risk.derived_issue_id && (
+                <Link to={`/issues/${risk.derived_issue_id}`} className="ml-auto text-accent hover:underline underline-offset-2 whitespace-nowrap">
+                  Ver issue →
+                </Link>
+              )}
+            </div>
+          )}
+
           <div className="flex items-center gap-3 mb-10">
-            <StatusTransitionButton
-              currentStatus={risk.status}
-              onTransition={handleTransition}
-            />
+            {!isDerived && (
+              <StatusTransitionButton
+                currentStatus={risk.status}
+                onTransition={handleTransition}
+              />
+            )}
             {risk.status === 'in_progress' && !risk.derived_issue_id && (
               <button
                 onClick={handleDerive}
@@ -116,21 +132,20 @@ export default function RiskDetailPage() {
                 {deriving ? 'Derivando...' : 'Derivar a Issue'}
               </button>
             )}
-            {risk.derived_issue_id && (
-              <Link to={`/issues/${risk.derived_issue_id}`} className="text-sm text-accent underline-offset-2 hover:underline">
-                Ver issue derivado →
-              </Link>
-            )}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div>
-              <h2 className="font-display font-semibold mb-4">Plan de mitigación</h2>
+              <h2 className="font-display font-semibold mb-4">
+                Plan de mitigación
+                {isDerived && <span className="ml-2 text-xs text-muted font-normal">(solo lectura)</span>}
+              </h2>
               <MitigationPlanPanel
                 entityType="risk"
                 entityId={riskId}
                 initialMitigation={risk.mitigation_strategy ?? ''}
                 initialContingency={risk.contingency_plan ?? ''}
+                readOnly={isDerived}
               />
             </div>
             <div>
