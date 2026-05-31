@@ -83,10 +83,13 @@
       "Bash(powershell.exe -Command \"& 'C:\\\\Program Files\\\\Docker\\\\Docker\\\\resources\\\\bin\\\\docker.exe' compose -f c:/Repo/RiskIssueTracker/docker-compose.yml logs frontend --tail 5 2>&1\")",
       "Bash(powershell.exe -Command \"& 'C:\\\\Program Files\\\\Docker\\\\Docker\\\\resources\\\\bin\\\\docker.exe' compose up --build -d frontend 2>&1\")",
       "Read(//tmp/**)",
-      "Read(//c/tmp/**)"
+      "Read(//c/tmp/**)",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Bash(powershell.exe -Command \"& 'C:\\\\Program Files\\\\Docker\\\\Docker\\\\resources\\\\bin\\\\docker.exe' compose -f c:/Repo/RiskIssueTracker/docker-compose.yml ps --format 'table {{.Name}}\\\\t{{.Status}}' 2>&1\")",
+      "Bash(powershell.exe -Command \"& 'C:\\\\Program Files\\\\Docker\\\\Docker\\\\resources\\\\bin\\\\docker.exe' compose -f c:/Repo/RiskIssueTracker/docker-compose.yml restart 2>&1\")"
     ],
     "deny": [
-      "Bash(git push *)",
       "Bash(git reset --hard *)",
       "Bash(rm -rf *)",
       "Bash(*DROP TABLE*)",
@@ -94,6 +97,7 @@
     ],
     "ask": [
       "Bash(git commit *)",
+      "Bash(git push *)",
       "Bash(git merge *)",
       "Bash(alembic downgrade *)"
     ]
