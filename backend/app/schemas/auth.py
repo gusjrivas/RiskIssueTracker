@@ -40,6 +40,12 @@ class UserResponse(BaseModel):
     created_at: datetime
 
 
+class UserAdminUpdate(BaseModel):
+    full_name: str | None = None
+    email: EmailStr | None = None
+    role: UserRole | None = None
+
+
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"

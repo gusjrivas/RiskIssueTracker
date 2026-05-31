@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { getUsers, approveUser, deactivateUser } from '../api/admin'
+import { getUsers, approveUser, deactivateUser, updateUser as updateUserApi } from '../api/admin'
 
 export function useAdmin() {
   const [data, setData] = useState([])
@@ -26,5 +26,10 @@ export function useAdmin() {
     setData(prev => prev.map(u => u.id === updated.id ? updated : u))
   }, [])
 
-  return { data, loading, error, approve, deactivate, refetch: fetch }
+  const updateUser = useCallback(async (userId, body) => {
+    const updated = await updateUserApi(userId, body)
+    setData(prev => prev.map(u => u.id === updated.id ? updated : u))
+  }, [])
+
+  return { data, loading, error, approve, deactivate, updateUser, refetch: fetch }
 }

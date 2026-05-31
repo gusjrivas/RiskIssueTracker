@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { Loader2 } from 'lucide-react'
+import { calcSeverityPreview } from '../utils/severityCalc'
+import SeverityBadge from './SeverityBadge'
 
 const CATEGORIES = ['calendario','alcance','ingresos','costos','presupuesto','equipo','gestion']
 const PROBABILITY = ['muy_baja','baja','media','alta','muy_alta']
@@ -21,6 +23,8 @@ export default function RiskForm({ projectId, initial = {}, onSubmit, onCancel, 
   const [error, setError] = useState(null)
 
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }))
+
+  const preview = calcSeverityPreview(form.probability, form.impact, form.proximity)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -77,6 +81,25 @@ export default function RiskForm({ projectId, initial = {}, onSubmit, onCancel, 
           </select>
         </div>
       </div>
+
+      {preview && (
+        <div className="rounded-lg border border-border bg-white p-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-6">
+            <div>
+              <p className="text-xs text-muted uppercase tracking-wide mb-1">Exposición</p>
+              <p className="font-display font-semibold text-sm">{preview.exposure}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted uppercase tracking-wide mb-1">Zona</p>
+              <p className="font-display font-semibold text-sm capitalize">{preview.zone}</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-muted uppercase tracking-wide mb-1">Severidad calculada</p>
+            <SeverityBadge severity={preview.severity} />
+          </div>
+        </div>
+      )}
 
       {error && <p className="text-xs text-severity-red">{error}</p>}
 

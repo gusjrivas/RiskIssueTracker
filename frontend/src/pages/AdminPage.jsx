@@ -1,18 +1,19 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ChevronLeft, CheckCircle, XCircle, Loader2, Users } from 'lucide-react'
+import { ChevronLeft, CheckCircle, XCircle, Loader2, Users, Pencil, Check, X } from 'lucide-react'
 import { useAdmin } from '../hooks/useAdmin'
 import StatusBadge from '../components/StatusBadge'
 
 const STATUS_ACTIONS = {
-  pending:  { label: 'Aprobar',      action: 'approve',     icon: CheckCircle, cls: 'text-severity-green hover:text-severity-green/80' },
-  active:   { label: 'Desactivar',   action: 'deactivate',  icon: XCircle,     cls: 'text-severity-red hover:text-severity-red/80'   },
-  inactive: { label: 'Reactivar',    action: 'approve',     icon: CheckCircle, cls: 'text-severity-green hover:text-severity-green/80' },
+  pending:  { label: 'Aprobar',    action: 'approve',     icon: CheckCircle, cls: 'text-severity-green hover:text-severity-green/80' },
+  active:   { label: 'Desactivar', action: 'deactivate',  icon: XCircle,     cls: 'text-severity-red hover:text-severity-red/80'   },
+  inactive: { label: 'Reactivar',  action: 'approve',     icon: CheckCircle, cls: 'text-severity-green hover:text-severity-green/80' },
 }
 
 export default function AdminPage() {
   const navigate = useNavigate()
-  const { data: users, loading, error, approve, deactivate } = useAdmin()
+  const { data: users, loading, error, approve, deactivate, updateUser } = useAdmin()
 
   const handleAction = (user) => {
     const cfg = STATUS_ACTIONS[user.status]
@@ -55,7 +56,9 @@ export default function AdminPage() {
                     Pendientes de aprobación
                   </h2>
                   <div className="space-y-2">
-                    {pending.map(u => <UserRow key={u.id} user={u} onAction={handleAction} />)}
+                    {pending.map(u => (
+                      <UserRow key={u.id} user={u} onAction={handleAction} onUpdate={updateUser} />
+                    ))}
                   </div>
                 </section>
               )}
@@ -69,7 +72,9 @@ export default function AdminPage() {
                   <p className="text-sm text-muted py-8 text-center">No hay usuarios registrados.</p>
                 ) : (
                   <div className="space-y-2">
-                    {rest.map(u => <UserRow key={u.id} user={u} onAction={handleAction} />)}
+                    {rest.map(u => (
+                      <UserRow key={u.id} user={u} onAction={handleAction} onUpdate={updateUser} />
+                    ))}
                   </div>
                 )}
               </section>
@@ -81,9 +86,81 @@ export default function AdminPage() {
   )
 }
 
-function UserRow({ user, onAction }) {
+function UserRow({ user, onAction, onUpdate }) {
+  const [editing, setEditing] = useState(false)
+  const [form, setForm] = useState({ full_name: user.full_name, email: user.email, role: user.role })
+  const [saving, setSaving] = useState(false)
+  const [editError, setEditError] = useState(null)
+
   const cfg = STATUS_ACTIONS[user.status]
   const Icon = cfg?.icon
+
+  const handleSave = async () => {
+    setSaving(true)
+    setEditError(null)
+    try {
+      await onUpdate(user.id, form)
+      setEditing(false)
+    } catch (e) {
+      setEditError(e.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleCancel = () => {
+    setForm({ full_name: user.full_name, email: user.email, role: user.role })
+    setEditError(null)
+    setEditing(false)
+  }
+
+  if (editing) {
+    return (
+      <div className="card space-y-3">
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="text-xs text-muted uppercase tracking-wide">Nombre</label>
+            <input
+              value={form.full_name}
+              onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))}
+              className="input mt-1"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-muted uppercase tracking-wide">Email</label>
+            <input
+              type="email"
+              value={form.email}
+              onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+              className="input mt-1"
+            />
+          </div>
+        </div>
+        <div className="w-40">
+          <label className="text-xs text-muted uppercase tracking-wide">Rol</label>
+          <select
+            value={form.role}
+            onChange={e => setForm(f => ({ ...f, role: e.target.value }))}
+            className="select mt-1"
+          >
+            <option value="user">user</option>
+            <option value="admin">admin</option>
+          </select>
+        </div>
+        {editError && <p className="text-xs text-severity-red">{editError}</p>}
+        <div className="flex items-center gap-2">
+          <button onClick={handleSave} disabled={saving} className="btn-primary flex items-center gap-1.5 text-sm">
+            {saving ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
+            Guardar
+          </button>
+          <button onClick={handleCancel} className="btn-secondary text-sm flex items-center gap-1.5">
+            <X size={13} />
+            Cancelar
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="card flex items-center justify-between gap-4">
@@ -94,12 +171,15 @@ function UserRow({ user, onAction }) {
       <div className="flex items-center gap-3 shrink-0">
         <span className="text-xs text-muted capitalize">{user.role}</span>
         <StatusBadge status={user.status} />
+        <button
+          onClick={() => setEditing(true)}
+          title="Editar usuario"
+          className="text-muted hover:text-ink transition-colors"
+        >
+          <Pencil size={15} strokeWidth={1.5} />
+        </button>
         {cfg && (
-          <button
-            onClick={() => onAction(user)}
-            title={cfg.label}
-            className={`${cfg.cls} transition-colors`}
-          >
+          <button onClick={() => onAction(user)} title={cfg.label} className={`${cfg.cls} transition-colors`}>
             <Icon size={18} strokeWidth={1.5} />
           </button>
         )}

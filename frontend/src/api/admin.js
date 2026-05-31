@@ -8,3 +8,6 @@ export const approveUser = (userId) =>
 
 export const deactivateUser = (userId) =>
   apiPatch(`/api/v1/admin/users/${userId}/deactivate`)
+
+export const updateUser = (userId, data) =>
+  apiPatch(`/api/v1/admin/users/${userId}`, data)

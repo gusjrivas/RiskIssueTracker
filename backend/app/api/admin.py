@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.audit_log import AuditLogResponse
-from app.schemas.auth import UserResponse
+from app.schemas.auth import UserAdminUpdate, UserResponse
 from app.schemas.common import PaginatedResponse, UserStatus
 from app.services import audit_service
 from app.services.auth_service import require_admin
@@ -70,6 +70,35 @@ def deactivate_user(
 
     from app.services.audit_service import log_action
     log_action(db, user_id=current_admin.id, action="deactivate_user",
+               entity_type="user", entity_id=user.id)
+
+    return user
+
+
+@router.patch("/users/{user_id}", response_model=UserResponse)
+def update_user(
+    user_id: uuid.UUID,
+    body: UserAdminUpdate,
+    db: Session = Depends(get_db),
+    current_admin: Annotated[User, Depends(require_admin)] = None,
+):
+    user = db.execute(select(User).where(User.id == user_id)).scalar_one_or_none()
+    if user is None:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    if body.full_name is not None:
+        user.full_name = body.full_name
+    if body.email is not None:
+        existing = db.execute(select(User).where(User.email == body.email, User.id != user_id)).scalar_one_or_none()
+        if existing:
+            raise HTTPException(status_code=400, detail="El email ya está en uso por otro usuario")
+        user.email = body.email
+    if body.role is not None:
+        user.role = body.role
+    db.commit()
+    db.refresh(user)
+
+    from app.services.audit_service import log_action
+    log_action(db, user_id=current_admin.id, action="update_user",
                entity_type="user", entity_id=user.id)
 
     return user
