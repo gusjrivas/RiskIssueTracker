@@ -90,7 +90,9 @@
       "Bash(powershell.exe -Command \"& 'C:\\\\Program Files\\\\Docker\\\\Docker\\\\resources\\\\bin\\\\docker.exe' compose -f c:/Repo/RiskIssueTracker/docker-compose.yml restart 2>&1\")",
       "Bash(powershell.exe -Command \"& 'C:\\\\Program Files\\\\Docker\\\\Docker\\\\resources\\\\bin\\\\docker.exe' compose -f c:/Repo/RiskIssueTracker/docker-compose.yml down 2>&1\")",
       "Bash(powershell.exe -Command \"& 'C:\\\\Program Files\\\\Docker\\\\Docker\\\\resources\\\\bin\\\\docker.exe' compose -f c:/Repo/RiskIssueTracker/docker-compose.yml exec frontend grep -n 'useBlocker\\\\|listener manual\\\\|addEventListener' /app/src/components/MitigationPlanPanel.jsx 2>&1\")",
-      "Bash(powershell.exe -Command \"& 'C:\\\\Program Files\\\\Docker\\\\Docker\\\\resources\\\\bin\\\\docker.exe' compose -f c:/Repo/RiskIssueTracker/docker-compose.yml exec frontend ls /app/src/utils/ 2>&1\")"
+      "Bash(powershell.exe -Command \"& 'C:\\\\Program Files\\\\Docker\\\\Docker\\\\resources\\\\bin\\\\docker.exe' compose -f c:/Repo/RiskIssueTracker/docker-compose.yml exec frontend ls /app/src/utils/ 2>&1\")",
+      "Bash(Get-ChildItem -Path \"c:\\\\Repo\\\\RiskIssueTracker\" -Force)",
+      "Bash(Select-Object Name, Mode)"
     ],
     "deny": [
       "Bash(git reset --hard *)",
