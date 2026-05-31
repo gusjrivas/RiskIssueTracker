@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Save, Loader2, AlertTriangle } from 'lucide-react'
-import { useBeforeUnload, useBlocker } from 'react-router-dom'
+import { useBeforeUnload, useLocation } from 'react-router-dom'
 import { useMitigationPlan } from '../hooks/useMitigationPlan'
 
 export default function MitigationPlanPanel({ entityType, entityId, initialMitigation = '', initialContingency = '' }) {
@@ -8,26 +8,34 @@ export default function MitigationPlanPanel({ entityType, entityId, initialMitig
   const [contingency, setContingency] = useState(initialContingency)
   const [saved, setSaved] = useState(false)
   const { saving, error, save } = useMitigationPlan(entityType, entityId)
+  const location = useLocation()
+  const isDirtyRef = useRef(false)
 
   const isDirty = mitigation !== initialMitigation || contingency !== initialContingency
+  isDirtyRef.current = isDirty
 
-  // Advertir al cerrar/recargar la pestaña
+  // Advertir al cerrar/recargar la pestaña del navegador
   useBeforeUnload(
     useCallback((e) => {
-      if (isDirty) e.preventDefault()
-    }, [isDirty])
+      if (isDirtyRef.current) e.preventDefault()
+    }, [])
   )
 
-  // Bloquear navegación interna de React Router
-  const blocker = useBlocker(isDirty)
-
+  // Interceptar clics en links internos cuando hay cambios sin guardar
   useEffect(() => {
-    if (blocker.state === 'blocked') {
-      const ok = window.confirm('Tenés cambios sin guardar en el plan de mitigación. ¿Salir de todas formas?')
-      if (ok) blocker.proceed()
-      else blocker.reset()
+    if (!isDirty) return
+    const handleClick = (e) => {
+      const anchor = e.target.closest('a[href], button')
+      if (!anchor) return
+      const href = anchor.getAttribute('href')
+      if (href && href.startsWith('/') && !window.confirm('Tenés cambios sin guardar en el plan de mitigación. ¿Salir de todas formas?')) {
+        e.preventDefault()
+        e.stopPropagation()
+      }
     }
-  }, [blocker])
+    document.addEventListener('click', handleClick, true)
+    return () => document.removeEventListener('click', handleClick, true)
+  }, [isDirty])
 
   const handleSave = async () => {
     await save({ mitigation_strategy: mitigation, contingency_plan: contingency })
