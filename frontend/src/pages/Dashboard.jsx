@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Plus, FolderOpen, Loader2 } from 'lucide-react'
+import { Plus, FolderOpen, Loader2, ShieldCheck } from 'lucide-react'
 import { useProjects } from '../hooks/useProjects'
 import { useAuth } from '../hooks/useAuth'
 
@@ -32,6 +32,12 @@ export default function Dashboard() {
           <h1 className="font-display text-xl font-bold">RiskTracker</h1>
           <div className="flex items-center gap-4">
             <span className="text-sm text-muted">{user?.full_name}</span>
+            {user?.role === 'admin' && (
+              <Link to="/admin" className="flex items-center gap-1.5 text-sm text-muted hover:text-ink transition-colors">
+                <ShieldCheck size={15} strokeWidth={1.5} />
+                Administración
+              </Link>
+            )}
             <button onClick={logout} className="text-sm text-muted hover:text-ink transition-colors">
               Salir
             </button>

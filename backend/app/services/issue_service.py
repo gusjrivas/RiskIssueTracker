@@ -20,7 +20,7 @@ VALID_TRANSITIONS = frozenset(
 def _assert_can_modify(issue: Issue, current_user) -> None:
     is_creator = uuid.UUID(str(issue.created_by)) == uuid.UUID(str(current_user.id))
     if not (is_creator or current_user.role == UserRole.admin):
-        raise HTTPException(status_code=403, detail="Not authorized to modify this issue")
+        raise HTTPException(status_code=403, detail="Sin permiso para modificar este issue")
 
 
 def _assert_can_transition(issue: Issue, current_user) -> None:
@@ -29,13 +29,13 @@ def _assert_can_transition(issue: Issue, current_user) -> None:
         str(current_user.id)
     )
     if not (is_creator or is_owner or current_user.role == UserRole.admin):
-        raise HTTPException(status_code=403, detail="Not authorized to transition this issue")
+        raise HTTPException(status_code=403, detail="Sin permiso para cambiar el estado de este issue")
 
 
 def get_issue(db: Session, issue_id: uuid.UUID) -> Issue:
     issue = db.execute(select(Issue).where(Issue.id == issue_id)).scalar_one_or_none()
     if not issue:
-        raise HTTPException(status_code=404, detail="Issue not found")
+        raise HTTPException(status_code=404, detail="Issue no encontrado")
     return issue
 
 
@@ -65,11 +65,11 @@ def create_issue(db: Session, data: IssueCreate, current_user) -> Issue:
 def derive_from_risk(db: Session, risk_id: uuid.UUID, current_user) -> Issue:
     risk = db.execute(select(Risk).where(Risk.id == risk_id)).scalar_one_or_none()
     if not risk:
-        raise HTTPException(status_code=404, detail="Risk not found")
+        raise HTTPException(status_code=404, detail="Riesgo no encontrado")
     if risk.status != RiskStatus.in_progress:
         raise HTTPException(
             status_code=409,
-            detail=f"Risk must be 'in_progress' to derive an issue, current status: '{risk.status}'",
+            detail=f"El riesgo debe estar 'en progreso' para derivar un issue (estado actual: '{risk.status}')",
         )
 
     issue_id = uuid.uuid4()
@@ -174,7 +174,7 @@ def transition_status(
     if (issue.status, new_status) not in VALID_TRANSITIONS:
         raise HTTPException(
             status_code=409,
-            detail=f"Invalid transition from '{issue.status}' to '{new_status}'",
+            detail=f"Transición inválida de '{issue.status}' a '{new_status}'",
         )
 
     prev_status = issue.status

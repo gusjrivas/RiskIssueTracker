@@ -14,7 +14,7 @@ from app.schemas.project import ProjectCreate, ProjectResponse, ProjectUpdate
 def _assert_can_modify(project: Project, current_user: User) -> None:
     is_creator = uuid.UUID(str(project.created_by)) == uuid.UUID(str(current_user.id))
     if not (is_creator or current_user.role == UserRole.admin):
-        raise HTTPException(status_code=403, detail="Not authorized to modify this project")
+        raise HTTPException(status_code=403, detail="Sin permiso para modificar este proyecto")
 
 
 def create_project(db: Session, data: ProjectCreate, current_user: User) -> Project:
@@ -54,7 +54,7 @@ def get_project(db: Session, project_id: uuid.UUID) -> Project:
         select(Project).where(Project.id == project_id)
     ).scalar_one_or_none()
     if project is None:
-        raise HTTPException(status_code=404, detail="Project not found")
+        raise HTTPException(status_code=404, detail="Proyecto no encontrado")
     return project
 
 

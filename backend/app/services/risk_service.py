@@ -23,7 +23,7 @@ _SEVERITY_FIELDS = {"probability", "impact", "proximity"}
 def _assert_can_modify(risk: Risk, current_user) -> None:
     is_creator = uuid.UUID(str(risk.created_by)) == uuid.UUID(str(current_user.id))
     if not (is_creator or current_user.role == UserRole.admin):
-        raise HTTPException(status_code=403, detail="Not authorized to modify this risk")
+        raise HTTPException(status_code=403, detail="Sin permiso para modificar este riesgo")
 
 
 def _assert_can_transition(risk: Risk, current_user) -> None:
@@ -32,13 +32,13 @@ def _assert_can_transition(risk: Risk, current_user) -> None:
         str(current_user.id)
     )
     if not (is_creator or is_owner or current_user.role == UserRole.admin):
-        raise HTTPException(status_code=403, detail="Not authorized to transition this risk")
+        raise HTTPException(status_code=403, detail="Sin permiso para cambiar el estado de este riesgo")
 
 
 def get_risk(db: Session, risk_id: uuid.UUID) -> Risk:
     risk = db.execute(select(Risk).where(Risk.id == risk_id)).scalar_one_or_none()
     if not risk:
-        raise HTTPException(status_code=404, detail="Risk not found")
+        raise HTTPException(status_code=404, detail="Riesgo no encontrado")
     return risk
 
 
