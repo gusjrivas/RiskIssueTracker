@@ -106,6 +106,14 @@ docker compose logs -f db
 
 ---
 
+## Hot reload
+
+- **Backend**: uvicorn `--reload` + volume `./backend:/app` → cambios en `.py` se reflejan automáticamente
+- **Frontend**: Vite HMR + volumen `./frontend/src:/app/src` → cambios en `.jsx/.js/.css` se reflejan automáticamente
+- Si cambiás `package.json` o `pyproject.toml` (nuevas dependencias) → `docker compose up --build`
+
+---
+
 ## Problemas comunes
 
 | Síntoma | Causa | Solución |
