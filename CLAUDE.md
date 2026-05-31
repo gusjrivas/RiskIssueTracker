@@ -60,7 +60,8 @@ RiskIssueTracker/
     │   ├── frontend-practices.md   # Hooks, auth, Google OAuth, paginación
     │   ├── status-transitions.md   # Máquina de estados Risk/Issue + flujo derive
     │   ├── api-conventions.md      # Errores HTTP, paginación, auth header, códigos
-    │   └── ui-design-react.md      # Estética minimalista moderna para UI en React
+    │   ├── ui-design-react.md      # Estética minimalista moderna para UI en React
+    │   └── run-local.md            # Cómo levantar la app completa con Docker Compose
     └── commands/
         ├── calc-severity.md        # /calc-severity
         ├── new-migration.md        # /new-migration
