@@ -169,36 +169,36 @@ class TestGetProject:
 
 class TestUpdateProject:
     def test_creator_can_update_own_project(self, client, user_token, project):
-        resp = client.put(f"/api/v1/projects/{project.id}",
+        resp = client.patch(f"/api/v1/projects/{project.id}",
             headers={"Authorization": f"Bearer {user_token}"},
             json={"name": "Updated Name"})
         assert resp.status_code == 200
         assert resp.json()["name"] == "Updated Name"
 
     def test_admin_can_update_any_project(self, client, admin_token, project):
-        resp = client.put(f"/api/v1/projects/{project.id}",
+        resp = client.patch(f"/api/v1/projects/{project.id}",
             headers={"Authorization": f"Bearer {admin_token}"},
             json={"name": "Admin Updated"})
         assert resp.status_code == 200
 
     def test_other_user_cannot_update_returns_403(self, client, other_token, project):
-        resp = client.put(f"/api/v1/projects/{project.id}",
+        resp = client.patch(f"/api/v1/projects/{project.id}",
             headers={"Authorization": f"Bearer {other_token}"},
             json={"name": "Stolen"})
         assert resp.status_code == 403
 
     def test_update_without_token_returns_401(self, client, project):
-        resp = client.put(f"/api/v1/projects/{project.id}", json={"name": "X"})
+        resp = client.patch(f"/api/v1/projects/{project.id}", json={"name": "X"})
         assert resp.status_code == 401
 
     def test_update_nonexistent_returns_404(self, client, user_token):
-        resp = client.put(f"/api/v1/projects/{uuid.uuid4()}",
+        resp = client.patch(f"/api/v1/projects/{uuid.uuid4()}",
             headers={"Authorization": f"Bearer {user_token}"},
             json={"name": "X"})
         assert resp.status_code == 404
 
     def test_partial_update_leaves_other_fields_unchanged(self, client, user_token, project):
-        resp = client.put(f"/api/v1/projects/{project.id}",
+        resp = client.patch(f"/api/v1/projects/{project.id}",
             headers={"Authorization": f"Bearer {user_token}"},
             json={"name": "Only Name Changed"})
         body = resp.json()

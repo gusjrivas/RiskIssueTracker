@@ -325,36 +325,36 @@ class TestGetIssue:
 
 class TestUpdateIssue:
     def test_creator_can_update_issue(self, client, user_token, issue):
-        resp = client.put(f"/api/v1/issues/{issue.id}",
+        resp = client.patch(f"/api/v1/issues/{issue.id}",
             headers={"Authorization": f"Bearer {user_token}"},
             json={"title": "Updated Title"})
         assert resp.status_code == 200
         assert resp.json()["title"] == "Updated Title"
 
     def test_admin_can_update_any_issue(self, client, admin_token, issue):
-        resp = client.put(f"/api/v1/issues/{issue.id}",
+        resp = client.patch(f"/api/v1/issues/{issue.id}",
             headers={"Authorization": f"Bearer {admin_token}"},
             json={"title": "Admin Updated"})
         assert resp.status_code == 200
 
     def test_other_user_cannot_update_returns_403(self, client, other_token, issue):
-        resp = client.put(f"/api/v1/issues/{issue.id}",
+        resp = client.patch(f"/api/v1/issues/{issue.id}",
             headers={"Authorization": f"Bearer {other_token}"},
             json={"title": "Stolen"})
         assert resp.status_code == 403
 
     def test_update_without_token_returns_401(self, client, issue):
-        resp = client.put(f"/api/v1/issues/{issue.id}", json={"title": "X"})
+        resp = client.patch(f"/api/v1/issues/{issue.id}", json={"title": "X"})
         assert resp.status_code == 401
 
     def test_update_nonexistent_returns_404(self, client, user_token):
-        resp = client.put(f"/api/v1/issues/{uuid.uuid4()}",
+        resp = client.patch(f"/api/v1/issues/{uuid.uuid4()}",
             headers={"Authorization": f"Bearer {user_token}"},
             json={"title": "X"})
         assert resp.status_code == 404
 
     def test_partial_update_preserves_other_fields(self, client, user_token, issue):
-        resp = client.put(f"/api/v1/issues/{issue.id}",
+        resp = client.patch(f"/api/v1/issues/{issue.id}",
             headers={"Authorization": f"Bearer {user_token}"},
             json={"title": "Only Title"})
         body = resp.json()

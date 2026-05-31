@@ -59,7 +59,7 @@ def get_issue(
     return issue_service.get_issue(db, issue_id)
 
 
-@router.put("/{issue_id}", response_model=IssueResponse)
+@router.patch("/{issue_id}", response_model=IssueResponse)
 def update_issue(
     issue_id: uuid.UUID,
     data: IssueUpdate,
