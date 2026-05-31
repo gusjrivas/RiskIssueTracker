@@ -13,28 +13,28 @@ class Issue(Base):
     __tablename__ = "issues"
 
     id: Mapped[uuid.UUID] = mapped_column(
-        Uuid(as_uuid=True, native_uuid=False), primary_key=True, default=uuid.uuid4
+        Uuid(as_uuid=True, native_uuid=True), primary_key=True, default=uuid.uuid4
     )
     project_id: Mapped[uuid.UUID] = mapped_column(
-        Uuid(as_uuid=True, native_uuid=False),
+        Uuid(as_uuid=True, native_uuid=True),
         ForeignKey("projects.id"),
         nullable=False,
         index=True,
     )
     risk_id: Mapped[uuid.UUID | None] = mapped_column(
-        Uuid(as_uuid=True, native_uuid=False),
+        Uuid(as_uuid=True, native_uuid=True),
         ForeignKey("risks.id"),
         nullable=True,
         index=True,
     )
     owner_id: Mapped[uuid.UUID | None] = mapped_column(
-        Uuid(as_uuid=True, native_uuid=False),
+        Uuid(as_uuid=True, native_uuid=True),
         ForeignKey("users.id"),
         nullable=True,
         index=True,
     )
     created_by: Mapped[uuid.UUID] = mapped_column(
-        Uuid(as_uuid=True, native_uuid=False),
+        Uuid(as_uuid=True, native_uuid=True),
         ForeignKey("users.id"),
         nullable=False,
         index=True,

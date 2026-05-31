@@ -19,10 +19,10 @@ class Risk(Base):
     __tablename__ = "risks"
 
     id: Mapped[uuid.UUID] = mapped_column(
-        Uuid(as_uuid=True, native_uuid=False), primary_key=True, default=uuid.uuid4
+        Uuid(as_uuid=True, native_uuid=True), primary_key=True, default=uuid.uuid4
     )
     project_id: Mapped[uuid.UUID] = mapped_column(
-        Uuid(as_uuid=True, native_uuid=False),
+        Uuid(as_uuid=True, native_uuid=True),
         ForeignKey("projects.id"),
         nullable=False,
         index=True,
@@ -51,19 +51,19 @@ class Risk(Base):
     mitigation_strategy: Mapped[str | None] = mapped_column(String(2000), nullable=True)
     contingency_plan: Mapped[str | None] = mapped_column(String(2000), nullable=True)
     owner_id: Mapped[uuid.UUID | None] = mapped_column(
-        Uuid(as_uuid=True, native_uuid=False),
+        Uuid(as_uuid=True, native_uuid=True),
         ForeignKey("users.id"),
         nullable=True,
         index=True,
     )
     created_by: Mapped[uuid.UUID] = mapped_column(
-        Uuid(as_uuid=True, native_uuid=False),
+        Uuid(as_uuid=True, native_uuid=True),
         ForeignKey("users.id"),
         nullable=False,
         index=True,
     )
     derived_issue_id: Mapped[uuid.UUID | None] = mapped_column(
-        Uuid(as_uuid=True, native_uuid=False),
+        Uuid(as_uuid=True, native_uuid=True),
         ForeignKey("issues.id", ondelete="SET NULL"),
         nullable=True,
         index=True,

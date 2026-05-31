@@ -161,7 +161,7 @@ class TestAuditRecordedOnMutations:
         assert resp.json()["total"] >= 1
 
     def test_update_risk_is_audited(self, client, admin_token, user_token, risk):
-        client.put(f"/api/v1/risks/{risk.id}",
+        client.patch(f"/api/v1/risks/{risk.id}",
             headers={"Authorization": f"Bearer {user_token}"},
             json={"title": "Updated Title"})
         resp = client.get("/api/v1/admin/audit-log?action=update&entity_type=risk",

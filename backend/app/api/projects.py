@@ -42,7 +42,7 @@ def get_project(
     return project_service.get_project(db, project_id)
 
 
-@router.put("/{project_id}", response_model=ProjectResponse)
+@router.patch("/{project_id}", response_model=ProjectResponse)
 def update_project(
     project_id: uuid.UUID,
     body: ProjectUpdate,

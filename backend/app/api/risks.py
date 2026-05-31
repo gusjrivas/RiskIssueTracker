@@ -50,7 +50,7 @@ def get_risk(
     return risk_service.get_risk(db, risk_id)
 
 
-@router.put("/{risk_id}", response_model=RiskResponse)
+@router.patch("/{risk_id}", response_model=RiskResponse)
 def update_risk(
     risk_id: uuid.UUID,
     data: RiskUpdate,
