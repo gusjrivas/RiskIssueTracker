@@ -26,7 +26,11 @@ async function request(method, path, body) {
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ detail: response.statusText }))
-    throw new Error(error.detail || `HTTP ${response.status}`)
+    const detail = error.detail
+    const message = Array.isArray(detail)
+      ? detail.map(e => e.msg || JSON.stringify(e)).join('; ')
+      : detail || `HTTP ${response.status}`
+    throw new Error(message)
   }
 
   if (response.status === 204) return null
