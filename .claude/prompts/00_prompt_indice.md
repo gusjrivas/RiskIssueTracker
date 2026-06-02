@@ -28,6 +28,8 @@ desde el scaffolding inicial hasta el estado actual.
 | [13_prompt_hotfix2-useblocker-crash.md](13_prompt_hotfix2-useblocker-crash.md) | Hotfix | `hotfix2/useBlocker-crash` | Pantalla en blanco al abrir riesgo (useBlocker incompatible) |
 | [14_prompt_hotfix3-issues-derived-lock.md](14_prompt_hotfix3-issues-derived-lock.md) | Hotfix | `hotfix3/issues-visibility-derived-lock` | Issues visibles, riesgo derivado solo lectura, crear issue, nombre proyecto |
 | [15_prompt_readme.md](15_prompt_readme.md) | Docs | `hotfix3/...` | README completo con setup, API reference, arquitectura |
+| [16_prompt_hotfix-password-validation.md](16_prompt_hotfix-password-validation.md) | Hotfix | `hotfix3/password-not-meeting-requirements` | Bug: validación de contraseña mostraba `[object Object]` en lugar del mensaje de error |
+| [17_prompt_user-profile.md](17_prompt_user-profile.md) | Feature | `feature/user-profile` | Mi Perfil: cambio de contraseña + selector de tema claro/oscuro + fixes |
 
 ---
 
