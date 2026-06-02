@@ -5,12 +5,21 @@ from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.auth import LoginRequest, RegisterRequest, TokenResponse, UserResponse
+from app.schemas.auth import (
+    ChangePasswordRequest,
+    LoginRequest,
+    RegisterRequest,
+    TokenResponse,
+    UpdateThemeRequest,
+    UserResponse,
+)
 from app.services.auth_service import (
     authenticate_password,
+    change_password,
     create_access_token,
     get_current_user,
     register_with_password,
+    update_theme,
 )
 from app.schemas.common import UserStatus
 
@@ -44,3 +53,21 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
 @router.get("/me", response_model=UserResponse)
 def me(current_user: Annotated[User, Depends(get_current_user)]):
     return current_user
+
+
+@router.patch("/me/password", status_code=204)
+def update_password(
+    body: ChangePasswordRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    change_password(db, current_user, body.current_password, body.new_password)
+
+
+@router.patch("/me/theme", response_model=UserResponse)
+def update_user_theme(
+    body: UpdateThemeRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+    return update_theme(db, current_user, body.theme)

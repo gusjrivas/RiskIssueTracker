@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.common import UserRole, UserStatus
+from app.schemas.common import UserRole, UserStatus, UserTheme
 
 _pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 _bearer = HTTPBearer(auto_error=False)
@@ -111,3 +111,23 @@ def require_admin(current_user: Annotated[User, Depends(get_current_user)]) -> U
     if current_user.role != UserRole.admin:
         raise HTTPException(status_code=403, detail="Se requieren permisos de administrador")
     return current_user
+
+
+# ---------------------------------------------------------------------------
+# Profile operations
+# ---------------------------------------------------------------------------
+
+def change_password(db: Session, user: User, current_password: str, new_password: str) -> None:
+    if not user.password_hash:
+        raise HTTPException(status_code=400, detail="La cuenta no tiene contraseña (autenticación vía Google)")
+    if not verify_password(current_password, user.password_hash):
+        raise HTTPException(status_code=400, detail="Contraseña actual incorrecta")
+    user.password_hash = hash_password(new_password)
+    db.commit()
+
+
+def update_theme(db: Session, user: User, theme: UserTheme) -> User:
+    user.theme = theme
+    db.commit()
+    db.refresh(user)
+    return user

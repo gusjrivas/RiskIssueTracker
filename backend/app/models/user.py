@@ -6,7 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.types import DateTime, Uuid
 
 from app.db.base import Base
-from app.schemas.common import UserRole, UserStatus
+from app.schemas.common import UserRole, UserStatus, UserTheme
 
 
 class User(Base):
@@ -32,6 +32,11 @@ class User(Base):
         nullable=False,
         default=UserStatus.pending,
     )
+    theme: Mapped[UserTheme] = mapped_column(
+        SAEnum(UserTheme, native_enum=False),
+        nullable=False,
+        default=UserTheme.light,
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -46,3 +51,7 @@ class User(Base):
             name="ck_users_auth_method",
         ),
     )
+
+    @property
+    def has_password(self) -> bool:
+        return self.password_hash is not None
