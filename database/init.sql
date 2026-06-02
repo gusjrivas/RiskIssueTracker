@@ -28,6 +28,7 @@ CREATE TABLE users (
     picture       VARCHAR(500),
     role          user_role NOT NULL DEFAULT 'user',
     status        user_status NOT NULL DEFAULT 'pending',
+    theme         VARCHAR(10) NOT NULL DEFAULT 'light',
     created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT chk_users_auth CHECK (google_id IS NOT NULL OR password_hash IS NOT NULL)

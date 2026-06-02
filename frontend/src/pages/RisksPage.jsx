@@ -50,7 +50,7 @@ export default function RisksPage() {
 
   return (
     <div className="min-h-screen bg-canvas">
-      <header className="border-b border-border bg-white">
+      <header className="border-b border-border bg-surface">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center gap-4">
           <Link to="/" className="text-muted hover:text-ink transition-colors">
             <ChevronLeft size={20} strokeWidth={1.5} />
@@ -67,7 +67,7 @@ export default function RisksPage() {
       <main className="max-w-5xl mx-auto px-6 py-10">
 
         {/* Tabs */}
-        <div className="flex items-center gap-1 border border-border rounded-lg p-1 bg-white w-fit mb-8">
+        <div className="flex items-center gap-1 border border-border rounded-lg p-1 bg-surface w-fit mb-8">
           <button
             onClick={() => switchTab('risks')}
             className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors ${

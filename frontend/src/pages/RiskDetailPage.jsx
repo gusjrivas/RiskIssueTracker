@@ -61,7 +61,7 @@ export default function RiskDetailPage() {
 
   return (
     <div className="min-h-screen bg-canvas">
-      <header className="border-b border-border bg-white">
+      <header className="border-b border-border bg-surface">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center gap-4">
           <button onClick={() => navigate(-1)} className="text-muted hover:text-ink transition-colors">
             <ChevronLeft size={20} strokeWidth={1.5} />
@@ -104,7 +104,7 @@ export default function RiskDetailPage() {
           </div>
 
           {isDerived && (
-            <div className="flex items-center gap-2 text-sm text-muted bg-white border border-border rounded-lg px-4 py-3 mb-6">
+            <div className="flex items-center gap-2 text-sm text-muted bg-surface border border-border rounded-lg px-4 py-3 mb-6">
               <Lock size={14} strokeWidth={1.5} className="shrink-0" />
               Este riesgo se materializó como issue. El seguimiento continúa en el issue — el riesgo es de solo lectura.
               {risk.derived_issue_id && (

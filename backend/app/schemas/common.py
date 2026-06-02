@@ -67,6 +67,11 @@ class UserStatus(str, Enum):
     inactive = "inactive"
 
 
+class UserTheme(str, Enum):
+    light = "light"
+    dark = "dark"
+
+
 class EntityType(str, Enum):
     risk = "risk"
     issue = "issue"

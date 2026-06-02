@@ -83,7 +83,7 @@ export default function RiskForm({ projectId, initial = {}, onSubmit, onCancel, 
       </div>
 
       {preview && (
-        <div className="rounded-lg border border-border bg-white p-4 flex items-center justify-between gap-4">
+        <div className="rounded-lg border border-border bg-surface p-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-6">
             <div>
               <p className="text-xs text-muted uppercase tracking-wide mb-1">Exposición</p>

@@ -3,6 +3,14 @@ import * as authApi from '../api/auth'
 
 const AuthContext = createContext(null)
 
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.classList.add('dark')
+  } else {
+    document.documentElement.classList.remove('dark')
+  }
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -11,7 +19,7 @@ export function AuthProvider({ children }) {
     const token = localStorage.getItem('access_token')
     if (!token) { setLoading(false); return }
     authApi.getMe()
-      .then(setUser)
+      .then(me => { setUser(me); applyTheme(me.theme) })
       .catch(() => localStorage.removeItem('access_token'))
       .finally(() => setLoading(false))
   }, [])
@@ -23,6 +31,7 @@ export function AuthProvider({ children }) {
     saveToken(res.access_token)
     const me = await authApi.getMe()
     setUser(me)
+    applyTheme(me.theme)
     return me
   }, [])
 
@@ -31,6 +40,7 @@ export function AuthProvider({ children }) {
     saveToken(res.access_token)
     const me = await authApi.getMe()
     setUser(me)
+    applyTheme(me.theme)
     return me
   }, [])
 
@@ -40,10 +50,18 @@ export function AuthProvider({ children }) {
   const logout = useCallback(() => {
     localStorage.removeItem('access_token')
     setUser(null)
+    applyTheme('light')
+  }, [])
+
+  const refreshUser = useCallback(async () => {
+    const me = await authApi.getMe()
+    setUser(me)
+    applyTheme(me.theme)
+    return me
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, loading, loginWithPassword, loginWithGoogle, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, loginWithPassword, loginWithGoogle, register, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )

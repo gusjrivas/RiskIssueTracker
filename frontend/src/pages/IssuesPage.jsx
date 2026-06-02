@@ -40,7 +40,7 @@ export default function IssuesPage() {
 
   return (
     <div className="min-h-screen bg-canvas">
-      <header className="border-b border-border bg-white">
+      <header className="border-b border-border bg-surface">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center gap-4">
           <button onClick={() => navigate(-1)} className="text-muted hover:text-ink transition-colors">
             <ChevronLeft size={20} strokeWidth={1.5} />

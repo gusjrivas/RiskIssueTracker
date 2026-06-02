@@ -7,6 +7,7 @@ import RisksPage from './pages/RisksPage'
 import RiskDetailPage from './pages/RiskDetailPage'
 import IssuesPage from './pages/IssuesPage'
 import AdminPage from './pages/AdminPage'
+import ProfilePage from './pages/ProfilePage'
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute adminOnly><AdminPage /></ProtectedRoute>} />
         <Route path="/projects/:projectId/risks" element={<ProtectedRoute><RisksPage /></ProtectedRoute>} />
         <Route path="/risks/:riskId" element={<ProtectedRoute><RiskDetailPage /></ProtectedRoute>} />
