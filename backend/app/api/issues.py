@@ -1,9 +1,13 @@
 import uuid
 
 from fastapi import APIRouter, Depends, Query, status
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
+from app.models.audit_log import AuditLog
+from app.models.user import User
+from app.schemas.audit_log import AuditEntryResponse
 from app.schemas.common import IssueStatus, PaginatedResponse
 from app.schemas.issue import IssueCreate, IssueDerive, IssueResponse, IssueStatusUpdate, IssueUpdate
 from app.services import issue_service
@@ -50,6 +54,46 @@ def list_issues(
     )
 
 
+@router.get("/{issue_id}/audit", response_model=PaginatedResponse[AuditEntryResponse])
+def get_issue_audit(
+    issue_id: uuid.UUID,
+    page: int = Query(default=1, ge=1),
+    size: int = Query(default=50, ge=1, le=100),
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    issue_service.get_issue(db, issue_id)  # 404 if not found
+
+    total = db.execute(
+        select(func.count())
+        .select_from(AuditLog)
+        .where(AuditLog.entity_type == "issue")
+        .where(AuditLog.entity_id == issue_id)
+    ).scalar()
+
+    rows = db.execute(
+        select(AuditLog, User.full_name.label("editor_name"))
+        .outerjoin(User, AuditLog.user_id == User.id)
+        .where(AuditLog.entity_type == "issue")
+        .where(AuditLog.entity_id == issue_id)
+        .order_by(AuditLog.created_at.desc())
+        .offset((page - 1) * size)
+        .limit(size)
+    ).all()
+
+    items = [
+        AuditEntryResponse(
+            id=row.AuditLog.id,
+            action=row.AuditLog.action,
+            changes=row.AuditLog.changes,
+            editor_name=row.editor_name,
+            created_at=row.AuditLog.created_at,
+        )
+        for row in rows
+    ]
+    return PaginatedResponse.build(items=items, total=total, page=page, size=size)
+
+
 @router.get("/{issue_id}", response_model=IssueResponse)
 def get_issue(
     issue_id: uuid.UUID,
@@ -86,3 +130,12 @@ def transition_status(
     current_user=Depends(get_current_user),
 ):
     return issue_service.transition_status(db, issue_id, data.status, current_user)
+
+
+@router.patch("/{issue_id}/restore", response_model=IssueResponse)
+def restore_issue(
+    issue_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    return issue_service.restore_issue(db, issue_id, current_user)

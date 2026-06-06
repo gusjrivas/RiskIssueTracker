@@ -15,3 +15,12 @@ class AuditLogResponse(BaseModel):
     changes: dict | None = None
     ip_address: str | None = None
     created_at: datetime
+
+
+class AuditEntryResponse(BaseModel):
+    """Audit entry enriched with editor name — used in entity-specific audit endpoints."""
+    id: uuid.UUID
+    action: str
+    changes: dict | None = None
+    editor_name: str | None = None
+    created_at: datetime

@@ -17,3 +17,8 @@ export const transitionRiskStatus = (id, status) =>
   apiPatch(`/api/v1/risks/${id}/status`, { status })
 
 export const getRiskHistory = (id) => apiGet(`/api/v1/history/risk/${id}`)
+
+export const restoreRisk = (id) => apiPatch(`/api/v1/risks/${id}/restore`, {})
+
+export const getDeletedRisks = (page = 1) =>
+  apiGet(`/api/v1/admin/deleted-risks?page=${page}&size=50`)

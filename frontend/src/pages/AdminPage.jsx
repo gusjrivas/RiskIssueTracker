@@ -1,9 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ChevronLeft, CheckCircle, XCircle, Loader2, Users, Pencil, Check, X } from 'lucide-react'
+import { ChevronLeft, CheckCircle, XCircle, Loader2, Users, Pencil, Check, X, Trash2, RotateCcw } from 'lucide-react'
 import { useAdmin } from '../hooks/useAdmin'
 import StatusBadge from '../components/StatusBadge'
+import SeverityBadge from '../components/SeverityBadge'
+import { getDeletedRisks, restoreRisk } from '../api/risks'
+import { getDeletedIssues, restoreIssue } from '../api/issues'
 
 const STATUS_ACTIONS = {
   pending:  { label: 'Aprobar',    action: 'approve',     icon: CheckCircle, cls: 'text-severity-green hover:text-severity-green/80' },
@@ -11,9 +14,41 @@ const STATUS_ACTIONS = {
   inactive: { label: 'Reactivar',  action: 'approve',     icon: CheckCircle, cls: 'text-severity-green hover:text-severity-green/80' },
 }
 
+function useTrash() {
+  const [deletedRisks, setDeletedRisks] = useState([])
+  const [deletedIssues, setDeletedIssues] = useState([])
+  const [trashLoading, setTrashLoading] = useState(true)
+
+  const load = useCallback(async () => {
+    setTrashLoading(true)
+    try {
+      const [r, i] = await Promise.all([getDeletedRisks(), getDeletedIssues()])
+      setDeletedRisks(r.items)
+      setDeletedIssues(i.items)
+    } finally {
+      setTrashLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { load() }, [load])
+
+  const handleRestoreRisk = async (id) => {
+    await restoreRisk(id)
+    setDeletedRisks(prev => prev.filter(r => r.id !== id))
+  }
+
+  const handleRestoreIssue = async (id) => {
+    await restoreIssue(id)
+    setDeletedIssues(prev => prev.filter(i => i.id !== id))
+  }
+
+  return { deletedRisks, deletedIssues, trashLoading, handleRestoreRisk, handleRestoreIssue }
+}
+
 export default function AdminPage() {
   const navigate = useNavigate()
   const { data: users, loading, error, approve, deactivate, updateUser } = useAdmin()
+  const { deletedRisks, deletedIssues, trashLoading, handleRestoreRisk, handleRestoreIssue } = useTrash()
 
   const handleAction = (user) => {
     const cfg = STATUS_ACTIONS[user.status]
@@ -24,6 +59,7 @@ export default function AdminPage() {
 
   const pending = users.filter(u => u.status === 'pending')
   const rest    = users.filter(u => u.status !== 'pending')
+  const trashCount = deletedRisks.length + deletedIssues.length
 
   return (
     <div className="min-h-screen bg-canvas">
@@ -63,7 +99,7 @@ export default function AdminPage() {
                 </section>
               )}
 
-              <section>
+              <section className="mb-10">
                 <h2 className="font-display font-semibold mb-4 flex items-center gap-2">
                   <Users size={16} strokeWidth={1.5} className="text-muted" />
                   Todos los usuarios ({users.length})
@@ -78,10 +114,96 @@ export default function AdminPage() {
                   </div>
                 )}
               </section>
+
+              <section>
+                <h2 className="font-display font-semibold mb-4 flex items-center gap-2">
+                  <Trash2 size={16} strokeWidth={1.5} className="text-muted" />
+                  Papelera
+                  {trashCount > 0 && (
+                    <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-severity-red text-white text-xs font-bold">{trashCount}</span>
+                  )}
+                </h2>
+
+                {trashLoading ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 size={18} className="animate-spin text-muted" />
+                  </div>
+                ) : trashCount === 0 ? (
+                  <p className="text-sm text-muted py-8 text-center">La papelera está vacía.</p>
+                ) : (
+                  <div className="space-y-4">
+                    {deletedRisks.length > 0 && (
+                      <div>
+                        <p className="text-xs font-medium text-muted uppercase tracking-wide mb-2">Riesgos eliminados</p>
+                        <div className="space-y-2">
+                          {deletedRisks.map(r => (
+                            <TrashRow
+                              key={r.id}
+                              item={r}
+                              type="Riesgo"
+                              onRestore={() => handleRestoreRisk(r.id)}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {deletedIssues.length > 0 && (
+                      <div>
+                        <p className="text-xs font-medium text-muted uppercase tracking-wide mb-2">Issues eliminados</p>
+                        <div className="space-y-2">
+                          {deletedIssues.map(i => (
+                            <TrashRow
+                              key={i.id}
+                              item={i}
+                              type="Issue"
+                              onRestore={() => handleRestoreIssue(i.id)}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </section>
             </>
           )}
         </motion.div>
       </main>
+    </div>
+  )
+}
+
+function TrashRow({ item, type, onRestore }) {
+  const [restoring, setRestoring] = useState(false)
+
+  const handleRestore = async () => {
+    setRestoring(true)
+    try { await onRestore() } finally { setRestoring(false) }
+  }
+
+  return (
+    <div className="card flex items-center justify-between gap-4">
+      <div className="min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-xs text-muted">{type}</span>
+          <SeverityBadge severity={item.severity} />
+        </div>
+        <p className="font-medium text-sm truncate">{item.title}</p>
+        {item.deleted_at && (
+          <p className="text-xs text-muted mt-0.5">
+            Eliminado: {new Date(item.deleted_at).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' })}
+          </p>
+        )}
+      </div>
+      <button
+        onClick={handleRestore}
+        disabled={restoring}
+        title="Restaurar"
+        className="text-muted hover:text-severity-green transition-colors shrink-0 flex items-center gap-1.5 text-sm"
+      >
+        {restoring ? <Loader2 size={15} className="animate-spin" /> : <RotateCcw size={15} strokeWidth={1.5} />}
+        Restaurar
+      </button>
     </div>
   )
 }

@@ -19,3 +19,8 @@ export const transitionIssueStatus = (id, status) =>
   apiPatch(`/api/v1/issues/${id}/status`, { status })
 
 export const getIssueHistory = (id) => apiGet(`/api/v1/history/issue/${id}`)
+
+export const restoreIssue = (id) => apiPatch(`/api/v1/issues/${id}/restore`, {})
+
+export const getDeletedIssues = (page = 1) =>
+  apiGet(`/api/v1/admin/deleted-issues?page=${page}&size=50`)

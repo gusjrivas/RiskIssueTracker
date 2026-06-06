@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.models.issue import Issue
 from app.models.risk import Risk
+from app.models.user import User
 from app.schemas.common import EntityType, IssueStatus, PaginatedResponse, RiskStatus, UserRole
 from app.schemas.issue import IssueCreate, IssueUpdate
 
@@ -19,7 +20,8 @@ VALID_TRANSITIONS = frozenset(
 
 def _assert_can_modify(issue: Issue, current_user) -> None:
     is_creator = uuid.UUID(str(issue.created_by)) == uuid.UUID(str(current_user.id))
-    if not (is_creator or current_user.role == UserRole.admin):
+    is_owner = issue.owner_id and uuid.UUID(str(issue.owner_id)) == uuid.UUID(str(current_user.id))
+    if not (is_creator or is_owner or current_user.role == UserRole.admin):
         raise HTTPException(status_code=403, detail="Sin permiso para modificar este issue")
 
 
@@ -32,8 +34,17 @@ def _assert_can_transition(issue: Issue, current_user) -> None:
         raise HTTPException(status_code=403, detail="Sin permiso para cambiar el estado de este issue")
 
 
+def _resolve_user_name(db: Session, user_id) -> str | None:
+    if user_id is None:
+        return None
+    user = db.execute(select(User).where(User.id == user_id)).scalar_one_or_none()
+    return user.full_name if user else None
+
+
 def get_issue(db: Session, issue_id: uuid.UUID) -> Issue:
-    issue = db.execute(select(Issue).where(Issue.id == issue_id)).scalar_one_or_none()
+    issue = db.execute(
+        select(Issue).where(Issue.id == issue_id, Issue.deleted_at.is_(None))
+    ).scalar_one_or_none()
     if not issue:
         raise HTTPException(status_code=404, detail="Issue no encontrado")
     return issue
@@ -56,8 +67,9 @@ def create_issue(db: Session, data: IssueCreate, current_user) -> Issue:
     db.refresh(issue)
 
     from app.services.audit_service import log_action
+    changes = {"owner_name": _resolve_user_name(db, data.owner_id)} if data.owner_id else None
     log_action(db, user_id=current_user.id, action="create",
-               entity_type="issue", entity_id=issue.id)
+               entity_type="issue", entity_id=issue.id, changes=changes)
 
     return issue
 
@@ -118,7 +130,7 @@ def list_issues(
     page: int = 1,
     size: int = 20,
 ) -> PaginatedResponse:
-    base_query = select(Issue)
+    base_query = select(Issue).where(Issue.deleted_at.is_(None))
     if project_id is not None:
         base_query = base_query.where(Issue.project_id == project_id)
     if status is not None:
@@ -140,15 +152,41 @@ def update_issue(db: Session, issue_id: uuid.UUID, data: IssueUpdate, current_us
     _assert_can_modify(issue, current_user)
 
     update_dict = data.model_dump(exclude_unset=True)
-    for field, value in update_dict.items():
-        setattr(issue, field, value)
+
+    # Capture before/after for each changed field
+    changes = {}
+    owner_change = None
+
+    for field, new_val in update_dict.items():
+        old_val = getattr(issue, field)
+        old_str = str(old_val) if old_val is not None else None
+        new_str = str(new_val) if new_val is not None else None
+        if old_str != new_str:
+            if field == "owner_id":
+                old_name = _resolve_user_name(db, old_val)
+                new_name = _resolve_user_name(db, new_val)
+                changes["owner"] = {
+                    "from_id": old_str,
+                    "from_name": old_name,
+                    "to_id": new_str,
+                    "to_name": new_name,
+                }
+                owner_change = changes["owner"]
+            else:
+                changes[field] = {"from": old_str, "to": new_str}
+        setattr(issue, field, new_val)
 
     db.commit()
     db.refresh(issue)
 
     from app.services.audit_service import log_action
-    log_action(db, user_id=current_user.id, action="update",
-               entity_type="issue", entity_id=issue.id, changes=update_dict)
+    if changes:
+        log_action(db, user_id=current_user.id, action="update",
+                   entity_type="issue", entity_id=issue.id, changes=changes)
+
+    if owner_change is not None:
+        log_action(db, user_id=current_user.id, action="owner_change",
+                   entity_type="issue", entity_id=issue.id, changes=owner_change)
 
     return issue
 
@@ -156,13 +194,39 @@ def update_issue(db: Session, issue_id: uuid.UUID, data: IssueUpdate, current_us
 def delete_issue(db: Session, issue_id: uuid.UUID, current_user) -> None:
     issue = get_issue(db, issue_id)
     _assert_can_modify(issue, current_user)
-    issue_id_copy = issue.id
-    db.delete(issue)
+    from datetime import datetime, timezone
+    issue.deleted_at = datetime.now(timezone.utc)
     db.commit()
 
     from app.services.audit_service import log_action
     log_action(db, user_id=current_user.id, action="delete",
-               entity_type="issue", entity_id=issue_id_copy)
+               entity_type="issue", entity_id=issue.id)
+
+
+def restore_issue(db: Session, issue_id: uuid.UUID, current_user) -> Issue:
+    if current_user.role != UserRole.admin:
+        raise HTTPException(status_code=403, detail="Solo administradores pueden restaurar issues")
+    issue = db.execute(select(Issue).where(Issue.id == issue_id)).scalar_one_or_none()
+    if not issue:
+        raise HTTPException(status_code=404, detail="Issue no encontrado")
+    if issue.deleted_at is None:
+        raise HTTPException(status_code=409, detail="El issue no está eliminado")
+    issue.deleted_at = None
+    db.commit()
+    db.refresh(issue)
+
+    from app.services.audit_service import log_action
+    log_action(db, user_id=current_user.id, action="restore",
+               entity_type="issue", entity_id=issue.id)
+    return issue
+
+
+def list_deleted_issues(db: Session, page: int = 1, size: int = 20) -> PaginatedResponse:
+    base_query = select(Issue).where(Issue.deleted_at.is_not(None))
+    count_query = select(func.count()).select_from(base_query.subquery())
+    total = db.execute(count_query).scalar()
+    items = db.execute(base_query.offset((page - 1) * size).limit(size)).scalars().all()
+    return PaginatedResponse.build(items=list(items), total=total, page=page, size=size)
 
 
 def transition_status(

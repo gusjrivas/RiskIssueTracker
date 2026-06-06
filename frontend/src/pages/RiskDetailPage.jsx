@@ -2,13 +2,15 @@ import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ChevronLeft, Trash2, GitBranch, Lock } from 'lucide-react'
-import { getRisk, deleteRisk, transitionRiskStatus } from '../api/risks'
+import { getRisk, deleteRisk, transitionRiskStatus, updateRisk } from '../api/risks'
 import { deriveIssue } from '../api/issues'
 import SeverityBadge from '../components/SeverityBadge'
 import StatusBadge from '../components/StatusBadge'
 import StatusTransitionButton from '../components/StatusTransitionButton'
 import HistoryTimeline from '../components/HistoryTimeline'
 import MitigationPlanPanel from '../components/MitigationPlanPanel'
+import OwnerField from '../components/OwnerField'
+import ActivityLog from '../components/ActivityLog'
 
 const CATEGORY_LABELS = {
   calendario:'Calendario', alcance:'Alcance', ingresos:'Ingresos',
@@ -21,6 +23,7 @@ export default function RiskDetailPage() {
   const [risk, setRisk] = useState(null)
   const [loading, setLoading] = useState(true)
   const [deriving, setDeriving] = useState(false)
+  const [planDirty, setPlanDirty] = useState(false)
 
   useEffect(() => {
     getRisk(riskId).then(setRisk).finally(() => setLoading(false))
@@ -49,6 +52,11 @@ export default function RiskDetailPage() {
     navigate(-1)
   }
 
+  const handleOwnerSave = async (newOwnerId) => {
+    const updated = await updateRisk(riskId, { owner_id: newOwnerId })
+    setRisk(updated)
+  }
+
   if (loading) return (
     <div className="min-h-screen bg-canvas flex items-center justify-center">
       <div className="w-6 h-6 border-2 border-ink border-t-transparent rounded-full animate-spin" />
@@ -63,7 +71,13 @@ export default function RiskDetailPage() {
     <div className="min-h-screen bg-canvas">
       <header className="border-b border-border bg-surface">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center gap-4">
-          <button onClick={() => navigate(-1)} className="text-muted hover:text-ink transition-colors">
+          <button
+            onClick={() => {
+              if (planDirty && !window.confirm('Tenés cambios sin guardar en el plan. ¿Salir de todas formas?')) return
+              navigate(-1)
+            }}
+            className="text-muted hover:text-ink transition-colors"
+          >
             <ChevronLeft size={20} strokeWidth={1.5} />
           </button>
           <span className="text-sm text-muted">Riesgo</span>
@@ -87,10 +101,10 @@ export default function RiskDetailPage() {
           </div>
 
           {risk.description && (
-            <p className="text-sm text-muted mb-8 leading-relaxed">{risk.description}</p>
+            <p className="text-sm text-muted mb-6 leading-relaxed">{risk.description}</p>
           )}
 
-          <div className="grid grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-3 gap-4 mb-6">
             {[
               ['Probabilidad', risk.probability],
               ['Impacto', risk.impact],
@@ -101,6 +115,15 @@ export default function RiskDetailPage() {
                 <p className="font-display font-semibold text-sm capitalize">{value?.replace(/_/g, ' ')}</p>
               </div>
             ))}
+          </div>
+
+          <div className="card mb-6">
+            <p className="text-xs font-medium text-muted uppercase tracking-wide mb-2">Responsable</p>
+            <OwnerField
+              ownerId={risk.owner_id}
+              onSave={handleOwnerSave}
+              readOnly={isDerived}
+            />
           </div>
 
           {isDerived && (
@@ -146,11 +169,18 @@ export default function RiskDetailPage() {
                 initialMitigation={risk.mitigation_strategy ?? ''}
                 initialContingency={risk.contingency_plan ?? ''}
                 readOnly={isDerived}
+                onDirtyChange={setPlanDirty}
               />
             </div>
-            <div>
-              <h2 className="font-display font-semibold mb-4">Historial</h2>
-              <HistoryTimeline entityType="risk" entityId={riskId} />
+            <div className="space-y-6">
+              <div>
+                <h2 className="font-display font-semibold mb-4">Historial de estados</h2>
+                <HistoryTimeline entityType="risk" entityId={riskId} />
+              </div>
+              <div>
+                <h2 className="font-display font-semibold mb-4">Actividad</h2>
+                <ActivityLog entityType="risk" entityId={riskId} />
+              </div>
             </div>
           </div>
         </motion.div>
