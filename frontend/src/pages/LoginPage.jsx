@@ -14,8 +14,12 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [registered, setRegistered] = useState(false)
+  const [blocked, setBlocked] = useState(null)
 
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }))
+
+  const isAccessBlocked = (msg) =>
+    msg?.toLowerCase().includes('pendiente') || msg?.toLowerCase().includes('desactivada')
 
   const handleGoogleResponse = useCallback(async (response) => {
     setError(null)
@@ -24,8 +28,8 @@ export default function LoginPage() {
       await loginWithGoogle(response.credential)
       navigate('/')
     } catch (err) {
-      if (err.message?.toLowerCase().includes('pendiente')) {
-        setRegistered(true)
+      if (isAccessBlocked(err.message)) {
+        setBlocked(err.message)
       } else {
         setError(err.message)
       }
@@ -89,10 +93,31 @@ export default function LoginPage() {
         setRegistered(true)
       }
     } catch (err) {
-      setError(err.message)
+      if (isAccessBlocked(err.message)) {
+        setBlocked(err.message)
+      } else {
+        setError(err.message)
+      }
     } finally {
       setLoading(false)
     }
+  }
+
+  if (blocked) {
+    const isPending = blocked.toLowerCase().includes('pendiente')
+    return (
+      <div className="min-h-screen bg-canvas flex items-center justify-center px-4">
+        <div className="card max-w-sm w-full text-center space-y-3">
+          <h2 className="font-display text-xl font-bold">
+            {isPending ? 'Cuenta pendiente' : 'Cuenta desactivada'}
+          </h2>
+          <p className="text-sm text-muted">{blocked}</p>
+          <button onClick={() => setBlocked(null)} className="btn-secondary w-full">
+            Volver al login
+          </button>
+        </div>
+      </div>
+    )
   }
 
   if (registered) {
