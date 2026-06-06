@@ -24,7 +24,11 @@ export default function LoginPage() {
       await loginWithGoogle(response.credential)
       navigate('/')
     } catch (err) {
-      setError(err.message)
+      if (err.message?.toLowerCase().includes('pendiente')) {
+        setRegistered(true)
+      } else {
+        setError(err.message)
+      }
     } finally {
       setLoading(false)
     }
