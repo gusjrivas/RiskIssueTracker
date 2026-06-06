@@ -71,7 +71,7 @@ export default function RisksPage() {
           <button
             onClick={() => switchTab('risks')}
             className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors ${
-              tab === 'risks' ? 'bg-ink text-canvas' : 'text-muted hover:text-ink'
+              tab === 'risks' ? 'bg-ink text-canvas' : 'text-ink hover:opacity-80'
             }`}
           >
             <AlertTriangle size={14} strokeWidth={1.5} />
@@ -83,7 +83,7 @@ export default function RisksPage() {
           <button
             onClick={() => switchTab('issues')}
             className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors ${
-              tab === 'issues' ? 'bg-ink text-canvas' : 'text-muted hover:text-ink'
+              tab === 'issues' ? 'bg-ink text-canvas' : 'text-ink hover:opacity-80'
             }`}
           >
             <AlertCircle size={14} strokeWidth={1.5} />
