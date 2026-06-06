@@ -1,11 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Loader2 } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
+
 export default function LoginPage() {
-  const { loginWithPassword, register } = useAuth()
+  const { loginWithPassword, loginWithGoogle, register } = useAuth()
   const navigate = useNavigate()
   const [mode, setMode] = useState('login')
   const [form, setForm] = useState({ email: '', password: '', full_name: '' })
@@ -14,6 +16,44 @@ export default function LoginPage() {
   const [registered, setRegistered] = useState(false)
 
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }))
+
+  const handleGoogleResponse = useCallback(async (response) => {
+    setError(null)
+    setLoading(true)
+    try {
+      await loginWithGoogle(response.credential)
+      navigate('/')
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }, [loginWithGoogle, navigate])
+
+  useEffect(() => {
+    if (!GOOGLE_CLIENT_ID) return
+    const script = document.createElement('script')
+    script.src = 'https://accounts.google.com/gsi/client'
+    script.async = true
+    script.onload = () => {
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleResponse,
+      })
+      const btn = document.getElementById('google-signin-btn')
+      if (btn) {
+        window.google.accounts.id.renderButton(btn, {
+          theme: 'outline',
+          size: 'large',
+          width: btn.offsetWidth || 320,
+          text: 'signin_with',
+          locale: 'es',
+        })
+      }
+    }
+    document.head.appendChild(script)
+    return () => { if (document.head.contains(script)) document.head.removeChild(script) }
+  }, [handleGoogleResponse])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -109,6 +149,20 @@ export default function LoginPage() {
               {mode === 'login' ? 'Ingresar' : 'Crear cuenta'}
             </button>
           </form>
+
+          {GOOGLE_CLIENT_ID && mode === 'login' && (
+            <>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="px-2 bg-surface text-muted">o continuá con</span>
+                </div>
+              </div>
+              <div id="google-signin-btn" className="w-full flex justify-center" />
+            </>
+          )}
         </div>
       </motion.div>
     </div>

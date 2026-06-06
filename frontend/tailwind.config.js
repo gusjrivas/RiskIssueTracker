@@ -9,11 +9,11 @@ export default {
         body: ['DM Sans', 'sans-serif'],
       },
       colors: {
-        canvas: '#F5F5F3',
-        ink: '#0A0A0A',
-        muted: '#6B7280',
-        border: '#E5E5E3',
-        surface: '#FFFFFF',
+        canvas: 'var(--canvas)',
+        ink: 'var(--ink)',
+        muted: 'var(--muted)',
+        border: 'var(--border)',
+        surface: 'var(--surface)',
         accent: {
           DEFAULT: '#3B5BDB',
           hover: '#2F4DBF',
