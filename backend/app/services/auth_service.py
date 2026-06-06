@@ -131,3 +131,53 @@ def update_theme(db: Session, user: User, theme: UserTheme) -> User:
     db.commit()
     db.refresh(user)
     return user
+
+
+# ---------------------------------------------------------------------------
+# Google OAuth
+# ---------------------------------------------------------------------------
+
+def login_with_google(db: Session, id_token_str: str) -> User:
+    from google.oauth2 import id_token as google_id_token
+    from google.auth.transport import requests as google_requests
+
+    try:
+        id_info = google_id_token.verify_oauth2_token(
+            id_token_str,
+            google_requests.Request(),
+            settings.google_client_id,
+        )
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Token de Google inválido")
+
+    google_sub = id_info["sub"]
+    email = id_info["email"]
+    full_name = id_info.get("name", email)
+
+    user = db.execute(select(User).where(User.google_id == google_sub)).scalar_one_or_none()
+    if user is None:
+        user = db.execute(select(User).where(User.email == email)).scalar_one_or_none()
+
+    if user is None:
+        user = User(
+            email=email,
+            full_name=full_name,
+            google_id=google_sub,
+            role=UserRole.user,
+            status=UserStatus.pending,
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        raise HTTPException(status_code=403, detail="Cuenta pendiente de aprobación por un administrador")
+
+    if user.google_id is None:
+        user.google_id = google_sub
+        db.commit()
+
+    if user.status == UserStatus.pending:
+        raise HTTPException(status_code=403, detail="Cuenta pendiente de aprobación")
+    if user.status == UserStatus.inactive:
+        raise HTTPException(status_code=403, detail="Cuenta desactivada")
+
+    return user
