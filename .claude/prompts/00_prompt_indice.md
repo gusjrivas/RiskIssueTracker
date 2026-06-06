@@ -33,6 +33,8 @@ desde el scaffolding inicial hasta el estado actual.
 | [18_prompt_mitigation-plan-guard.md](18_prompt_mitigation-plan-guard.md) | Hotfix | `fix/mitigation-plan-save-guard` | Bug en save del plan de mitigación; modal 3 opciones al navegar con cambios pendientes |
 | [19_prompt_owner-activity-log.md](19_prompt_owner-activity-log.md) | Feature | `fix/mitigation-plan-save-guard` | Owner assignment en riesgos/issues + activity log con before/after por campo |
 | [20_prompt_soft-delete.md](20_prompt_soft-delete.md) | Feature | `fix/mitigation-plan-save-guard` | Borrado lógico (soft delete) + sección Papelera en AdminPage para restaurar |
+| [21_prompt_dark-mode-fix.md](21_prompt_dark-mode-fix.md) | Fix | `fix/dark-mode-google-oauth` | Dark mode: migración a CSS variables en Tailwind + botón Google OAuth frontend |
+| [22_prompt_google-oauth-backend.md](22_prompt_google-oauth-backend.md) | Feature | `feat/google-oauth-backend` | Google OAuth backend: endpoint /auth/google + UX pantalla acceso bloqueado |
 
 ---
 
