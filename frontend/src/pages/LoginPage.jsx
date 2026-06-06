@@ -30,8 +30,27 @@ export default function LoginPage() {
     }
   }, [loginWithGoogle, navigate])
 
+  const renderGoogleButton = useCallback(() => {
+    if (!GOOGLE_CLIENT_ID || !window.google?.accounts?.id) return
+    const btn = document.getElementById('google-signin-btn')
+    if (btn) {
+      btn.innerHTML = ''
+      window.google.accounts.id.renderButton(btn, {
+        theme: 'outline',
+        size: 'large',
+        width: btn.offsetWidth || 320,
+        text: 'signin_with',
+        locale: 'es',
+      })
+    }
+  }, [])
+
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID) return
+    if (window.google?.accounts?.id) {
+      renderGoogleButton()
+      return
+    }
     const script = document.createElement('script')
     script.src = 'https://accounts.google.com/gsi/client'
     script.async = true
@@ -40,20 +59,18 @@ export default function LoginPage() {
         client_id: GOOGLE_CLIENT_ID,
         callback: handleGoogleResponse,
       })
-      const btn = document.getElementById('google-signin-btn')
-      if (btn) {
-        window.google.accounts.id.renderButton(btn, {
-          theme: 'outline',
-          size: 'large',
-          width: btn.offsetWidth || 320,
-          text: 'signin_with',
-          locale: 'es',
-        })
-      }
+      renderGoogleButton()
     }
     document.head.appendChild(script)
     return () => { if (document.head.contains(script)) document.head.removeChild(script) }
-  }, [handleGoogleResponse])
+  }, [handleGoogleResponse, renderGoogleButton])
+
+  // Re-render button when mode changes (div gets remounted)
+  useEffect(() => {
+    if (!GOOGLE_CLIENT_ID) return
+    const timer = setTimeout(renderGoogleButton, 50)
+    return () => clearTimeout(timer)
+  }, [mode, renderGoogleButton])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -150,7 +167,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {GOOGLE_CLIENT_ID && mode === 'login' && (
+          {GOOGLE_CLIENT_ID && (
             <>
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
