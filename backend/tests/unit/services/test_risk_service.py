@@ -40,7 +40,7 @@ def _make_user(role=UserRole.user, user_id=None):
 
 def _make_risk(creator_id=None, owner_id=None, status=RiskStatus.open,
                probability=ProbabilityLevel.media, impact=ImpactLevel.medio,
-               proximity=Proximity.mediano_plazo):
+               proximity=Proximity.mediano_plazo, deleted_at=None):
     from app.models.risk import Risk
     r = Risk()
     r.id = uuid.uuid4()
@@ -59,6 +59,7 @@ def _make_risk(creator_id=None, owner_id=None, status=RiskStatus.open,
     r.created_by = creator_id or uuid.uuid4()
     r.created_at = datetime.now(timezone.utc)
     r.updated_at = datetime.now(timezone.utc)
+    r.deleted_at = deleted_at
     return r
 
 
@@ -193,6 +194,13 @@ class TestGetRisk:
             _svc().get_risk(db, uuid.uuid4())
         assert exc.value.status_code == 404
 
+    def test_get_soft_deleted_raises_404(self):
+        from fastapi import HTTPException
+        db = _db_empty()  # get_risk filters deleted_at IS NULL → returns None
+        with pytest.raises(HTTPException) as exc:
+            _svc().get_risk(db, uuid.uuid4())
+        assert exc.value.status_code == 404
+
 
 # ---------------------------------------------------------------------------
 # Update
@@ -288,26 +296,55 @@ class TestUpdateRisk:
         _svc().update_risk(db, risk.id, RiskUpdate(title="New Title"), user)
         assert risk.severity == original_severity
 
+    def test_update_owner_id_changes_owner(self):
+        from unittest.mock import patch
+        from app.schemas.risk import RiskUpdate
+        user = _make_user()
+        new_owner = _make_user()
+        risk = _make_risk(creator_id=user.id)
+        db = _db_with(risk)
+        with patch("app.services.risk_service._resolve_user_name", return_value="Name"):
+            _svc().update_risk(db, risk.id, RiskUpdate(owner_id=new_owner.id), user)
+        assert uuid.UUID(str(risk.owner_id)) == uuid.UUID(str(new_owner.id))
+
+    def test_owner_can_update_own_risk(self):
+        from app.schemas.risk import RiskUpdate
+        owner = _make_user()
+        risk = _make_risk(owner_id=owner.id)
+        db = _db_with(risk)
+        result = _svc().update_risk(db, risk.id, RiskUpdate(title="Owner Edit"), owner)
+        assert result.title == "Owner Edit"
+
 
 # ---------------------------------------------------------------------------
 # Delete
 # ---------------------------------------------------------------------------
 
 class TestDeleteRisk:
-    def test_creator_can_delete_own_risk(self):
+    def test_creator_soft_deletes_own_risk(self):
         user = _make_user()
         risk = _make_risk(creator_id=user.id)
         db = _db_with(risk)
         _svc().delete_risk(db, risk.id, user)
-        db.delete.assert_called_once_with(risk)
+        assert risk.deleted_at is not None
+        db.delete.assert_not_called()
         assert db.commit.call_count >= 1
 
-    def test_admin_can_delete_any_risk(self):
+    def test_admin_can_soft_delete_any_risk(self):
         admin = _make_user(role=UserRole.admin)
         risk = _make_risk(creator_id=uuid.uuid4())
         db = _db_with(risk)
         _svc().delete_risk(db, risk.id, admin)
-        db.delete.assert_called_once_with(risk)
+        assert risk.deleted_at is not None
+        db.delete.assert_not_called()
+
+    def test_soft_delete_sets_deleted_at_timestamp(self):
+        user = _make_user()
+        risk = _make_risk(creator_id=user.id)
+        assert risk.deleted_at is None
+        db = _db_with(risk)
+        _svc().delete_risk(db, risk.id, user)
+        assert risk.deleted_at is not None
 
     def test_other_user_cannot_delete_raises_403(self):
         from fastapi import HTTPException
@@ -325,6 +362,69 @@ class TestDeleteRisk:
         with pytest.raises(HTTPException) as exc:
             _svc().delete_risk(db, uuid.uuid4(), user)
         assert exc.value.status_code == 404
+
+
+# ---------------------------------------------------------------------------
+# Restore (soft delete)
+# ---------------------------------------------------------------------------
+
+class TestRestoreRisk:
+    def test_admin_can_restore_deleted_risk(self):
+        admin = _make_user(role=UserRole.admin)
+        risk = _make_risk(deleted_at=datetime.now(timezone.utc))
+        db = _db_with(risk)
+        result = _svc().restore_risk(db, risk.id, admin)
+        assert result.deleted_at is None
+        assert db.commit.call_count >= 1
+
+    def test_non_admin_cannot_restore_raises_403(self):
+        from fastapi import HTTPException
+        user = _make_user(role=UserRole.user)
+        risk = _make_risk(deleted_at=datetime.now(timezone.utc))
+        db = _db_with(risk)
+        with pytest.raises(HTTPException) as exc:
+            _svc().restore_risk(db, risk.id, user)
+        assert exc.value.status_code == 403
+
+    def test_restore_nonexistent_raises_404(self):
+        from fastapi import HTTPException
+        admin = _make_user(role=UserRole.admin)
+        db = _db_empty()
+        with pytest.raises(HTTPException) as exc:
+            _svc().restore_risk(db, uuid.uuid4(), admin)
+        assert exc.value.status_code == 404
+
+    def test_restore_non_deleted_raises_409(self):
+        from fastapi import HTTPException
+        admin = _make_user(role=UserRole.admin)
+        risk = _make_risk()  # deleted_at = None
+        db = _db_with(risk)
+        with pytest.raises(HTTPException) as exc:
+            _svc().restore_risk(db, risk.id, admin)
+        assert exc.value.status_code == 409
+
+
+# ---------------------------------------------------------------------------
+# List deleted
+# ---------------------------------------------------------------------------
+
+class TestListDeletedRisks:
+    def test_list_deleted_returns_only_soft_deleted(self):
+        risk = _make_risk(deleted_at=datetime.now(timezone.utc))
+        db = MagicMock()
+        db.execute.return_value.scalar.return_value = 1
+        db.execute.return_value.scalars.return_value.all.return_value = [risk]
+        result = _svc().list_deleted_risks(db, page=1, size=20)
+        assert result.total == 1
+        assert result.items[0] is risk
+
+    def test_list_deleted_returns_paginated_response(self):
+        db = MagicMock()
+        db.execute.return_value.scalar.return_value = 0
+        db.execute.return_value.scalars.return_value.all.return_value = []
+        result = _svc().list_deleted_risks(db, page=1, size=20)
+        for key in ("items", "total", "page", "size", "pages"):
+            assert hasattr(result, key)
 
 
 # ---------------------------------------------------------------------------

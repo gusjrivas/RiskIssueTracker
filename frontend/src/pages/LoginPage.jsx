@@ -65,13 +65,13 @@ export default function LoginPage() {
           <div className="flex border border-border">
             <button
               onClick={() => setMode('login')}
-              className={`flex-1 py-2 text-sm font-medium transition-colors ${mode === 'login' ? 'bg-ink text-canvas' : 'text-muted hover:text-ink'}`}
+              className={`flex-1 py-2 text-sm font-medium transition-colors ${mode === 'login' ? 'bg-ink text-canvas' : 'text-ink hover:opacity-80'}`}
             >
               Ingresar
             </button>
             <button
               onClick={() => setMode('register')}
-              className={`flex-1 py-2 text-sm font-medium transition-colors ${mode === 'register' ? 'bg-ink text-canvas' : 'text-muted hover:text-ink'}`}
+              className={`flex-1 py-2 text-sm font-medium transition-colors ${mode === 'register' ? 'bg-ink text-canvas' : 'text-ink hover:opacity-80'}`}
             >
               Registrarse
             </button>
