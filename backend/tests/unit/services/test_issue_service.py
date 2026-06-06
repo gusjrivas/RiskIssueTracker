@@ -65,7 +65,7 @@ def _make_risk(creator_id=None, status=RiskStatus.in_progress,
 
 
 def _make_issue(creator_id=None, owner_id=None, risk_id=None,
-                status=IssueStatus.open, severity=3):
+                status=IssueStatus.open, severity=3, deleted_at=None):
     from app.models.issue import Issue
     i = Issue()
     i.id = uuid.uuid4()
@@ -81,6 +81,7 @@ def _make_issue(creator_id=None, owner_id=None, risk_id=None,
     i.contingency_plan = None
     i.created_at = datetime.now(timezone.utc)
     i.updated_at = datetime.now(timezone.utc)
+    i.deleted_at = deleted_at
     return i
 
 
@@ -276,6 +277,13 @@ class TestGetIssue:
             _svc().get_issue(db, uuid.uuid4())
         assert exc.value.status_code == 404
 
+    def test_get_soft_deleted_raises_404(self):
+        from fastapi import HTTPException
+        db = _db_empty()  # get_issue filters deleted_at IS NULL → returns None
+        with pytest.raises(HTTPException) as exc:
+            _svc().get_issue(db, uuid.uuid4())
+        assert exc.value.status_code == 404
+
 
 # ---------------------------------------------------------------------------
 # Update
@@ -334,26 +342,55 @@ class TestUpdateIssue:
         _svc().update_issue(db, issue.id, IssueUpdate(severity=2), user)
         assert issue.severity == 2
 
+    def test_update_owner_id_changes_owner(self):
+        from unittest.mock import patch
+        from app.schemas.issue import IssueUpdate
+        user = _make_user()
+        new_owner = _make_user()
+        issue = _make_issue(creator_id=user.id)
+        db = _db_with(issue)
+        with patch("app.services.issue_service._resolve_user_name", return_value="Name"):
+            _svc().update_issue(db, issue.id, IssueUpdate(owner_id=new_owner.id), user)
+        assert uuid.UUID(str(issue.owner_id)) == uuid.UUID(str(new_owner.id))
+
+    def test_owner_can_update_own_issue(self):
+        from app.schemas.issue import IssueUpdate
+        owner = _make_user()
+        issue = _make_issue(owner_id=owner.id)
+        db = _db_with(issue)
+        result = _svc().update_issue(db, issue.id, IssueUpdate(title="Owner Edit"), owner)
+        assert result.title == "Owner Edit"
+
 
 # ---------------------------------------------------------------------------
 # Delete
 # ---------------------------------------------------------------------------
 
 class TestDeleteIssue:
-    def test_creator_can_delete_own_issue(self):
+    def test_creator_soft_deletes_own_issue(self):
         user = _make_user()
         issue = _make_issue(creator_id=user.id)
         db = _db_with(issue)
         _svc().delete_issue(db, issue.id, user)
-        db.delete.assert_called_once_with(issue)
+        assert issue.deleted_at is not None
+        db.delete.assert_not_called()
         assert db.commit.call_count >= 1
 
-    def test_admin_can_delete_any_issue(self):
+    def test_admin_can_soft_delete_any_issue(self):
         admin = _make_user(role=UserRole.admin)
         issue = _make_issue(creator_id=uuid.uuid4())
         db = _db_with(issue)
         _svc().delete_issue(db, issue.id, admin)
-        db.delete.assert_called_once_with(issue)
+        assert issue.deleted_at is not None
+        db.delete.assert_not_called()
+
+    def test_soft_delete_sets_deleted_at_timestamp(self):
+        user = _make_user()
+        issue = _make_issue(creator_id=user.id)
+        assert issue.deleted_at is None
+        db = _db_with(issue)
+        _svc().delete_issue(db, issue.id, user)
+        assert issue.deleted_at is not None
 
     def test_other_user_cannot_delete_raises_403(self):
         from fastapi import HTTPException
@@ -371,6 +408,69 @@ class TestDeleteIssue:
         with pytest.raises(HTTPException) as exc:
             _svc().delete_issue(db, uuid.uuid4(), user)
         assert exc.value.status_code == 404
+
+
+# ---------------------------------------------------------------------------
+# Restore (soft delete)
+# ---------------------------------------------------------------------------
+
+class TestRestoreIssue:
+    def test_admin_can_restore_deleted_issue(self):
+        admin = _make_user(role=UserRole.admin)
+        issue = _make_issue(deleted_at=datetime.now(timezone.utc))
+        db = _db_with(issue)
+        result = _svc().restore_issue(db, issue.id, admin)
+        assert result.deleted_at is None
+        assert db.commit.call_count >= 1
+
+    def test_non_admin_cannot_restore_raises_403(self):
+        from fastapi import HTTPException
+        user = _make_user(role=UserRole.user)
+        issue = _make_issue(deleted_at=datetime.now(timezone.utc))
+        db = _db_with(issue)
+        with pytest.raises(HTTPException) as exc:
+            _svc().restore_issue(db, issue.id, user)
+        assert exc.value.status_code == 403
+
+    def test_restore_nonexistent_raises_404(self):
+        from fastapi import HTTPException
+        admin = _make_user(role=UserRole.admin)
+        db = _db_empty()
+        with pytest.raises(HTTPException) as exc:
+            _svc().restore_issue(db, uuid.uuid4(), admin)
+        assert exc.value.status_code == 404
+
+    def test_restore_non_deleted_raises_409(self):
+        from fastapi import HTTPException
+        admin = _make_user(role=UserRole.admin)
+        issue = _make_issue()  # deleted_at = None
+        db = _db_with(issue)
+        with pytest.raises(HTTPException) as exc:
+            _svc().restore_issue(db, issue.id, admin)
+        assert exc.value.status_code == 409
+
+
+# ---------------------------------------------------------------------------
+# List deleted
+# ---------------------------------------------------------------------------
+
+class TestListDeletedIssues:
+    def test_list_deleted_returns_only_soft_deleted(self):
+        issue = _make_issue(deleted_at=datetime.now(timezone.utc))
+        db = MagicMock()
+        db.execute.return_value.scalar.return_value = 1
+        db.execute.return_value.scalars.return_value.all.return_value = [issue]
+        result = _svc().list_deleted_issues(db, page=1, size=20)
+        assert result.total == 1
+        assert result.items[0] is issue
+
+    def test_list_deleted_returns_paginated_response(self):
+        db = MagicMock()
+        db.execute.return_value.scalar.return_value = 0
+        db.execute.return_value.scalars.return_value.all.return_value = []
+        result = _svc().list_deleted_issues(db, page=1, size=20)
+        for key in ("items", "total", "page", "size", "pages"):
+            assert hasattr(result, key)
 
 
 # ---------------------------------------------------------------------------
