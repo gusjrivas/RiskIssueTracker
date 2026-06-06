@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 import app.models  # noqa: F401 — ensures all models are registered with Base metadata
-from app.api import risks, issues, projects, history, auth, admin
+from app.api import risks, issues, projects, history, auth, admin, users
 
 app = FastAPI(title="RiskIssueTracker API", version="1.0.0")
 
@@ -21,6 +21,7 @@ app.include_router(projects.router, prefix=f"{settings.api_prefix}/projects", ta
 app.include_router(risks.router, prefix=f"{settings.api_prefix}/risks", tags=["risks"])
 app.include_router(issues.router, prefix=f"{settings.api_prefix}/issues", tags=["issues"])
 app.include_router(history.router, prefix=f"{settings.api_prefix}/history", tags=["history"])
+app.include_router(users.router, prefix=f"{settings.api_prefix}/users", tags=["users"])
 
 
 @app.get("/health")

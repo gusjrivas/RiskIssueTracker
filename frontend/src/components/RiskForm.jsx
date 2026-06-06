@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import { calcSeverityPreview } from '../utils/severityCalc'
+import { useUsers } from '../hooks/useUsers'
 import SeverityBadge from './SeverityBadge'
 
 const CATEGORIES = ['calendario','alcance','ingresos','costos','presupuesto','equipo','gestion']
@@ -16,11 +17,12 @@ const LABELS = {
   costos:'Costos', presupuesto:'Presupuesto', equipo:'Equipo', gestion:'Gestión',
 }
 
-const EMPTY = { title: '', description: '', category: '', probability: '', impact: '', proximity: '', mitigation_strategy: '', contingency_plan: '' }
+const EMPTY = { title: '', description: '', category: '', probability: '', impact: '', proximity: '', mitigation_strategy: '', contingency_plan: '', owner_id: '' }
 
 export default function RiskForm({ projectId, initial = {}, onSubmit, onCancel, loading = false }) {
-  const [form, setForm] = useState({ ...EMPTY, ...initial })
+  const [form, setForm] = useState({ ...EMPTY, ...initial, owner_id: initial.owner_id ?? '' })
   const [error, setError] = useState(null)
+  const { users, loading: loadingUsers } = useUsers()
 
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }))
 
@@ -30,7 +32,9 @@ export default function RiskForm({ projectId, initial = {}, onSubmit, onCancel, 
     e.preventDefault()
     setError(null)
     try {
-      await onSubmit({ ...form, project_id: projectId })
+      const payload = { ...form, project_id: projectId }
+      payload.owner_id = payload.owner_id === '' ? null : payload.owner_id
+      await onSubmit(payload)
     } catch (err) {
       setError(err.message)
     }
@@ -80,6 +84,14 @@ export default function RiskForm({ projectId, initial = {}, onSubmit, onCancel, 
             {IMPACT.map(i => <option key={i} value={i}>{LABELS[i]}</option>)}
           </select>
         </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <label className="text-xs font-medium text-muted uppercase tracking-wide">Responsable</label>
+        <select value={form.owner_id} onChange={set('owner_id')} className="select" disabled={loadingUsers}>
+          <option value="">Sin responsable</option>
+          {users.map(u => <option key={u.id} value={u.id}>{u.full_name}</option>)}
+        </select>
       </div>
 
       {preview && (

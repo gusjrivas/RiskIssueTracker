@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Loader2 } from 'lucide-react'
+import { useUsers } from '../hooks/useUsers'
 
 const SEVERITY_OPTIONS = [
   { value: 1, label: '1 — Crítico' },
@@ -13,11 +14,12 @@ const SEVERITY_OPTIONS = [
   { value: 9, label: '9 — Bajo' },
 ]
 
-const EMPTY = { title: '', description: '', severity: '' }
+const EMPTY = { title: '', description: '', severity: '', owner_id: '' }
 
 export default function IssueForm({ projectId, onSubmit, onCancel, loading = false }) {
   const [form, setForm] = useState(EMPTY)
   const [error, setError] = useState(null)
+  const { users, loading: loadingUsers } = useUsers()
 
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }))
 
@@ -25,7 +27,12 @@ export default function IssueForm({ projectId, onSubmit, onCancel, loading = fal
     e.preventDefault()
     setError(null)
     try {
-      await onSubmit({ ...form, project_id: projectId, severity: Number(form.severity) })
+      await onSubmit({
+        ...form,
+        project_id: projectId,
+        severity: Number(form.severity),
+        owner_id: form.owner_id === '' ? null : form.owner_id,
+      })
     } catch (err) {
       setError(err.message)
     }
@@ -55,14 +62,23 @@ export default function IssueForm({ projectId, onSubmit, onCancel, loading = fal
         />
       </div>
 
-      <div className="space-y-1.5 w-48">
-        <label className="text-xs font-medium text-muted uppercase tracking-wide">Severidad *</label>
-        <select value={form.severity} onChange={set('severity')} required className="select">
-          <option value="">Seleccioná</option>
-          {SEVERITY_OPTIONS.map(o => (
-            <option key={o.value} value={o.value}>{o.label}</option>
-          ))}
-        </select>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-muted uppercase tracking-wide">Severidad *</label>
+          <select value={form.severity} onChange={set('severity')} required className="select">
+            <option value="">Seleccioná</option>
+            {SEVERITY_OPTIONS.map(o => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-muted uppercase tracking-wide">Responsable</label>
+          <select value={form.owner_id} onChange={set('owner_id')} className="select" disabled={loadingUsers}>
+            <option value="">Sin responsable</option>
+            {users.map(u => <option key={u.id} value={u.id}>{u.full_name}</option>)}
+          </select>
+        </div>
       </div>
 
       {error && <p className="text-xs text-severity-red">{error}</p>}

@@ -49,3 +49,4 @@ class IssueResponse(BaseModel):
     contingency_plan: str | None = None
     created_at: datetime
     updated_at: datetime
+    deleted_at: datetime | None = None

@@ -11,7 +11,9 @@ from app.models.user import User
 from app.schemas.audit_log import AuditLogResponse
 from app.schemas.auth import UserAdminUpdate, UserResponse
 from app.schemas.common import PaginatedResponse, UserStatus
-from app.services import audit_service
+from app.schemas.issue import IssueResponse
+from app.schemas.risk import RiskResponse
+from app.services import audit_service, issue_service, risk_service
 from app.services.auth_service import require_admin
 
 router = APIRouter()
@@ -102,6 +104,26 @@ def update_user(
                entity_type="user", entity_id=user.id)
 
     return user
+
+
+@router.get("/deleted-risks", response_model=PaginatedResponse[RiskResponse])
+def list_deleted_risks(
+    page: int = Query(default=1, ge=1),
+    size: int = Query(default=20, ge=1, le=100),
+    db: Session = Depends(get_db),
+    _: Annotated[User, Depends(require_admin)] = None,
+):
+    return risk_service.list_deleted_risks(db, page=page, size=size)
+
+
+@router.get("/deleted-issues", response_model=PaginatedResponse[IssueResponse])
+def list_deleted_issues(
+    page: int = Query(default=1, ge=1),
+    size: int = Query(default=20, ge=1, le=100),
+    db: Session = Depends(get_db),
+    _: Annotated[User, Depends(require_admin)] = None,
+):
+    return issue_service.list_deleted_issues(db, page=page, size=size)
 
 
 @router.get("/audit-log", response_model=PaginatedResponse[AuditLogResponse])
