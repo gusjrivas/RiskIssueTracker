@@ -7,6 +7,7 @@ from app.db.session import get_db
 from app.models.user import User
 from app.schemas.auth import (
     ChangePasswordRequest,
+    GoogleAuthRequest,
     LoginRequest,
     RegisterRequest,
     TokenResponse,
@@ -18,12 +19,19 @@ from app.services.auth_service import (
     change_password,
     create_access_token,
     get_current_user,
+    login_with_google,
     register_with_password,
     update_theme,
 )
 from app.schemas.common import UserStatus
 
 router = APIRouter()
+
+
+@router.post("/google", response_model=TokenResponse)
+def login_google(body: GoogleAuthRequest, db: Session = Depends(get_db)):
+    user = login_with_google(db, body.id_token)
+    return TokenResponse(access_token=create_access_token(user))
 
 
 @router.post("/register", response_model=UserResponse, status_code=201)
