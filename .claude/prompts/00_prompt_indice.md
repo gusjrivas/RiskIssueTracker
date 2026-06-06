@@ -30,6 +30,9 @@ desde el scaffolding inicial hasta el estado actual.
 | [15_prompt_readme.md](15_prompt_readme.md) | Docs | `hotfix3/...` | README completo con setup, API reference, arquitectura |
 | [16_prompt_hotfix-password-validation.md](16_prompt_hotfix-password-validation.md) | Hotfix | `hotfix3/password-not-meeting-requirements` | Bug: validación de contraseña mostraba `[object Object]` en lugar del mensaje de error |
 | [17_prompt_user-profile.md](17_prompt_user-profile.md) | Feature | `feature/user-profile` | Mi Perfil: cambio de contraseña + selector de tema claro/oscuro + fixes |
+| [18_prompt_mitigation-plan-guard.md](18_prompt_mitigation-plan-guard.md) | Hotfix | `fix/mitigation-plan-save-guard` | Bug en save del plan de mitigación; modal 3 opciones al navegar con cambios pendientes |
+| [19_prompt_owner-activity-log.md](19_prompt_owner-activity-log.md) | Feature | `fix/mitigation-plan-save-guard` | Owner assignment en riesgos/issues + activity log con before/after por campo |
+| [20_prompt_soft-delete.md](20_prompt_soft-delete.md) | Feature | `fix/mitigation-plan-save-guard` | Borrado lógico (soft delete) + sección Papelera en AdminPage para restaurar |
 
 ---
 
