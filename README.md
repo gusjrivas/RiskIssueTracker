@@ -2,6 +2,14 @@
 
 Aplicación web para la gestión de riesgos e issues en proyectos. Permite registrar riesgos, calcular su severidad automáticamente, derivarlos a issues cuando se materializan, definir planes de mitigación y contingencia, y mantener un historial completo de cambios con auditoría de todas las acciones.
 
+**Funcionalidades destacadas:**
+- Autenticación por email/contraseña y Google OAuth, con flujo de aprobación de cuentas (`pending` → `active`/`inactive`)
+- Cálculo automático de severidad (probabilidad × impacto × proximidad) en backend y en tiempo real en el frontend
+- Asignación de responsable (*owner*) y registro de actividad campo a campo en riesgos e issues
+- Borrado lógico (soft delete) con papelera y restauración para administradores
+- Historial de transiciones de estado y log de auditoría completo de todas las acciones
+- Tema claro/oscuro configurable por usuario, persistido en el perfil
+
 **Autores:** Gustavo Julián Rivas · Rodolfo Di Chiazza
 
 ---
@@ -172,11 +180,26 @@ Todas las variables se definen en `.env` (copiado desde `.env.example`).
 | `AUTH_SECRET_KEY` | **Sí** | Clave para firmar tokens JWT. Cambiar en producción. | `change-me-in-development` |
 | `AUTH_ALGORITHM` | No | Algoritmo JWT | `HS256` |
 | `AUTH_TOKEN_EXPIRE_MINUTES` | No | Duración del token en minutos | `1440` (24 h) |
-| `GOOGLE_CLIENT_ID` | No | Client ID de Google OAuth. Dejar vacío para deshabilitar. | *(vacío)* |
+| `GOOGLE_CLIENT_ID` | No | Client ID de Google OAuth (`xxx.apps.googleusercontent.com`). Dejar vacío para deshabilitar el botón. | *(vacío)* |
 | `DATABASE_URL` | No | URL de conexión a PostgreSQL | Sobreescrita por docker-compose |
 | `ENVIRONMENT` | No | `development` o `production` | `development` |
 
 > `DATABASE_URL` es sobreescrita automáticamente por `docker-compose.yml` con la URL interna del contenedor. Solo es necesario cambiarla si corrés la API fuera de Docker.
+
+### Habilitar Google OAuth (opcional)
+
+1. Crear credenciales OAuth 2.0 (tipo "Web application") en [Google Cloud Console](https://console.cloud.google.com/apis/credentials), agregando `http://localhost:3000` como origen autorizado.
+2. Copiar el **Client ID** generado a `.env`:
+   ```env
+   GOOGLE_CLIENT_ID=xxxxxxxxxx.apps.googleusercontent.com
+   ```
+3. Reconstruir el frontend para que tome la variable (`VITE_GOOGLE_CLIENT_ID`):
+   ```bash
+   docker compose up -d --build frontend
+   ```
+4. El botón "Acceder con Google" aparece automáticamente en Ingresar y Registrarse cuando la variable está definida.
+
+> El primer login con una cuenta de Google nueva la crea como `pending`; un admin debe aprobarla (ver [Primer usuario admin](#primer-usuario-admin)). Cuentas `pending` o `inactive` ven una pantalla dedicada explicando su estado.
 
 ---
 
@@ -214,6 +237,7 @@ RiskIssueTracker/
 ├── database/
 │   ├── init.sql               # DDL completo — aplicado automáticamente al crear la DB
 │   └── seeds.sql              # Datos de prueba opcionales
+├── docs/                      # Documentación adicional del proyecto
 ├── docker-compose.yml
 ├── .env.example               # Plantilla de variables de entorno
 └── README.md
@@ -251,7 +275,10 @@ curl -X POST http://localhost:8000/api/v1/auth/login \
 | `GET` | `/health` | Health check | — |
 | `POST` | `/auth/register` | Registrar usuario (queda `pending`) | — |
 | `POST` | `/auth/login` | Iniciar sesión, devuelve JWT | — |
+| `POST` | `/auth/google` | Iniciar sesión con Google OAuth (`{"id_token":"..."}`) | — |
 | `GET` | `/auth/me` | Datos del usuario autenticado | ✓ |
+| `PATCH` | `/auth/me/password` | Cambiar contraseña propia | ✓ |
+| `PATCH` | `/auth/me/theme` | Cambiar preferencia de tema (claro/oscuro) | ✓ |
 | `GET` | `/projects` | Listar proyectos | ✓ |
 | `POST` | `/projects` | Crear proyecto | ✓ |
 | `PATCH` | `/projects/{id}` | Actualizar proyecto | ✓ |
@@ -261,19 +288,25 @@ curl -X POST http://localhost:8000/api/v1/auth/login \
 | `GET` | `/risks/{id}` | Detalle de riesgo | ✓ |
 | `PATCH` | `/risks/{id}` | Actualizar riesgo | ✓ |
 | `PATCH` | `/risks/{id}/status` | Cambiar estado del riesgo | ✓ |
-| `DELETE` | `/risks/{id}` | Eliminar riesgo | ✓ |
+| `DELETE` | `/risks/{id}` | Eliminar riesgo (borrado lógico) | ✓ |
+| `PATCH` | `/risks/{id}/restore` | Restaurar riesgo eliminado | ✓ Admin |
+| `GET` | `/risks/{id}/audit` | Historial de cambios (campo a campo) del riesgo | ✓ |
 | `GET` | `/issues` | Listar issues (`?project_id=&status=`) | ✓ |
 | `POST` | `/issues` | Crear issue manualmente | ✓ |
 | `POST` | `/issues/derive` | Derivar issue desde un riesgo (`{"risk_id":"..."}`) | ✓ |
 | `GET` | `/issues/{id}` | Detalle de issue | ✓ |
 | `PATCH` | `/issues/{id}` | Actualizar issue | ✓ |
 | `PATCH` | `/issues/{id}/status` | Cambiar estado del issue | ✓ |
-| `DELETE` | `/issues/{id}` | Eliminar issue | ✓ |
+| `DELETE` | `/issues/{id}` | Eliminar issue (borrado lógico) | ✓ |
+| `PATCH` | `/issues/{id}/restore` | Restaurar issue eliminado | ✓ Admin |
+| `GET` | `/issues/{id}/audit` | Historial de cambios (campo a campo) del issue | ✓ |
 | `GET` | `/history/{entity_type}/{entity_id}` | Historial de transiciones de estado | ✓ |
 | `GET` | `/admin/users` | Listar usuarios | ✓ Admin |
 | `PATCH` | `/admin/users/{id}` | Editar datos de usuario | ✓ Admin |
 | `PATCH` | `/admin/users/{id}/approve` | Aprobar usuario | ✓ Admin |
 | `PATCH` | `/admin/users/{id}/deactivate` | Desactivar usuario | ✓ Admin |
+| `GET` | `/admin/deleted-risks` | Listar riesgos eliminados (papelera) | ✓ Admin |
+| `GET` | `/admin/deleted-issues` | Listar issues eliminados (papelera) | ✓ Admin |
 | `GET` | `/admin/audit-log` | Ver log de auditoría completo | ✓ Admin |
 
 ### Paginación
