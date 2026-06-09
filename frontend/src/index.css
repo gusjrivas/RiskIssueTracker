@@ -61,6 +61,10 @@ html.dark .btn-secondary {
 }
 html.dark .btn-secondary:hover { background-color: var(--border); }
 
+/* Login page — red focus for inputs */
+.login-right-panel .input:focus { border-color: #DC2626; }
+html.dark .login-right-panel .input:focus { border-color: #DC2626; }
+
 /* ─── Base layer ────────────────────────────────────────────────────── */
 
 @layer base {
