@@ -107,4 +107,8 @@ html.dark .btn-secondary:hover { background-color: var(--border); }
   .card {
     @apply bg-surface border border-border p-6;
   }
+
+  .login-accent-bar {
+    @apply absolute bottom-0 left-0 right-0 h-[3px] bg-severity-red;
+  }
 }
