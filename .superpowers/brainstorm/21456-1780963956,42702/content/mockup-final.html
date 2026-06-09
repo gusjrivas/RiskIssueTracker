@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup Login — RiskTracker</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: #1a1a1a; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 32px; }
+
+  .login-shell {
+    display: flex;
+    width: 900px;
+    max-width: 100%;
+    height: 560px;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+    overflow: hidden;
+  }
+
+  /* ── Panel izquierdo ── */
+  .left {
+    flex: 1;
+    background: #0A0A0A;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 40px;
+    position: relative;
+    gap: 0;
+  }
+  .left::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: #DC2626;
+  }
+
+  .icon-box {
+    width: 72px; height: 72px;
+    background: #DC2626;
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 32px rgba(220,38,38,0.35);
+  }
+  .icon-box span {
+    color: #fff;
+    font-size: 32px;
+    font-weight: 900;
+    font-family: 'Syne', 'Segoe UI', sans-serif;
+    letter-spacing: -1px;
+  }
+
+  .brand-name {
+    color: #F0F0EE;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    font-family: 'Syne', 'Segoe UI', sans-serif;
+    margin-bottom: 12px;
+  }
+
+  .separator {
+    width: 40px; height: 2px;
+    background: #DC2626;
+    margin-bottom: 20px;
+  }
+
+  .tagline {
+    color: #6B7280;
+    font-size: 12px;
+    font-style: italic;
+    text-align: center;
+    line-height: 1.6;
+    max-width: 180px;
+  }
+
+  /* ── Panel derecho ── */
+  .right {
+    flex: 1;
+    background: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 48px 44px;
+  }
+
+  .form-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0A0A0A;
+    font-family: 'Syne', 'Segoe UI', sans-serif;
+    margin-bottom: 4px;
+  }
+  .form-subtitle {
+    font-size: 12px;
+    color: #6B7280;
+    margin-bottom: 28px;
+  }
+
+  /* Tab switcher */
+  .tabs {
+    display: flex;
+    border: 1px solid #E5E5E3;
+    margin-bottom: 24px;
+  }
+  .tab {
+    flex: 1;
+    padding: 9px;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.15s;
+    color: #6B7280;
+    background: transparent;
+    border: none;
+    font-family: inherit;
+  }
+  .tab.active {
+    background: #0A0A0A;
+    color: #fff;
+  }
+
+  /* Inputs */
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 14px;
+  }
+  .field label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #6B7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .field input {
+    border: 1px solid #E5E5E3;
+    background: #F5F5F3;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: #0A0A0A;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .field input:focus { border-color: #DC2626; }
+
+  /* Submit */
+  .btn-submit {
+    width: 100%;
+    padding: 11px;
+    background: #0A0A0A;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    margin-top: 6px;
+    transition: opacity 0.15s;
+  }
+  .btn-submit:hover { opacity: 0.85; }
+
+  /* Divider */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 18px 0 14px;
+  }
+  .divider-line { flex: 1; height: 1px; background: #E5E5E3; }
+  .divider-text { font-size: 10px; color: #9CA3AF; white-space: nowrap; }
+
+  /* Google placeholder */
+  .google-btn {
+    width: 100%;
+    padding: 9px;
+    border: 1px solid #E5E5E3;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #374151;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .google-icon {
+    width: 16px; height: 16px;
+    background: linear-gradient(135deg, #4285F4 25%, #34A853 25% 50%, #FBBC05 50% 75%, #EA4335 75%);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .note {
+    margin-top: 32px;
+    padding: 10px 16px;
+    background: #FEF2F2;
+    border-left: 3px solid #DC2626;
+    font-size: 11px;
+    color: #6B7280;
+    font-style: italic;
+  }
+  .note strong { color: #DC2626; }
+</style>
+</head>
+<body>
+
+<div style="max-width:960px;width:100%;">
+  <div style="color:#9ca3af;font-size:11px;margin-bottom:16px;text-align:center;letter-spacing:0.5px;text-transform:uppercase;">Mockup — Login RiskTracker (modo Ingresar)</div>
+
+  <div class="login-shell">
+
+    <!-- Panel izquierdo -->
+    <div class="left">
+      <div class="icon-box">
+        <span>R</span>
+      </div>
+      <div class="brand-name">RiskTracker</div>
+      <div class="separator"></div>
+      <div class="tagline">"Identificá riesgos antes de que se conviertan en problemas"</div>
+    </div>
+
+    <!-- Panel derecho -->
+    <div class="right">
+      <div class="form-title">Bienvenido</div>
+      <div class="form-subtitle">Ingresá a tu cuenta para continuar</div>
+
+      <div class="tabs">
+        <button class="tab active">Ingresar</button>
+        <button class="tab">Registrarse</button>
+      </div>
+
+      <div class="field">
+        <label>Email</label>
+        <input type="email" placeholder="usuario@empresa.com" />
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" placeholder="••••••••" />
+      </div>
+
+      <button class="btn-submit">Ingresar</button>
+
+      <div class="divider">
+        <div class="divider-line"></div>
+        <div class="divider-text">o continuá con</div>
+        <div class="divider-line"></div>
+      </div>
+
+      <button class="google-btn">
+        <div class="google-icon"></div>
+        Continuar con Google
+      </button>
+    </div>
+
+  </div>
+
+  <div class="note" style="max-width:900px;margin-top:16px;">
+    <strong>Notas de diseño:</strong> Labels sobre los inputs (no solo placeholders) · Foco en rojo acento · Línea roja inferior izquierda como detalle decorativo · Ícono "R" con glow rojo · Sin border-radius en la shell (minimalista) · Respeta el sistema de tokens CSS existente (--ink, --canvas, --border, etc.)
+  </div>
+</div>
+
+</body>
+</html>

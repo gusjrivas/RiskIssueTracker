@@ -1,0 +1,61 @@
+<h2>¿Qué layout general preferís para el Login?</h2>
+<p class="subtitle">Estas son 3 direcciones de diseño. La paleta de colores exacta se define después.</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f5f5f3;padding:20px;border-bottom:1px solid #e5e5e3;min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;">
+      <!-- Panel centrado minimalista -->
+      <div style="width:200px;background:#fff;border:1px solid #e5e5e3;padding:16px;display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#0a0a0a;margin-bottom:4px;">RiskTracker</div>
+        <div style="height:28px;background:#f0f0f0;border:1px solid #e5e5e3;border-radius:2px;"></div>
+        <div style="height:28px;background:#f0f0f0;border:1px solid #e5e5e3;border-radius:2px;"></div>
+        <div style="height:28px;background:#0a0a0a;border-radius:2px;"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Panel centrado (actual mejorado)</h3>
+      <p>Tarjeta blanca centrada sobre fondo gris claro. Más espacio, logo prominente, tipografía más grande, mejor jerarquía visual. Cambio conservador.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0a0a0a;padding:0;min-height:240px;display:flex;overflow:hidden;">
+      <!-- Split: izquierda oscura, derecha formulario -->
+      <div style="flex:1;background:#0a0a0a;display:flex;flex-direction:column;justify-content:flex-end;padding:20px;">
+        <div style="color:#fff;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">RiskTracker</div>
+        <div style="color:#6b7280;font-size:9px;margin-top:4px;">Gestión de riesgos e issues</div>
+        <div style="margin-top:20px;display:flex;flex-direction:column;gap:3px;">
+          <div style="height:2px;width:60px;background:#3b5bdb;"></div>
+          <div style="height:2px;width:40px;background:#3b5bdb;opacity:0.5;"></div>
+        </div>
+      </div>
+      <div style="flex:1;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;gap:8px;">
+        <div style="width:100%;height:24px;background:#f5f5f3;border:1px solid #e5e5e3;border-radius:2px;"></div>
+        <div style="width:100%;height:24px;background:#f5f5f3;border:1px solid #e5e5e3;border-radius:2px;"></div>
+        <div style="width:100%;height:24px;background:#0a0a0a;border-radius:2px;"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Split screen</h3>
+      <p>Mitad izquierda oscura con marca/branding, mitad derecha blanca con el formulario. Look profesional tipo SaaS empresarial.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:linear-gradient(135deg,#1e2a4a 0%,#0a0a0a 100%);padding:20px;min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;">
+      <!-- Full dark con card translúcida -->
+      <div style="width:200px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);backdrop-filter:blur(8px);padding:16px;display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#fff;margin-bottom:4px;">RiskTracker</div>
+        <div style="height:26px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:2px;"></div>
+        <div style="height:26px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:2px;"></div>
+        <div style="height:26px;background:#3b5bdb;border-radius:2px;"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Full dark con glassmorphism</h3>
+      <p>Fondo oscuro degradado, card con efecto vidrio. Estética moderna tipo dashboard de seguridad/fintech. Mayor impacto visual.</p>
+    </div>
+  </div>
+
+</div>

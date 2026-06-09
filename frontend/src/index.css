@@ -116,3 +116,4 @@ html.dark .login-right-panel .input:focus { border-color: #DC2626; }
     @apply absolute bottom-0 left-0 right-0 h-[3px] bg-severity-red;
   }
 }
+
