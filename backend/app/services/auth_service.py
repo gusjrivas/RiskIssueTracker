@@ -104,6 +104,10 @@ def get_current_user(
     user = db.execute(select(User).where(User.id == user_id)).scalar_one_or_none()
     if user is None:
         raise HTTPException(status_code=401, detail="Usuario no encontrado")
+    if user.status != UserStatus.active:
+        # Un token vigente no debe dar acceso si la cuenta fue desactivada
+        # o volvió a pending después de emitido.
+        raise HTTPException(status_code=403, detail="Cuenta inactiva o pendiente de aprobación")
     return user
 
 

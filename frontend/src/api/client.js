@@ -18,7 +18,13 @@ async function request(method, path, body) {
 
   const response = await fetch(`${BASE_URL}${path}`, options)
 
-  if (response.status === 401) {
+  // En los endpoints de ingreso un 401 significa credenciales inválidas:
+  // hay que mostrar el error, no redirigir (eso perdería el mensaje).
+  const isAuthEntry = path.startsWith('/api/v1/auth/login')
+    || path.startsWith('/api/v1/auth/google')
+    || path.startsWith('/api/v1/auth/register')
+
+  if (response.status === 401 && !isAuthEntry) {
     localStorage.removeItem('access_token')
     window.location.href = '/login'
     return

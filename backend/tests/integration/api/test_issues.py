@@ -226,6 +226,36 @@ class TestDeriveIssue:
             json={"risk_id": str(risk.id)})
         assert resp.status_code == 401
 
+    def test_derive_by_unrelated_user_returns_403(self, client, other_token, risk):
+        # other_user no es creator, owner ni admin del riesgo
+        resp = client.post("/api/v1/issues/derive",
+            headers={"Authorization": f"Bearer {other_token}"},
+            json={"risk_id": str(risk.id)})
+        assert resp.status_code == 403
+
+    def test_derive_by_owner_returns_201(self, client, other_token, other_user, risk, db):
+        risk.owner_id = other_user.id
+        db.commit()
+        resp = client.post("/api/v1/issues/derive",
+            headers={"Authorization": f"Bearer {other_token}"},
+            json={"risk_id": str(risk.id)})
+        assert resp.status_code == 201
+
+    def test_derive_by_admin_returns_201(self, client, admin_token, risk):
+        resp = client.post("/api/v1/issues/derive",
+            headers={"Authorization": f"Bearer {admin_token}"},
+            json={"risk_id": str(risk.id)})
+        assert resp.status_code == 201
+
+    def test_derive_deleted_risk_returns_404(self, client, user_token, risk, db):
+        from datetime import datetime, timezone
+        risk.deleted_at = datetime.now(timezone.utc)
+        db.commit()
+        resp = client.post("/api/v1/issues/derive",
+            headers={"Authorization": f"Bearer {user_token}"},
+            json={"risk_id": str(risk.id)})
+        assert resp.status_code == 404
+
 
 # ---------------------------------------------------------------------------
 # GET /issues

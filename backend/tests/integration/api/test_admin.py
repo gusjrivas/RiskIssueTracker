@@ -167,6 +167,21 @@ class TestListUsers:
         assert len(body["items"]) <= 2
         assert body["size"] == 2
 
+    def test_list_page_zero_returns_422(self, client, admin_token):
+        # page=0 generaría un OFFSET negativo en la query
+        resp = client.get(
+            "/api/v1/admin/users?page=0",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert resp.status_code == 422
+
+    def test_list_negative_size_returns_422(self, client, admin_token):
+        resp = client.get(
+            "/api/v1/admin/users?size=-1",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert resp.status_code == 422
+
 
 # ---------------------------------------------------------------------------
 # Audit log recorded on admin user status changes

@@ -1,7 +1,7 @@
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Query, Response
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
@@ -25,8 +25,8 @@ def create_project(
 
 @router.get("", response_model=PaginatedResponse[ProjectResponse])
 def list_projects(
-    page: int = 1,
-    size: int = 20,
+    page: int = Query(default=1, ge=1),
+    size: int = Query(default=20, ge=1, le=100),
     db: Session = Depends(get_db),
     current_user: Annotated[User, Depends(get_current_user)] = None,
 ):
