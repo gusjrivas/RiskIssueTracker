@@ -1,0 +1,27 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e6]: R
+    - generic [ref=e7]: RiskTracker
+    - paragraph [ref=e9]: "\"Identificá riesgos antes de que se conviertan en problemas\""
+  - generic [ref=e56]:
+    - generic [ref=e57]:
+      - heading "Bienvenido" [level=2] [ref=e58]
+      - paragraph [ref=e59]: Ingresá a tu cuenta para continuar
+    - generic [ref=e60]:
+      - button "Ingresar" [ref=e61] [cursor=pointer]
+      - button "Registrarse" [ref=e62] [cursor=pointer]
+    - generic [ref=e63]:
+      - generic [ref=e64]:
+        - generic [ref=e65]: Email
+        - textbox "usuario@empresa.com" [ref=e66]: regresion-test@test.com
+      - generic [ref=e67]:
+        - generic [ref=e68]: Contraseña
+        - textbox "••••••••" [ref=e69]: Test1234!
+      - button "Ingresar" [ref=e70] [cursor=pointer]
+    - generic [ref=e75]: o continuá con
+    - generic [ref=e77]:
+      - button "Iniciar sesión con Google. Se abre en una pestaña nueva." [ref=e79] [cursor=pointer]:
+        - generic [ref=e81]:
+          - img [ref=e83]
+          - generic [ref=e90]: Iniciar sesión con Google
+      - iframe

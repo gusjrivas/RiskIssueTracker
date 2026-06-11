@@ -1,0 +1,36 @@
+- generic [ref=e92]:
+  - banner [ref=e93]:
+    - generic [ref=e94]:
+      - link [ref=e95] [cursor=pointer]:
+        - /url: /
+        - img [ref=e96]
+      - generic [ref=e98]:
+        - heading "Proyecto Test" [level=1] [ref=e99]
+        - paragraph [ref=e100]: Cliente ABC
+  - main [ref=e101]:
+    - generic [ref=e102]:
+      - button "Riesgos 1" [ref=e103] [cursor=pointer]:
+        - img [ref=e104]
+        - text: Riesgos
+        - generic [ref=e106]: "1"
+      - button "Issues 1" [ref=e107] [cursor=pointer]:
+        - img [ref=e108]
+        - text: Issues
+        - generic [ref=e110]: "1"
+    - generic [ref=e111]:
+      - generic [ref=e112]:
+        - heading "Riesgos" [level=2] [ref=e113]
+        - paragraph [ref=e114]: 1 riesgo
+      - button "Nuevo riesgo" [ref=e115] [cursor=pointer]:
+        - img [ref=e116]
+        - text: Nuevo riesgo
+    - link "Riesgo de prueba Calendario 1 Crítico En progreso" [ref=e119] [cursor=pointer]:
+      - /url: /risks/49bd40b1-e262-4a39-9780-80e82ac26045
+      - generic [ref=e120]:
+        - generic [ref=e121]:
+          - heading "Riesgo de prueba" [level=3] [ref=e122]
+          - generic [ref=e123]: Calendario
+        - generic [ref=e124]:
+          - generic [ref=e125]: "1"
+          - generic [ref=e126]: Crítico
+      - generic [ref=e128]: En progreso

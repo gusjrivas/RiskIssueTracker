@@ -1,0 +1,108 @@
+- generic [ref=e98]:
+  - banner [ref=e99]:
+    - generic [ref=e100]:
+      - link [ref=e101] [cursor=pointer]:
+        - /url: /
+        - img [ref=e102]
+      - heading "test" [level=1] [ref=e105]
+  - main [ref=e106]:
+    - generic [ref=e107]:
+      - button "Riesgos 1" [ref=e108] [cursor=pointer]:
+        - img [ref=e109]
+        - text: Riesgos
+        - generic [ref=e111]: "1"
+      - button "Issues 1" [ref=e112] [cursor=pointer]:
+        - img [ref=e113]
+        - text: Issues
+        - generic [ref=e115]: "1"
+    - generic [ref=e116]:
+      - generic [ref=e117]:
+        - heading "Riesgos" [level=2] [ref=e118]
+        - paragraph [ref=e119]: 1 riesgo
+      - button "Nuevo riesgo" [ref=e120] [cursor=pointer]:
+        - img [ref=e121]
+        - text: Nuevo riesgo
+    - generic [ref=e135]:
+      - heading "Nuevo riesgo" [level=3] [ref=e136]
+      - generic [ref=e137]:
+        - generic [ref=e138]:
+          - text: Título *
+          - 'textbox "Ej: Retraso en entrega de componentes" [active] [ref=e139]': Verificación fix severidad (muy alta x bajo)
+        - generic [ref=e140]:
+          - text: Descripción
+          - textbox [ref=e141]
+        - generic [ref=e142]:
+          - generic [ref=e143]:
+            - text: Categoría *
+            - combobox [ref=e144]:
+              - option "Seleccioná"
+              - option "Calendario"
+              - option "Alcance"
+              - option "Ingresos"
+              - option "Costos"
+              - option "Presupuesto"
+              - option "Equipo" [selected]
+              - option "Gestión"
+          - generic [ref=e145]:
+            - text: Proximidad *
+            - combobox [ref=e146]:
+              - option "Seleccioná"
+              - option "Corto plazo" [selected]
+              - option "Mediano plazo"
+              - option "Largo plazo"
+        - generic [ref=e147]:
+          - generic [ref=e148]:
+            - text: Probabilidad *
+            - combobox [ref=e149]:
+              - option "Seleccioná"
+              - option "Muy baja"
+              - option "Baja"
+              - option "Media"
+              - option "Alta"
+              - option "Muy alta" [selected]
+          - generic [ref=e150]:
+            - text: Impacto *
+            - combobox [ref=e151]:
+              - option "Seleccioná"
+              - option "Muy bajo"
+              - option "Bajo" [selected]
+              - option "Medio"
+              - option "Alto"
+              - option "Muy alto"
+        - generic [ref=e152]:
+          - text: Responsable
+          - combobox [ref=e153]:
+            - option "Sin responsable" [selected]
+            - option "Admin Test"
+            - option "gus"
+            - option "Gus Rivas"
+            - option "Usuario Prueba"
+            - option "Usuario Regresion"
+        - generic [ref=e157]:
+          - generic [ref=e158]:
+            - generic [ref=e159]:
+              - paragraph [ref=e160]: Exposición
+              - paragraph [ref=e161]: "0.09"
+            - generic [ref=e162]:
+              - paragraph [ref=e163]: Zona
+              - paragraph [ref=e164]: bajo
+          - generic [ref=e165]:
+            - paragraph [ref=e166]: Severidad calculada
+            - generic [ref=e167]:
+              - generic [ref=e168]: "5"
+              - generic [ref=e169]: Moderado
+        - generic [ref=e154]:
+          - button "Crear riesgo" [ref=e155] [cursor=pointer]
+          - button "Cancelar" [ref=e156] [cursor=pointer]
+    - link "Retraso en despliegue MVP Calendario 1 Crítico Derivado · Issue derivado" [ref=e124] [cursor=pointer]:
+      - /url: /risks/9197e894-c9b2-43b6-8108-e8a92f3163ce
+      - generic [ref=e125]:
+        - generic [ref=e126]:
+          - heading "Retraso en despliegue MVP" [level=3] [ref=e127]
+          - generic [ref=e128]: Calendario
+        - generic [ref=e129]:
+          - generic [ref=e130]: "1"
+          - generic [ref=e131]: Crítico
+      - generic [ref=e132]:
+        - generic [ref=e133]: Derivado
+        - generic [ref=e134]: · Issue derivado

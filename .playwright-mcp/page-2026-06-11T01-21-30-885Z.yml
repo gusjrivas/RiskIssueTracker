@@ -1,0 +1,30 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e6]: R
+    - generic [ref=e7]: RiskTracker
+    - paragraph [ref=e9]: "\"Identificá riesgos antes de que se conviertan en problemas\""
+  - generic [ref=e12]:
+    - generic [ref=e13]:
+      - heading "Crear cuenta" [level=2] [ref=e32]
+      - paragraph [ref=e15]: Completá los datos para registrarte
+    - generic [ref=e16]:
+      - button "Ingresar" [ref=e17] [cursor=pointer]
+      - button "Registrarse" [active] [ref=e18] [cursor=pointer]
+    - generic [ref=e19]:
+      - generic [ref=e33]:
+        - generic [ref=e34]: Nombre completo
+        - textbox "Juan Pérez" [ref=e35]
+      - generic [ref=e20]:
+        - generic [ref=e21]: Email
+        - textbox "usuario@empresa.com" [ref=e22]
+      - generic [ref=e23]:
+        - generic [ref=e24]: Contraseña
+        - textbox "••••••••" [ref=e25]
+      - button "Crear cuenta" [ref=e36] [cursor=pointer]
+    - generic [ref=e31]: o continuá con
+    - generic [ref=e38]:
+      - button "Iniciar sesión con Google. Se abre en una pestaña nueva." [ref=e40] [cursor=pointer]:
+        - generic [ref=e42]:
+          - img [ref=e44]
+          - generic [ref=e51]: Iniciar sesión con Google
+      - iframe
