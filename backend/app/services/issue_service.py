@@ -75,9 +75,17 @@ def create_issue(db: Session, data: IssueCreate, current_user) -> Issue:
 
 
 def derive_from_risk(db: Session, risk_id: uuid.UUID, current_user) -> Issue:
-    risk = db.execute(select(Risk).where(Risk.id == risk_id)).scalar_one_or_none()
+    risk = db.execute(
+        select(Risk).where(Risk.id == risk_id, Risk.deleted_at.is_(None))
+    ).scalar_one_or_none()
     if not risk:
         raise HTTPException(status_code=404, detail="Riesgo no encontrado")
+
+    is_creator = uuid.UUID(str(risk.created_by)) == uuid.UUID(str(current_user.id))
+    is_owner = risk.owner_id and uuid.UUID(str(risk.owner_id)) == uuid.UUID(str(current_user.id))
+    if not (is_creator or is_owner or current_user.role == UserRole.admin):
+        raise HTTPException(status_code=403, detail="Sin permiso para derivar este riesgo")
+
     if risk.status != RiskStatus.in_progress:
         raise HTTPException(
             status_code=409,

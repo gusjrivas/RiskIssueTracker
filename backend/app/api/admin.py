@@ -21,8 +21,8 @@ router = APIRouter()
 
 @router.get("/users", response_model=PaginatedResponse[UserResponse])
 def list_users(
-    page: int = 1,
-    size: int = 20,
+    page: int = Query(default=1, ge=1),
+    size: int = Query(default=20, ge=1, le=100),
     db: Session = Depends(get_db),
     _: Annotated[User, Depends(require_admin)] = None,
 ):

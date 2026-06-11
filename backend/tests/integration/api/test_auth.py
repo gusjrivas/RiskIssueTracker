@@ -169,3 +169,32 @@ class TestMe:
             headers={"Authorization": "Bearer invalidtoken"},
         )
         assert resp.status_code == 401
+
+    def test_me_inactive_user_with_valid_token_returns_403(self, client, db, active_user, active_token):
+        # El usuario obtuvo el token estando activo y luego fue desactivado:
+        # el token vigente no debe seguir dando acceso a la API.
+        active_user.status = UserStatus.inactive
+        db.commit()
+        resp = client.get(
+            "/api/v1/auth/me",
+            headers={"Authorization": f"Bearer {active_token}"},
+        )
+        assert resp.status_code == 403
+
+    def test_me_pending_user_with_valid_token_returns_403(self, client, db, active_user, active_token):
+        active_user.status = UserStatus.pending
+        db.commit()
+        resp = client.get(
+            "/api/v1/auth/me",
+            headers={"Authorization": f"Bearer {active_token}"},
+        )
+        assert resp.status_code == 403
+
+    def test_inactive_user_cannot_access_protected_endpoints(self, client, db, active_user, active_token):
+        active_user.status = UserStatus.inactive
+        db.commit()
+        resp = client.get(
+            "/api/v1/projects",
+            headers={"Authorization": f"Bearer {active_token}"},
+        )
+        assert resp.status_code == 403

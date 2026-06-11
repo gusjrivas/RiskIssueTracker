@@ -128,6 +128,17 @@ class TestListProjects:
         assert len(body["items"]) <= 1
         assert body["size"] == 1
 
+    def test_list_page_zero_returns_422(self, client, user_token):
+        # page=0 generaría un OFFSET negativo en la query
+        resp = client.get("/api/v1/projects?page=0",
+            headers={"Authorization": f"Bearer {user_token}"})
+        assert resp.status_code == 422
+
+    def test_list_negative_size_returns_422(self, client, user_token):
+        resp = client.get("/api/v1/projects?size=-1",
+            headers={"Authorization": f"Bearer {user_token}"})
+        assert resp.status_code == 422
+
     def test_created_project_appears_in_list(self, client, user_token, project):
         resp = client.get("/api/v1/projects",
             headers={"Authorization": f"Bearer {user_token}"})
