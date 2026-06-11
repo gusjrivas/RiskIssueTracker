@@ -1,0 +1,21 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e6]: R
+    - generic [ref=e7]: RiskTracker
+    - paragraph [ref=e9]: "\"Identificá riesgos antes de que se conviertan en problemas\""
+  - generic [ref=e95]:
+    - generic [ref=e96]:
+      - heading "Bienvenido" [level=2] [ref=e97]
+      - paragraph [ref=e98]: Ingresá a tu cuenta para continuar
+    - generic [ref=e99]:
+      - button "Ingresar" [ref=e100] [cursor=pointer]
+      - button "Registrarse" [ref=e101] [cursor=pointer]
+    - generic [ref=e102]:
+      - generic [ref=e103]:
+        - generic [ref=e104]: Email
+        - textbox "usuario@empresa.com" [ref=e105]: regresion-test@test.com
+      - generic [ref=e106]:
+        - generic [ref=e107]: Contraseña
+        - textbox "••••••••" [ref=e108]: Test1234!
+      - button "Ingresar" [ref=e109] [cursor=pointer]
+    - generic [ref=e114]: o continuá con

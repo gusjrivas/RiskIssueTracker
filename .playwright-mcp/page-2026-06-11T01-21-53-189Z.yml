@@ -1,0 +1,9 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e6]: R
+    - generic [ref=e7]: RiskTracker
+    - paragraph [ref=e9]: "\"Identificá riesgos antes de que se conviertan en problemas\""
+  - generic [ref=e91]:
+    - heading "Cuenta pendiente" [level=2] [ref=e92]
+    - paragraph [ref=e93]: Cuenta pendiente de aprobación
+    - button "Volver al login" [ref=e94] [cursor=pointer]

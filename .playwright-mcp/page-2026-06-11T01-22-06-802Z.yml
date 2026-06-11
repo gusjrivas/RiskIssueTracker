@@ -1,0 +1,41 @@
+- generic [ref=e115]:
+  - banner [ref=e116]:
+    - generic [ref=e117]:
+      - heading "RiskTracker" [level=1] [ref=e118]
+      - generic [ref=e119]:
+        - generic [ref=e120]: Admin Test
+        - link "Administración" [ref=e121] [cursor=pointer]:
+          - /url: /admin
+          - img [ref=e122]
+          - text: Administración
+        - link "Mi Perfil" [ref=e125] [cursor=pointer]:
+          - /url: /profile
+          - img [ref=e126]
+          - text: Mi Perfil
+        - button "Salir" [ref=e130] [cursor=pointer]
+  - main [ref=e131]:
+    - generic [ref=e132]:
+      - generic [ref=e133]:
+        - heading "Proyectos" [level=2] [ref=e134]
+        - paragraph [ref=e135]: 4 proyectos
+      - button "Nuevo proyecto" [ref=e136] [cursor=pointer]:
+        - img [ref=e137]
+        - text: Nuevo proyecto
+    - generic [ref=e138]:
+      - link "test" [ref=e140] [cursor=pointer]:
+        - /url: /projects/bab41d6a-90a7-4a2f-8f0c-51ec48141fd3/risks
+        - img [ref=e141]
+        - heading "test" [level=3] [ref=e143]
+      - link "Proyecto Test Cliente ABC" [ref=e145] [cursor=pointer]:
+        - /url: /projects/fa755816-3539-43f1-8dfd-5f4a1d5430df/risks
+        - img [ref=e146]
+        - heading "Proyecto Test" [level=3] [ref=e148]
+        - paragraph [ref=e149]: Cliente ABC
+      - link "ABC" [ref=e151] [cursor=pointer]:
+        - /url: /projects/ab1d297c-3999-45fa-b45a-782eb6119c66/risks
+        - img [ref=e152]
+        - heading "ABC" [level=3] [ref=e154]
+      - link "PPAY" [ref=e156] [cursor=pointer]:
+        - /url: /projects/bd08cec5-471a-42ac-86e9-6aa066402587/risks
+        - img [ref=e157]
+        - heading "PPAY" [level=3] [ref=e159]

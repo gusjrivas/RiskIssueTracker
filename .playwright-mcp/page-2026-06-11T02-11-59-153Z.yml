@@ -1,0 +1,27 @@
+- generic [ref=e210]:
+  - banner [ref=e211]:
+    - generic [ref=e212]:
+      - link [ref=e213] [cursor=pointer]:
+        - /url: /
+        - img [ref=e214]
+      - heading "Proyecto Regresion E2E" [level=1] [ref=e217]
+  - main [ref=e218]:
+    - generic [ref=e219]:
+      - button "Riesgos 0" [ref=e220] [cursor=pointer]:
+        - img [ref=e221]
+        - text: Riesgos
+        - generic [ref=e223]: "0"
+      - button "Issues 0" [ref=e224] [cursor=pointer]:
+        - img [ref=e225]
+        - text: Issues
+        - generic [ref=e227]: "0"
+    - generic [ref=e228]:
+      - generic [ref=e229]:
+        - heading "Riesgos" [level=2] [ref=e230]
+        - paragraph [ref=e231]: 0 riesgos
+      - button "Nuevo riesgo" [ref=e232] [cursor=pointer]:
+        - img [ref=e233]
+        - text: Nuevo riesgo
+    - generic [ref=e234]:
+      - img [ref=e235]
+      - paragraph [ref=e237]: No hay riesgos registrados. Creá el primero.

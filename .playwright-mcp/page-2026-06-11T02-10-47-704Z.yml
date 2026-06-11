@@ -1,0 +1,93 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - button [ref=e6] [cursor=pointer]:
+        - img [ref=e7]
+      - heading "Administración" [level=1] [ref=e9]
+  - main [ref=e10]:
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - heading "Todos los usuarios (6)" [level=2] [ref=e13]:
+          - img [ref=e14]
+          - text: Todos los usuarios (6)
+        - generic [ref=e19]:
+          - generic [ref=e20]:
+            - generic [ref=e21]:
+              - paragraph [ref=e22]: gus
+              - paragraph [ref=e23]: gus@test.com
+            - generic [ref=e24]:
+              - generic [ref=e25]: user
+              - generic [ref=e26]: Activo
+              - button "Editar usuario" [ref=e27] [cursor=pointer]:
+                - img [ref=e28]
+              - button "Desactivar" [ref=e31] [cursor=pointer]:
+                - img [ref=e32]
+          - generic [ref=e36]:
+            - generic [ref=e37]:
+              - paragraph [ref=e38]: Usuario Prueba
+              - paragraph [ref=e39]: user2@test.com
+            - generic [ref=e40]:
+              - generic [ref=e41]: user
+              - generic [ref=e42]: Activo
+              - button "Editar usuario" [ref=e43] [cursor=pointer]:
+                - img [ref=e44]
+              - button "Desactivar" [ref=e47] [cursor=pointer]:
+                - img [ref=e48]
+          - generic [ref=e52]:
+            - generic [ref=e53]:
+              - paragraph [ref=e54]: Gustavo Rivas
+              - paragraph [ref=e55]: gustavo.rivas@redb.ee
+            - generic [ref=e56]:
+              - generic [ref=e57]: user
+              - generic [ref=e58]: Inactivo
+              - button "Editar usuario" [ref=e59] [cursor=pointer]:
+                - img [ref=e60]
+              - button "Reactivar" [ref=e63] [cursor=pointer]:
+                - img [ref=e64]
+          - generic [ref=e67]:
+            - generic [ref=e68]:
+              - paragraph [ref=e69]: Gus Rivas
+              - paragraph [ref=e70]: gus.j.rivas@gmail.com
+            - generic [ref=e71]:
+              - generic [ref=e72]: user
+              - generic [ref=e73]: Activo
+              - button "Editar usuario" [ref=e74] [cursor=pointer]:
+                - img [ref=e75]
+              - button "Desactivar" [ref=e78] [cursor=pointer]:
+                - img [ref=e79]
+          - generic [ref=e83]:
+            - generic [ref=e84]:
+              - paragraph [ref=e85]: Admin Test
+              - paragraph [ref=e86]: admin@test.com
+            - generic [ref=e87]:
+              - generic [ref=e88]: admin
+              - generic [ref=e89]: Activo
+              - button "Editar usuario" [ref=e90] [cursor=pointer]:
+                - img [ref=e91]
+              - button "Desactivar" [ref=e94] [cursor=pointer]:
+                - img [ref=e95]
+          - generic [ref=e99]:
+            - generic [ref=e100]:
+              - generic [ref=e121]:
+                - text: Nombre
+                - textbox [ref=e122]: Usuario Regresion
+              - generic [ref=e123]:
+                - text: Email
+                - textbox [ref=e124]: regresion-test@test.com
+            - generic [ref=e103]:
+              - text: Rol
+              - combobox [ref=e125]:
+                - option "user"
+                - option "admin" [selected]
+            - generic [ref=e126]:
+              - button "Guardar" [ref=e127] [cursor=pointer]:
+                - img [ref=e128]
+                - text: Guardar
+              - button "Cancelar" [ref=e130] [cursor=pointer]:
+                - img [ref=e131]
+                - text: Cancelar
+      - generic [ref=e115]:
+        - heading "Papelera" [level=2] [ref=e116]:
+          - img [ref=e117]
+          - text: Papelera
+        - paragraph [ref=e120]: La papelera está vacía.

@@ -1,0 +1,8 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - button [ref=e6] [cursor=pointer]:
+        - img [ref=e7]
+      - heading "Administración" [level=1] [ref=e9]
+  - main [ref=e10]:
+    - img [ref=e13]

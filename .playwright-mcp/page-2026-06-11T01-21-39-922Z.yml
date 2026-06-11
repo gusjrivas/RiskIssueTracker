@@ -1,0 +1,9 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e6]: R
+    - generic [ref=e7]: RiskTracker
+    - paragraph [ref=e9]: "\"Identificá riesgos antes de que se conviertan en problemas\""
+  - generic [ref=e52]:
+    - heading "Cuenta creada" [level=2] [ref=e53]
+    - paragraph [ref=e54]: Tu cuenta está pendiente de aprobación por un administrador.
+    - button "Volver al login" [ref=e55] [cursor=pointer]

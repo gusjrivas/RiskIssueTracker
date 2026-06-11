@@ -1,0 +1,86 @@
+- generic [ref=e210]:
+  - banner [ref=e211]:
+    - generic [ref=e212]:
+      - link [ref=e213] [cursor=pointer]:
+        - /url: /
+        - img [ref=e214]
+      - heading "Proyecto Regresion E2E" [level=1] [ref=e217]
+  - main [ref=e218]:
+    - generic [ref=e219]:
+      - button "Riesgos 0" [ref=e220] [cursor=pointer]:
+        - img [ref=e221]
+        - text: Riesgos
+        - generic [ref=e223]: "0"
+      - button "Issues 0" [ref=e224] [cursor=pointer]:
+        - img [ref=e225]
+        - text: Issues
+        - generic [ref=e227]: "0"
+    - generic [ref=e228]:
+      - generic [ref=e229]:
+        - heading "Riesgos" [level=2] [ref=e230]
+        - paragraph [ref=e231]: 0 riesgos
+      - button "Nuevo riesgo" [active] [ref=e232] [cursor=pointer]:
+        - img [ref=e233]
+        - text: Nuevo riesgo
+    - generic [ref=e238]:
+      - heading "Nuevo riesgo" [level=3] [ref=e239]
+      - generic [ref=e240]:
+        - generic [ref=e241]:
+          - text: Título *
+          - 'textbox "Ej: Retraso en entrega de componentes" [ref=e242]'
+        - generic [ref=e243]:
+          - text: Descripción
+          - textbox [ref=e244]
+        - generic [ref=e245]:
+          - generic [ref=e246]:
+            - text: Categoría *
+            - combobox [ref=e247]:
+              - option "Seleccioná" [selected]
+              - option "Calendario"
+              - option "Alcance"
+              - option "Ingresos"
+              - option "Costos"
+              - option "Presupuesto"
+              - option "Equipo"
+              - option "Gestión"
+          - generic [ref=e248]:
+            - text: Proximidad *
+            - combobox [ref=e249]:
+              - option "Seleccioná" [selected]
+              - option "Corto plazo"
+              - option "Mediano plazo"
+              - option "Largo plazo"
+        - generic [ref=e250]:
+          - generic [ref=e251]:
+            - text: Probabilidad *
+            - combobox [ref=e252]:
+              - option "Seleccioná" [selected]
+              - option "Muy baja"
+              - option "Baja"
+              - option "Media"
+              - option "Alta"
+              - option "Muy alta"
+          - generic [ref=e253]:
+            - text: Impacto *
+            - combobox [ref=e254]:
+              - option "Seleccioná" [selected]
+              - option "Muy bajo"
+              - option "Bajo"
+              - option "Medio"
+              - option "Alto"
+              - option "Muy alto"
+        - generic [ref=e255]:
+          - text: Responsable
+          - combobox [ref=e256]:
+            - option "Sin responsable" [selected]
+            - option "Admin Test"
+            - option "gus"
+            - option "Gus Rivas"
+            - option "Usuario Prueba"
+            - option "Usuario Regresion"
+        - generic [ref=e257]:
+          - button "Crear riesgo" [ref=e258] [cursor=pointer]
+          - button "Cancelar" [ref=e259] [cursor=pointer]
+    - generic [ref=e234]:
+      - img [ref=e235]
+      - paragraph [ref=e237]: No hay riesgos registrados. Creá el primero.
