@@ -5,11 +5,22 @@ const PROB_WEIGHTS = {
 const IMPACT_WEIGHTS = {
   muy_bajo: 0.056, bajo: 0.10, medio: 0.20, alto: 0.40, muy_alto: 0.80,
 }
-const SEVERITY_MATRIX = {
+// Exportada para que el dashboard arme la grilla 3×3; la matriz es biyectiva
+// (cada celda tiene un valor de severidad único 1-9), lo que permite ubicar
+// también los issues (que solo tienen severity) en su celda.
+export const SEVERITY_MATRIX = {
   corto_plazo:    { bajo: 5, medio: 2, alto: 1 },
   mediano_plazo:  { bajo: 7, medio: 4, alto: 3 },
   largo_plazo:    { bajo: 9, medio: 8, alto: 6 },
 }
+
+export const PROXIMITY_LABELS = {
+  corto_plazo: 'Corto plazo',
+  mediano_plazo: 'Mediano plazo',
+  largo_plazo: 'Largo plazo',
+}
+
+export const ZONE_LABELS = { bajo: 'Bajo', medio: 'Medio', alto: 'Alto' }
 
 function exposureZone(exposure) {
   if (exposure <= 0.09) return 'bajo'

@@ -3,6 +3,7 @@ import { AuthProvider } from './hooks/useAuth'
 import ProtectedRoute from './components/ProtectedRoute'
 import LoginPage from './pages/LoginPage'
 import Dashboard from './pages/Dashboard'
+import DashboardStatsPage from './pages/DashboardStatsPage'
 import RisksPage from './pages/RisksPage'
 import RiskDetailPage from './pages/RiskDetailPage'
 import IssuesPage from './pages/IssuesPage'
@@ -15,6 +16,7 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><DashboardStatsPage /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute adminOnly><AdminPage /></ProtectedRoute>} />
         <Route path="/projects/:projectId/risks" element={<ProtectedRoute><RisksPage /></ProtectedRoute>} />

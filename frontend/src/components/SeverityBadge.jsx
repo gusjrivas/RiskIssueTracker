@@ -1,6 +1,6 @@
 const LABELS = { 1:'Crítico',2:'Crítico',3:'Crítico',4:'Moderado',5:'Moderado',6:'Moderado',7:'Bajo',8:'Bajo',9:'Bajo' }
 
-function severityClass(s) {
+export function severityClass(s) {
   if (s <= 3) return 'severity-red'
   if (s <= 6) return 'severity-yellow'
   return 'severity-green'
