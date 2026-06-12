@@ -1,4 +1,4 @@
-const CONFIG = {
+export const STATUS_CONFIG = {
   open:        { label: 'Abierto',      cls: 'bg-accent-subtle text-accent border border-accent/20' },
   in_progress: { label: 'En progreso',  cls: 'bg-severity-yellow-bg text-severity-yellow border border-severity-yellow/20' },
   closed:      { label: 'Cerrado',      cls: 'bg-severity-green-bg text-severity-green border border-severity-green/20' },
@@ -9,7 +9,7 @@ const CONFIG = {
 }
 
 export default function StatusBadge({ status }) {
-  const { label, cls } = CONFIG[status] ?? { label: status, cls: 'bg-gray-100 text-gray-600 border border-gray-200' }
+  const { label, cls } = STATUS_CONFIG[status] ?? { label: status, cls: 'bg-gray-100 text-gray-600 border border-gray-200' }
   return (
     <span data-testid="status-badge" className={`inline-flex items-center px-2 py-0.5 text-xs font-medium ${cls}`}>
       {label}
