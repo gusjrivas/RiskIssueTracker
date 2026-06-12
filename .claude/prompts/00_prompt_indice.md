@@ -35,6 +35,11 @@ desde el scaffolding inicial hasta el estado actual.
 | [20_prompt_soft-delete.md](20_prompt_soft-delete.md) | Feature | `fix/mitigation-plan-save-guard` | Borrado lógico (soft delete) + sección Papelera en AdminPage para restaurar |
 | [21_prompt_dark-mode-fix.md](21_prompt_dark-mode-fix.md) | Fix | `fix/dark-mode-google-oauth` | Dark mode: migración a CSS variables en Tailwind + botón Google OAuth frontend |
 | [22_prompt_google-oauth-backend.md](22_prompt_google-oauth-backend.md) | Feature | `feat/google-oauth-backend` | Google OAuth backend: endpoint /auth/google + UX pantalla acceso bloqueado |
+| [23_prompt_new_login_page.md](23_prompt_new_login_page.md) | Feature | `feature/New-login-page` | Rediseño de la pantalla de login: 3 propuestas visuales, spec aprobada e implementación con sub-agentes |
+| [24_prompt_playwright-mcp.md](24_prompt_playwright-mcp.md) | Chore | `chore/add-playwright-mcp` | Playwright MCP a nivel proyecto (`.mcp.json` versionado) para verificación de UI en navegador real |
+| [25_prompt_bug-sweep.md](25_prompt_bug-sweep.md) | Fix | `fix/bug-sweep` | Barrido completo de bugs: 6 corregidos con TDD (severidad, auth, derive, paginación) |
+| [26_prompt_permission-feedback.md](26_prompt_permission-feedback.md) | Fix | `fix/permission-feedback` | Feedback de permisos en riesgos/issues: banner + acciones deshabilitadas para usuarios sin permiso |
+| [27_prompt_dashboard-stats.md](27_prompt_dashboard-stats.md) | Feature | `feature/dashboard-stats` | Dashboard `/dashboard`: matriz 3×3 severidad × zona con counts + bar charts por estado, filtrado por rol |
 
 ---
 
