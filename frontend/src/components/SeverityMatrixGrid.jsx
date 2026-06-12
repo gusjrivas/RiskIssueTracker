@@ -33,11 +33,19 @@ export default function SeverityMatrixGrid({ risksBySeverity = {}, issuesBySever
               <div
                 key={zone}
                 data-testid={`matrix-cell-${sev}`}
-                className={`${severityClass(sev)} flex flex-col items-center justify-center gap-1 py-5 px-3`}
+                className={`${severityClass(sev)} relative flex flex-col items-center justify-center gap-1.5 py-6 px-3`}
               >
-                <span className="font-display text-2xl font-bold leading-none">{sev}</span>
-                <span className="text-xs">
-                  {plural(risks, 'riesgo', 'riesgos')} · {plural(issues, 'issue', 'issues')}
+                <span className="font-display text-2xl font-bold leading-none">
+                  {plural(risks, 'riesgo', 'riesgos')}
+                </span>
+                <span className="font-display text-lg font-semibold leading-none opacity-75">
+                  {plural(issues, 'issue', 'issues')}
+                </span>
+                <span
+                  data-testid={`matrix-sev-${sev}`}
+                  className="absolute bottom-1.5 left-2 text-[10px] font-medium opacity-50 leading-none"
+                >
+                  {sev}
                 </span>
               </div>
             )

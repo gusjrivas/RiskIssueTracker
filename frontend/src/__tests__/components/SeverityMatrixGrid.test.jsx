@@ -20,6 +20,15 @@ describe('SeverityMatrixGrid', () => {
     expect(screen.getByTestId('matrix-cell-9')).toHaveClass('severity-green')
   })
 
+  it('muestra el número de severidad como indicador pequeño en la esquina de cada celda', () => {
+    render(<SeverityMatrixGrid risksBySeverity={risksBySeverity} issuesBySeverity={issuesBySeverity} />)
+    for (let s = 1; s <= 9; s++) {
+      const indicator = screen.getByTestId(`matrix-sev-${s}`)
+      expect(indicator).toHaveTextContent(String(s))
+      expect(indicator).toHaveClass('absolute', 'bottom-1.5', 'left-2')
+    }
+  })
+
   it('muestra los counts de risks e issues dentro de cada celda', () => {
     render(<SeverityMatrixGrid risksBySeverity={risksBySeverity} issuesBySeverity={issuesBySeverity} />)
     const cell1 = screen.getByTestId('matrix-cell-1')
