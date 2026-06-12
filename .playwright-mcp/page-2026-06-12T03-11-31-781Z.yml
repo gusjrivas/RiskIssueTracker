@@ -1,0 +1,41 @@
+- generic [ref=e47]:
+  - banner [ref=e48]:
+    - generic [ref=e49]:
+      - heading "RiskTracker" [level=1] [ref=e50]
+      - generic [ref=e51]:
+        - generic [ref=e52]: Victima
+        - link "Mi Perfil" [ref=e53] [cursor=pointer]:
+          - /url: /profile
+          - img [ref=e54]
+          - text: Mi Perfil
+        - button "Salir" [ref=e58] [cursor=pointer]
+  - main [ref=e59]:
+    - generic [ref=e60]:
+      - generic [ref=e61]:
+        - heading "Proyectos" [level=2] [ref=e62]
+        - paragraph [ref=e63]: 5 proyectos
+      - button "Nuevo proyecto" [ref=e64] [cursor=pointer]:
+        - img [ref=e65]
+        - text: Nuevo proyecto
+    - generic [ref=e66]:
+      - link "test" [ref=e68] [cursor=pointer]:
+        - /url: /projects/bab41d6a-90a7-4a2f-8f0c-51ec48141fd3/risks
+        - img [ref=e69]
+        - heading "test" [level=3] [ref=e71]
+      - link "Proyecto Test Cliente ABC" [ref=e73] [cursor=pointer]:
+        - /url: /projects/fa755816-3539-43f1-8dfd-5f4a1d5430df/risks
+        - img [ref=e74]
+        - heading "Proyecto Test" [level=3] [ref=e76]
+        - paragraph [ref=e77]: Cliente ABC
+      - link "ABC" [ref=e79] [cursor=pointer]:
+        - /url: /projects/ab1d297c-3999-45fa-b45a-782eb6119c66/risks
+        - img [ref=e80]
+        - heading "ABC" [level=3] [ref=e82]
+      - link "PPAY" [ref=e84] [cursor=pointer]:
+        - /url: /projects/bd08cec5-471a-42ac-86e9-6aa066402587/risks
+        - img [ref=e85]
+        - heading "PPAY" [level=3] [ref=e87]
+      - link "Proyecto Regresion E2E" [ref=e89] [cursor=pointer]:
+        - /url: /projects/cf03e4b7-e752-4af6-9128-b21f92dd09f4/risks
+        - img [ref=e90]
+        - heading "Proyecto Regresion E2E" [level=3] [ref=e92]
