@@ -20,10 +20,11 @@ export default function StatusBarChart({ title, byStatus = {}, statuses }) {
               </span>
               <div className="flex-1 h-5 bg-border/40">
                 <motion.div
+                  data-testid={`status-bar-fill-${status}`}
                   initial={{ width: 0 }}
                   animate={{ width: `${pct}%` }}
                   transition={{ duration: 0.3, ease: 'easeOut' }}
-                  className="h-full bg-accent"
+                  className={`h-full ${STATUS_CONFIG[status]?.bar ?? 'bg-gray-400'}`}
                 />
               </div>
               <span className="font-display text-sm font-bold w-8 text-right">{count}</span>

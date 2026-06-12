@@ -22,6 +22,20 @@ describe('StatusBarChart', () => {
     expect(screen.getByTestId('status-bar-derived')).toHaveTextContent('Derivado')
   })
 
+  it('colorea cada barra con el color semántico de su estado', () => {
+    render(
+      <StatusBarChart
+        title="Riesgos"
+        byStatus={{ open: 4, in_progress: 2, closed: 1, derived: 3 }}
+        statuses={RISK_STATUSES}
+      />
+    )
+    expect(screen.getByTestId('status-bar-fill-open')).toHaveClass('bg-accent')
+    expect(screen.getByTestId('status-bar-fill-in_progress')).toHaveClass('bg-severity-yellow')
+    expect(screen.getByTestId('status-bar-fill-closed')).toHaveClass('bg-severity-green')
+    expect(screen.getByTestId('status-bar-fill-derived')).toHaveClass('bg-gray-400')
+  })
+
   it('no muestra "Derivado" cuando los statuses son de issues', () => {
     render(
       <StatusBarChart
