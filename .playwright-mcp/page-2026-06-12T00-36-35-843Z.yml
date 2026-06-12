@@ -1,0 +1,47 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img [ref=e7]
+      - heading "test" [level=1] [ref=e30]
+  - main [ref=e11]:
+    - generic [ref=e12]:
+      - button "Riesgos 2" [ref=e80] [cursor=pointer]:
+        - img [ref=e14]
+        - text: Riesgos
+        - generic [ref=e16]: "2"
+      - button "Issues 1" [ref=e32] [cursor=pointer]:
+        - img [ref=e18]
+        - text: Issues
+        - generic [ref=e20]: "1"
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - heading "Riesgos" [level=2] [ref=e23]
+        - paragraph [ref=e24]: 2 riesgos
+      - button "Nuevo riesgo" [ref=e25] [cursor=pointer]:
+        - img [ref=e26]
+        - text: Nuevo riesgo
+    - generic [ref=e27]:
+      - link "Comparativa preview branch actual Equipo 5 Moderado Abierto" [ref=e82] [cursor=pointer]:
+        - /url: /risks/3d72fb93-de74-4667-bab6-299c8c723483
+        - generic [ref=e83]:
+          - generic [ref=e84]:
+            - heading "Comparativa preview branch actual" [level=3] [ref=e85]
+            - generic [ref=e86]: Equipo
+          - generic [ref=e87]:
+            - generic [ref=e88]: "5"
+            - generic [ref=e89]: Moderado
+        - generic [ref=e91]: Abierto
+      - link "Retraso en despliegue MVP Calendario 1 Crítico Derivado · Issue derivado" [ref=e56] [cursor=pointer]:
+        - /url: /risks/9197e894-c9b2-43b6-8108-e8a92f3163ce
+        - generic [ref=e57]:
+          - generic [ref=e58]:
+            - heading "Retraso en despliegue MVP" [level=3] [ref=e59]
+            - generic [ref=e60]: Calendario
+          - generic [ref=e61]:
+            - generic [ref=e62]: "1"
+            - generic [ref=e63]: Crítico
+        - generic [ref=e64]:
+          - generic [ref=e65]: Derivado
+          - generic [ref=e66]: · Issue derivado

@@ -1,0 +1,95 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img [ref=e7]
+      - heading "test" [level=1] [ref=e30]
+  - main [ref=e11]:
+    - generic [ref=e12]:
+      - button "Riesgos 1" [ref=e31] [cursor=pointer]:
+        - img [ref=e14]
+        - text: Riesgos
+        - generic [ref=e16]: "1"
+      - button "Issues 1" [ref=e32] [cursor=pointer]:
+        - img [ref=e18]
+        - text: Issues
+        - generic [ref=e20]: "1"
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - heading "Riesgos" [level=2] [ref=e23]
+        - paragraph [ref=e24]: 1 riesgo
+      - button "Nuevo riesgo" [active] [ref=e25] [cursor=pointer]:
+        - img [ref=e26]
+        - text: Nuevo riesgo
+    - generic [ref=e33]:
+      - heading "Nuevo riesgo" [level=3] [ref=e34]
+      - generic [ref=e35]:
+        - generic [ref=e36]:
+          - text: Título *
+          - 'textbox "Ej: Retraso en entrega de componentes" [ref=e37]'
+        - generic [ref=e38]:
+          - text: Descripción
+          - textbox [ref=e39]
+        - generic [ref=e40]:
+          - generic [ref=e41]:
+            - text: Categoría *
+            - combobox [ref=e42]:
+              - option "Seleccioná" [selected]
+              - option "Calendario"
+              - option "Alcance"
+              - option "Ingresos"
+              - option "Costos"
+              - option "Presupuesto"
+              - option "Equipo"
+              - option "Gestión"
+          - generic [ref=e43]:
+            - text: Proximidad *
+            - combobox [ref=e44]:
+              - option "Seleccioná" [selected]
+              - option "Corto plazo"
+              - option "Mediano plazo"
+              - option "Largo plazo"
+        - generic [ref=e45]:
+          - generic [ref=e46]:
+            - text: Probabilidad *
+            - combobox [ref=e47]:
+              - option "Seleccioná" [selected]
+              - option "Muy baja"
+              - option "Baja"
+              - option "Media"
+              - option "Alta"
+              - option "Muy alta"
+          - generic [ref=e48]:
+            - text: Impacto *
+            - combobox [ref=e49]:
+              - option "Seleccioná" [selected]
+              - option "Muy bajo"
+              - option "Bajo"
+              - option "Medio"
+              - option "Alto"
+              - option "Muy alto"
+        - generic [ref=e50]:
+          - text: Responsable
+          - combobox [ref=e51]:
+            - option "Sin responsable" [selected]
+            - option "Admin Test"
+            - option "gus"
+            - option "Gus Rivas"
+            - option "Usuario Prueba"
+            - option "Usuario Regresion"
+        - generic [ref=e52]:
+          - button "Crear riesgo" [ref=e53] [cursor=pointer]
+          - button "Cancelar" [ref=e54] [cursor=pointer]
+    - link "Retraso en despliegue MVP Calendario 1 Crítico Derivado · Issue derivado" [ref=e56] [cursor=pointer]:
+      - /url: /risks/9197e894-c9b2-43b6-8108-e8a92f3163ce
+      - generic [ref=e57]:
+        - generic [ref=e58]:
+          - heading "Retraso en despliegue MVP" [level=3] [ref=e59]
+          - generic [ref=e60]: Calendario
+        - generic [ref=e61]:
+          - generic [ref=e62]: "1"
+          - generic [ref=e63]: Crítico
+      - generic [ref=e64]:
+        - generic [ref=e65]: Derivado
+        - generic [ref=e66]: · Issue derivado

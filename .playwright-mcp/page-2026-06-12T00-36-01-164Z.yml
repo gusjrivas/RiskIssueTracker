@@ -1,0 +1,25 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img [ref=e7]
+      - heading "…" [level=1] [ref=e10]
+  - main [ref=e11]:
+    - generic [ref=e12]:
+      - button "Riesgos 0" [ref=e13] [cursor=pointer]:
+        - img [ref=e14]
+        - text: Riesgos
+        - generic [ref=e16]: "0"
+      - button "Issues 0" [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+        - text: Issues
+        - generic [ref=e20]: "0"
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - heading "Riesgos" [level=2] [ref=e23]
+        - paragraph [ref=e24]: 0 riesgos
+      - button "Nuevo riesgo" [ref=e25] [cursor=pointer]:
+        - img [ref=e26]
+        - text: Nuevo riesgo
+    - img [ref=e28]
