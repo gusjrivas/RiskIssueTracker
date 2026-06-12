@@ -7,6 +7,7 @@ export default function MitigationPlanPanel({
   entityType, entityId,
   initialMitigation = '', initialContingency = '',
   readOnly = false,
+  disabled = false,
   onDirtyChange,
 }) {
   const [mitigation, setMitigation] = useState(initialMitigation)
@@ -19,7 +20,8 @@ export default function MitigationPlanPanel({
   const { saving, error, save } = useMitigationPlan(entityType, entityId)
   const navigate = useNavigate()
 
-  const isDirty = !readOnly && (mitigation !== savedMitigation || contingency !== savedContingency)
+  const locked = readOnly || disabled
+  const isDirty = !locked && (mitigation !== savedMitigation || contingency !== savedContingency)
 
   // Notify parent of dirty state so it can guard its own navigate() calls
   useEffect(() => { onDirtyChange?.(isDirty) }, [isDirty, onDirtyChange])
@@ -119,27 +121,32 @@ export default function MitigationPlanPanel({
           <label className="text-xs font-medium text-muted uppercase tracking-wide">Estrategia de mitigación</label>
           <textarea
             value={mitigation}
-            onChange={e => !readOnly && setMitigation(e.target.value)}
+            onChange={e => !locked && setMitigation(e.target.value)}
             rows={3}
-            className={`input resize-none ${readOnly ? 'opacity-60 cursor-default' : ''}`}
+            className={`input resize-none ${locked ? 'opacity-60 cursor-default' : ''}`}
             placeholder="Describí la estrategia para reducir probabilidad o impacto..."
-            readOnly={readOnly}
+            readOnly={locked}
           />
         </div>
         <div className="space-y-1.5">
           <label className="text-xs font-medium text-muted uppercase tracking-wide">Plan de contingencia</label>
           <textarea
             value={contingency}
-            onChange={e => !readOnly && setContingency(e.target.value)}
+            onChange={e => !locked && setContingency(e.target.value)}
             rows={3}
-            className={`input resize-none ${readOnly ? 'opacity-60 cursor-default' : ''}`}
+            className={`input resize-none ${locked ? 'opacity-60 cursor-default' : ''}`}
             placeholder="¿Qué hacer si el riesgo se materializa?"
-            readOnly={readOnly}
+            readOnly={locked}
           />
         </div>
         {error && <p className="text-xs text-severity-red">{error}</p>}
         {!readOnly && (
-          <button onClick={handleSave} disabled={saving} className="btn-primary flex items-center gap-2">
+          <button
+            onClick={handleSave}
+            disabled={saving || disabled}
+            title={disabled ? 'Solo el creador, el responsable o un administrador pueden modificar el plan' : undefined}
+            className={`btn-primary flex items-center gap-2 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
             {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
             {saved ? 'Guardado' : 'Guardar plan'}
           </button>

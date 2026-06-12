@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ChevronLeft, Trash2, Loader2, AlertCircle } from 'lucide-react'
+import { ChevronLeft, Trash2, Loader2, AlertCircle, ShieldAlert } from 'lucide-react'
 import { getIssue, deleteIssue, transitionIssueStatus, updateIssue } from '../api/issues'
+import { useAuth } from '../hooks/useAuth'
+import { canModifyEntity } from '../utils/permissions'
 import SeverityBadge from '../components/SeverityBadge'
 import StatusBadge from '../components/StatusBadge'
 import StatusTransitionButton from '../components/StatusTransitionButton'
@@ -14,9 +16,11 @@ import ActivityLog from '../components/ActivityLog'
 export default function IssuesPage() {
   const { issueId } = useParams()
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [issue, setIssue] = useState(null)
   const [loading, setLoading] = useState(true)
   const [planDirty, setPlanDirty] = useState(false)
+  const [actionError, setActionError] = useState(null)
 
   useEffect(() => {
     getIssue(issueId).then(setIssue).finally(() => setLoading(false))
@@ -29,8 +33,13 @@ export default function IssuesPage() {
 
   const handleDelete = async () => {
     if (!confirm('¿Eliminar este issue?')) return
-    await deleteIssue(issueId)
-    navigate(-1)
+    setActionError(null)
+    try {
+      await deleteIssue(issueId)
+      navigate(-1)
+    } catch (err) {
+      setActionError(err.message)
+    }
   }
 
   const handleOwnerSave = async (newOwnerId) => {
@@ -47,6 +56,7 @@ export default function IssuesPage() {
   if (!issue) return null
 
   const isClosed = issue.status === 'closed'
+  const canModify = canModifyEntity(user, issue)
 
   return (
     <div className="min-h-screen bg-canvas">
@@ -79,10 +89,22 @@ export default function IssuesPage() {
                 <StatusBadge status={issue.status} />
               </div>
             </div>
-            <button onClick={handleDelete} className="text-muted hover:text-severity-red transition-colors shrink-0">
+            <button
+              onClick={handleDelete}
+              disabled={!canModify}
+              title={!canModify ? 'Solo el creador, el responsable o un administrador pueden eliminar este issue' : 'Eliminar issue'}
+              className={`text-muted hover:text-severity-red transition-colors shrink-0 ${!canModify ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
               <Trash2 size={18} strokeWidth={1.5} />
             </button>
           </div>
+
+          {!canModify && (
+            <div className="flex items-center gap-2 text-sm text-muted bg-surface border border-border rounded-lg px-4 py-3 mb-6">
+              <ShieldAlert size={14} strokeWidth={1.5} className="shrink-0" />
+              Solo el creador, el responsable asignado o un administrador pueden modificar este issue o cambiar su estado.
+            </div>
+          )}
 
           {issue.description && (
             <p className="text-sm text-muted mb-6 leading-relaxed">{issue.description}</p>
@@ -102,11 +124,13 @@ export default function IssuesPage() {
               ownerId={issue.owner_id}
               onSave={handleOwnerSave}
               readOnly={isClosed}
+              disabled={!canModify}
             />
           </div>
 
-          <div className="mb-10">
-            <StatusTransitionButton currentStatus={issue.status} onTransition={handleTransition} />
+          <div className="mb-10 space-y-2">
+            <StatusTransitionButton currentStatus={issue.status} onTransition={handleTransition} disabled={!canModify} />
+            {actionError && <p className="text-xs text-severity-red">{actionError}</p>}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -118,6 +142,7 @@ export default function IssuesPage() {
                 initialMitigation={issue.mitigation_strategy ?? ''}
                 initialContingency={issue.contingency_plan ?? ''}
                 readOnly={isClosed}
+                disabled={!canModify}
                 onDirtyChange={setPlanDirty}
               />
             </div>
