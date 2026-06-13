@@ -9,6 +9,7 @@ Aplicación web para la gestión de riesgos e issues en proyectos. Permite regis
 - Borrado lógico (soft delete) con papelera y restauración para administradores
 - Historial de transiciones de estado y log de auditoría completo de todas las acciones
 - Tema claro/oscuro configurable por usuario, persistido en el perfil
+- Dashboard de estadísticas con matriz de severidad (proximidad × zona de exposición) y gráficos de riesgos/issues por estado, respetando la visibilidad por usuario
 
 **Autores:** Gustavo Julián Rivas · Rodolfo Di Chiazza
 
@@ -209,7 +210,7 @@ Todas las variables se definen en `.env` (copiado desde `.env.example`).
 RiskIssueTracker/
 ├── backend/
 │   ├── app/
-│   │   ├── api/               # Routers HTTP (auth, projects, risks, issues, history, admin)
+│   │   ├── api/               # Routers HTTP (auth, projects, risks, issues, history, admin, dashboard)
 │   │   ├── models/            # Modelos SQLAlchemy
 │   │   ├── schemas/           # Schemas Pydantic + Enums del dominio
 │   │   ├── services/          # Lógica de negocio
@@ -301,6 +302,7 @@ curl -X POST http://localhost:8000/api/v1/auth/login \
 | `PATCH` | `/issues/{id}/restore` | Restaurar issue eliminado | ✓ Admin |
 | `GET` | `/issues/{id}/audit` | Historial de cambios (campo a campo) del issue | ✓ |
 | `GET` | `/history/{entity_type}/{entity_id}` | Historial de transiciones de estado | ✓ |
+| `GET` | `/dashboard/stats` | Estadísticas agregadas de riesgos e issues (totales, por severidad y por estado) según visibilidad del usuario | ✓ |
 | `GET` | `/admin/users` | Listar usuarios | ✓ Admin |
 | `PATCH` | `/admin/users/{id}` | Editar datos de usuario | ✓ Admin |
 | `PATCH` | `/admin/users/{id}/approve` | Aprobar usuario | ✓ Admin |
