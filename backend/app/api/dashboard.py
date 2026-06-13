@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Path, Query
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
+from app.schemas.common import EntityType
 from app.schemas.dashboard import DashboardStatsResponse, SeverityItemsResponse
 from app.services import dashboard_service
 from app.services.auth_service import get_current_user
@@ -22,8 +23,8 @@ def get_dashboard_stats(
 @router.get("/stats/severity/{severity}", response_model=SeverityItemsResponse)
 def get_severity_items(
     severity: int = Path(ge=1, le=9),
-    type: Literal["risk", "issue"] = Query(...),
+    entity_type: Literal[EntityType.risk, EntityType.issue] = Query(..., alias="type"),
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    return dashboard_service.get_severity_items(db, severity, type, current_user)
+    return dashboard_service.get_severity_items(db, severity, entity_type, current_user)

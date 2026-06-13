@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import Literal
 
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
@@ -8,7 +7,7 @@ from app.models.issue import Issue
 from app.models.project import Project
 from app.models.risk import Risk
 from app.models.user import User
-from app.schemas.common import IssueStatus, RiskStatus, UserRole
+from app.schemas.common import EntityType, IssueStatus, RiskStatus, UserRole
 from app.schemas.dashboard import (
     DashboardStatsResponse,
     EntityStats,
@@ -75,10 +74,10 @@ def get_stats(db: Session, current_user: User) -> DashboardStatsResponse:
 def get_severity_items(
     db: Session,
     severity: int,
-    entity_type: Literal["risk", "issue"],
+    entity_type: EntityType,
     current_user: User,
 ) -> SeverityItemsResponse:
-    model = Risk if entity_type == "risk" else Issue
+    model = Risk if entity_type == EntityType.risk else Issue
     conditions = [model.deleted_at.is_(None), model.severity == severity]
 
     visibility = _visibility_clause(model, current_user)
