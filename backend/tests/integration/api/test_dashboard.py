@@ -182,3 +182,74 @@ class TestDashboardStats:
         assert body["risks"]["total"] == 0
         assert body["issues"]["total"] == 0
         assert all(v == 0 for v in body["risks"]["by_severity"].values())
+
+
+def _get_severity_items(client, token, severity, type_):
+    return client.get(
+        f"/api/v1/dashboard/stats/severity/{severity}?type={type_}",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+
+# ---------------------------------------------------------------------------
+# GET /dashboard/stats/severity/{severity}
+# ---------------------------------------------------------------------------
+
+class TestSeverityItems:
+    def test_requires_auth(self, client):
+        resp = client.get("/api/v1/dashboard/stats/severity/1?type=risk")
+        assert resp.status_code in (401, 403)
+
+    def test_admin_sees_all_risks_for_severity(self, client, admin_token, seed):
+        resp = _get_severity_items(client, admin_token, 1, "risk")
+        assert resp.status_code == 200
+        items = resp.json()["items"]
+        # risk_a1 (open) + risk_a3 (open, owner=regular_user) — ambos severidad 1
+        assert len(items) == 2
+        assert {i["title"] for i in items} == {"Risk sev 1"}
+        assert {i["status"] for i in items} == {"open"}
+
+    def test_admin_sees_issue_for_severity(self, client, admin_token, seed):
+        resp = _get_severity_items(client, admin_token, 9, "issue")
+        assert resp.status_code == 200
+        items = resp.json()["items"]
+        assert len(items) == 1
+        assert items[0]["title"] == "Issue sev 9"
+        assert items[0]["status"] == "closed"
+
+    def test_regular_user_sees_only_visible_risks(self, client, user_token, seed):
+        # severidad 1: solo ve risk_a3 (es owner), no risk_a1 (de admin)
+        resp = _get_severity_items(client, user_token, 1, "risk")
+        assert resp.status_code == 200
+        assert len(resp.json()["items"]) == 1
+
+        # severidad 4: ve risk_b1 porque project_b es propio (created_by)
+        resp_b = _get_severity_items(client, user_token, 4, "risk")
+        items_b = resp_b.json()["items"]
+        assert len(items_b) == 1
+        assert items_b[0]["status"] == "derived"
+
+    def test_regular_user_does_not_see_others_issues(self, client, user_token, seed):
+        # severidad 9 (issue_a1) pertenece al admin en project_a -> no visible
+        resp = _get_severity_items(client, user_token, 9, "issue")
+        assert resp.status_code == 200
+        assert resp.json()["items"] == []
+
+    def test_severity_out_of_range_returns_422(self, client, admin_token):
+        assert _get_severity_items(client, admin_token, 0, "risk").status_code == 422
+        assert _get_severity_items(client, admin_token, 10, "risk").status_code == 422
+
+    def test_invalid_type_returns_422(self, client, admin_token):
+        resp = _get_severity_items(client, admin_token, 1, "foo")
+        assert resp.status_code == 422
+
+    def test_severity_without_items_returns_empty_list(self, client, admin_token, seed):
+        resp = _get_severity_items(client, admin_token, 7, "risk")
+        assert resp.status_code == 200
+        assert resp.json()["items"] == []
+
+    def test_deleted_risk_excluded(self, client, admin_token, seed):
+        # risk_a4 (severidad 2) tiene deleted_at seteado en el seed
+        resp = _get_severity_items(client, admin_token, 2, "risk")
+        assert resp.status_code == 200
+        assert resp.json()["items"] == []
