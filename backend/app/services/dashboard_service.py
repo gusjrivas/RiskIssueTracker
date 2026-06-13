@@ -7,8 +7,13 @@ from app.models.issue import Issue
 from app.models.project import Project
 from app.models.risk import Risk
 from app.models.user import User
-from app.schemas.common import IssueStatus, RiskStatus, UserRole
-from app.schemas.dashboard import DashboardStatsResponse, EntityStats
+from app.schemas.common import EntityType, IssueStatus, RiskStatus, UserRole
+from app.schemas.dashboard import (
+    DashboardStatsResponse,
+    EntityStats,
+    SeverityItem,
+    SeverityItemsResponse,
+)
 
 
 def _visibility_clause(model, current_user: User):
@@ -63,4 +68,29 @@ def get_stats(db: Session, current_user: User) -> DashboardStatsResponse:
     return DashboardStatsResponse(
         risks=_entity_stats(db, Risk, RiskStatus, current_user),
         issues=_entity_stats(db, Issue, IssueStatus, current_user),
+    )
+
+
+def get_severity_items(
+    db: Session,
+    severity: int,
+    entity_type: EntityType,
+    current_user: User,
+) -> SeverityItemsResponse:
+    model = Risk if entity_type == EntityType.risk else Issue
+    conditions = [model.deleted_at.is_(None), model.severity == severity]
+
+    visibility = _visibility_clause(model, current_user)
+    if visibility is not None:
+        conditions.append(visibility)
+
+    rows = db.execute(
+        select(model.id, model.title, model.status).where(*conditions)
+    ).all()
+
+    return SeverityItemsResponse(
+        items=[
+            SeverityItem(id=row.id, title=row.title, status=row.status.value)
+            for row in rows
+        ]
     )

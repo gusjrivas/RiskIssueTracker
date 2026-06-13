@@ -1,3 +1,5 @@
+import uuid
+
 from pydantic import BaseModel
 
 
@@ -12,3 +14,13 @@ class EntityStats(BaseModel):
 class DashboardStatsResponse(BaseModel):
     risks: EntityStats
     issues: EntityStats
+
+
+class SeverityItem(BaseModel):
+    id: uuid.UUID
+    title: str
+    status: str
+
+
+class SeverityItemsResponse(BaseModel):
+    items: list[SeverityItem]
