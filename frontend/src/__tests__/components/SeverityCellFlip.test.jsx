@@ -77,4 +77,30 @@ describe('SeverityCellFlip', () => {
     fireEvent.click(screen.getByTestId('flip-close-1'))
     expect(screen.queryByTestId('matrix-cell-back-1')).not.toBeInTheDocument()
   })
+
+  it('muestra un mensaje de error si fetchItems falló para riesgos, sin afectar la sección de issues', () => {
+    setup({
+      itemsByKey: { '1-issue': [] },
+      errorByKey: { '1-risk': 'boom' },
+    })
+
+    fireEvent.click(screen.getByTestId('matrix-cell-1'))
+
+    expect(screen.getByText('Error al cargar.')).toBeInTheDocument()
+    expect(screen.queryByText('No hay riesgos con esta severidad.')).not.toBeInTheDocument()
+    expect(screen.getByText('No hay issues con esta severidad.')).toBeInTheDocument()
+  })
+
+  it('el botón frontal deja de ser focuseable y se oculta de lectores de pantalla al voltear', () => {
+    setup({ itemsByKey: { '1-risk': [], '1-issue': [] } })
+
+    const front = screen.getByTestId('matrix-cell-1')
+    expect(front).toHaveAttribute('tabIndex', '0')
+    expect(front).toHaveAttribute('aria-hidden', 'false')
+
+    fireEvent.click(front)
+
+    expect(front).toHaveAttribute('tabIndex', '-1')
+    expect(front).toHaveAttribute('aria-hidden', 'true')
+  })
 })

@@ -10,9 +10,12 @@ function plural(n, singular, pluralForm) {
   return `${n} ${n === 1 ? singular : pluralForm}`
 }
 
-function ItemList({ items, loading, emptyLabel, basePath }) {
+function ItemList({ items, loading, error, emptyLabel, basePath }) {
   if (loading) {
     return <p className="text-[10px] text-muted">Cargando...</p>
+  }
+  if (error) {
+    return <p className="text-[10px] text-red-500">Error al cargar.</p>
   }
   if (!items || items.length === 0) {
     return <p className="text-[10px] text-muted">{emptyLabel}</p>
@@ -38,7 +41,7 @@ function ItemList({ items, loading, emptyLabel, basePath }) {
 // lista los riesgos/issues de esa severidad, con link directo al detalle.
 export default function SeverityCellFlip({ sev, risksCount, issuesCount }) {
   const [flipped, setFlipped] = useState(false)
-  const { itemsByKey, loadingByKey, fetchItems } = useSeverityItems()
+  const { itemsByKey, loadingByKey, errorByKey, fetchItems } = useSeverityItems()
 
   const openBack = () => {
     fetchItems(sev, 'risk')
@@ -58,6 +61,8 @@ export default function SeverityCellFlip({ sev, risksCount, issuesCount }) {
           type="button"
           onClick={openBack}
           data-testid={`matrix-cell-${sev}`}
+          tabIndex={flipped ? -1 : 0}
+          aria-hidden={flipped}
           style={{ backfaceVisibility: 'hidden' }}
           className={`${severityClass(sev)} relative flex flex-col items-center justify-center gap-1.5 py-6 px-3 w-full`}
         >
@@ -95,6 +100,7 @@ export default function SeverityCellFlip({ sev, risksCount, issuesCount }) {
               <ItemList
                 items={itemsByKey[`${sev}-risk`]}
                 loading={loadingByKey[`${sev}-risk`]}
+                error={errorByKey[`${sev}-risk`]}
                 emptyLabel="No hay riesgos con esta severidad."
                 basePath="/risks"
               />
@@ -105,6 +111,7 @@ export default function SeverityCellFlip({ sev, risksCount, issuesCount }) {
               <ItemList
                 items={itemsByKey[`${sev}-issue`]}
                 loading={loadingByKey[`${sev}-issue`]}
+                error={errorByKey[`${sev}-issue`]}
                 emptyLabel="No hay issues con esta severidad."
                 basePath="/issues"
               />
