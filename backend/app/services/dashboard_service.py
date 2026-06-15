@@ -72,7 +72,7 @@ def get_stats(db: Session, current_user: User) -> DashboardStatsResponse:
     )
 
 
-def get_severity_groups(db: Session, current_user: User) -> SeverityItemsGroupedResponse:
+def get_severity_items_grouped(db: Session, current_user: User) -> SeverityItemsGroupedResponse:
     groups: list[SeverityGroup] = []
 
     for severity in range(1, 10):
