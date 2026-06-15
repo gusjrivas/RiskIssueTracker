@@ -184,72 +184,75 @@ class TestDashboardStats:
         assert all(v == 0 for v in body["risks"]["by_severity"].values())
 
 
-def _get_severity_items(client, token, severity, type_):
+def _get_severity_items_grouped(client, token):
     return client.get(
-        f"/api/v1/dashboard/stats/severity/{severity}?type={type_}",
+        "/api/v1/dashboard/stats/severity-items",
         headers={"Authorization": f"Bearer {token}"},
     )
 
 
 # ---------------------------------------------------------------------------
-# GET /dashboard/stats/severity/{severity}
+# GET /dashboard/stats/severity-items
 # ---------------------------------------------------------------------------
 
-class TestSeverityItems:
+class TestSeverityItemsGrouped:
     def test_requires_auth(self, client):
-        resp = client.get("/api/v1/dashboard/stats/severity/1?type=risk")
+        resp = client.get("/api/v1/dashboard/stats/severity-items")
         assert resp.status_code in (401, 403)
 
-    def test_admin_sees_all_risks_for_severity(self, client, admin_token, seed):
-        resp = _get_severity_items(client, admin_token, 1, "risk")
+    def test_admin_sees_all_grouped_by_severity(self, client, admin_token, seed):
+        resp = _get_severity_items_grouped(client, admin_token)
         assert resp.status_code == 200
-        items = resp.json()["items"]
-        # risk_a1 (open) + risk_a3 (open, owner=regular_user) — ambos severidad 1
-        assert len(items) == 2
-        assert {i["title"] for i in items} == {"Risk sev 1"}
-        assert {i["status"] for i in items} == {"open"}
+        groups = resp.json()["groups"]
 
-    def test_admin_sees_issue_for_severity(self, client, admin_token, seed):
-        resp = _get_severity_items(client, admin_token, 9, "issue")
+        severities = [g["severity"] for g in groups]
+        assert severities == [1, 3, 4, 5, 9]
+
+        group1 = next(g for g in groups if g["severity"] == 1)
+        assert len(group1["items"]) == 2
+        assert all(i["type"] == "risk" for i in group1["items"])
+        assert all(i["title"] == "Risk sev 1" for i in group1["items"])
+
+        group9 = next(g for g in groups if g["severity"] == 9)
+        assert len(group9["items"]) == 1
+        assert group9["items"][0]["title"] == "Issue sev 9"
+        assert group9["items"][0]["status"] == "closed"
+        assert group9["items"][0]["type"] == "issue"
+
+    def test_group_orders_risks_before_issues(self, client, admin_token, seed):
+        resp = _get_severity_items_grouped(client, admin_token)
+        group4 = next(g for g in resp.json()["groups"] if g["severity"] == 4)
+        assert [i["type"] for i in group4["items"]] == ["risk", "issue"]
+        assert group4["items"][0]["title"] == "Risk sev 4"
+        assert group4["items"][0]["status"] == "derived"
+        assert group4["items"][1]["title"] == "Issue sev 4"
+        assert group4["items"][1]["status"] == "in_progress"
+
+    def test_regular_user_sees_only_visible(self, client, user_token, seed):
+        resp = _get_severity_items_grouped(client, user_token)
         assert resp.status_code == 200
-        items = resp.json()["items"]
-        assert len(items) == 1
-        assert items[0]["title"] == "Issue sev 9"
-        assert items[0]["status"] == "closed"
+        groups = resp.json()["groups"]
 
-    def test_regular_user_sees_only_visible_risks(self, client, user_token, seed):
-        # severidad 1: solo ve risk_a3 (es owner), no risk_a1 (de admin)
-        resp = _get_severity_items(client, user_token, 1, "risk")
+        severities = [g["severity"] for g in groups]
+        assert severities == [1, 3, 4]
+
+        group1 = next(g for g in groups if g["severity"] == 1)
+        assert len(group1["items"]) == 1
+        assert group1["items"][0]["type"] == "risk"
+
+        group4 = next(g for g in groups if g["severity"] == 4)
+        assert [i["type"] for i in group4["items"]] == ["risk", "issue"]
+
+    def test_severities_without_visible_items_are_omitted(self, client, admin_token, seed):
+        resp = _get_severity_items_grouped(client, admin_token)
+        severities = [g["severity"] for g in resp.json()["groups"]]
+        # severidad 2 solo tiene el risk soft-deleted -> no aparece
+        assert 2 not in severities
+        assert 6 not in severities
+        assert 7 not in severities
+        assert 8 not in severities
+
+    def test_empty_db_returns_no_groups(self, client, admin_token):
+        resp = _get_severity_items_grouped(client, admin_token)
         assert resp.status_code == 200
-        assert len(resp.json()["items"]) == 1
-
-        # severidad 4: ve risk_b1 porque project_b es propio (created_by)
-        resp_b = _get_severity_items(client, user_token, 4, "risk")
-        items_b = resp_b.json()["items"]
-        assert len(items_b) == 1
-        assert items_b[0]["status"] == "derived"
-
-    def test_regular_user_does_not_see_others_issues(self, client, user_token, seed):
-        # severidad 9 (issue_a1) pertenece al admin en project_a -> no visible
-        resp = _get_severity_items(client, user_token, 9, "issue")
-        assert resp.status_code == 200
-        assert resp.json()["items"] == []
-
-    def test_severity_out_of_range_returns_422(self, client, admin_token):
-        assert _get_severity_items(client, admin_token, 0, "risk").status_code == 422
-        assert _get_severity_items(client, admin_token, 10, "risk").status_code == 422
-
-    def test_invalid_type_returns_422(self, client, admin_token):
-        resp = _get_severity_items(client, admin_token, 1, "foo")
-        assert resp.status_code == 422
-
-    def test_severity_without_items_returns_empty_list(self, client, admin_token, seed):
-        resp = _get_severity_items(client, admin_token, 7, "risk")
-        assert resp.status_code == 200
-        assert resp.json()["items"] == []
-
-    def test_deleted_risk_excluded(self, client, admin_token, seed):
-        # risk_a4 (severidad 2) tiene deleted_at seteado en el seed
-        resp = _get_severity_items(client, admin_token, 2, "risk")
-        assert resp.status_code == 200
-        assert resp.json()["items"] == []
+        assert resp.json()["groups"] == []

@@ -4,12 +4,14 @@ import AppHeader from '../components/AppHeader'
 import SeverityMatrixGrid from '../components/SeverityMatrixGrid'
 import StatusBarChart from '../components/StatusBarChart'
 import { useDashboardStats } from '../hooks/useDashboardStats'
+import { useSeverityGroups } from '../hooks/useSeverityGroups'
 
 const RISK_STATUSES = ['open', 'in_progress', 'closed', 'derived']
 const ISSUE_STATUSES = ['open', 'in_progress', 'closed']
 
 export default function DashboardStatsPage() {
   const { data, loading, error } = useDashboardStats()
+  const { data: severityGroups, loading: groupsLoading, error: groupsError, fetchGroups } = useSeverityGroups()
 
   return (
     <div className="min-h-screen bg-canvas">
@@ -43,6 +45,10 @@ export default function DashboardStatsPage() {
               <SeverityMatrixGrid
                 risksBySeverity={data.risks.by_severity}
                 issuesBySeverity={data.issues.by_severity}
+                groups={severityGroups}
+                groupsLoading={groupsLoading}
+                groupsError={groupsError}
+                onOpenDrawer={fetchGroups}
               />
             </section>
 
