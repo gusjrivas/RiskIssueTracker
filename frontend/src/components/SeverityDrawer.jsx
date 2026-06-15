@@ -13,7 +13,7 @@ export default function SeverityDrawer({ groups, loading, error, open }) {
   if (!open) return null
 
   return (
-    <div data-testid="severity-drawer" className="card mt-2 space-y-4">
+    <div id="severity-drawer" data-testid="severity-drawer" className="card mt-2 space-y-4">
       {loading ? (
         <p className="text-sm text-muted">Cargando...</p>
       ) : error ? (

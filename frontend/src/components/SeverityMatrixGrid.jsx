@@ -53,6 +53,8 @@ export default function SeverityMatrixGrid({
                   key={zone}
                   type="button"
                   onClick={toggleDrawer}
+                  aria-expanded={open}
+                  aria-controls="severity-drawer"
                   data-testid={`matrix-cell-${sev}`}
                   className={`${severityClass(sev)} relative flex flex-col items-center justify-center gap-1.5 py-6 px-3 w-full`}
                 >
