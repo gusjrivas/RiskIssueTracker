@@ -1,0 +1,606 @@
+commit ea4ed118ec5edb6beb9b3ccb416facf81031108c
+Author: gusjrivas <54255294+gusjrivas@users.noreply.github.com>
+Date:   Sun Jun 14 21:51:54 2026 -0300
+
+    feat: bandeja unica de severidad en SeverityMatrixGrid, elimina flip por celda
+
+diff --git a/frontend/src/__tests__/components/SeverityCellFlip.test.jsx b/frontend/src/__tests__/components/SeverityCellFlip.test.jsx
+deleted file mode 100644
+index ebbd6d4..0000000
+--- a/frontend/src/__tests__/components/SeverityCellFlip.test.jsx
++++ /dev/null
+@@ -1,106 +0,0 @@
+-import { render, screen, fireEvent } from '@testing-library/react'
+-import { MemoryRouter } from 'react-router-dom'
+-import { describe, it, expect, vi } from 'vitest'
+-import SeverityCellFlip from '../../components/SeverityCellFlip'
+-import * as useSeverityItemsModule from '../../hooks/useSeverityItems'
+-
+-vi.mock('../../hooks/useSeverityItems')
+-
+-function setup({ itemsByKey = {}, loadingByKey = {}, errorByKey = {} } = {}, props = {}) {
+-  const fetchItems = vi.fn()
+-  useSeverityItemsModule.useSeverityItems.mockReturnValue({
+-    itemsByKey,
+-    loadingByKey,
+-    errorByKey,
+-    fetchItems,
+-  })
+-  render(
+-    <MemoryRouter>
+-      <SeverityCellFlip sev={1} risksCount={2} issuesCount={1} {...props} />
+-    </MemoryRouter>
+-  )
+-  return { fetchItems }
+-}
+-
+-describe('SeverityCellFlip', () => {
+-  it('muestra la cara frontal con los conteos y el número de severidad', () => {
+-    setup()
+-    const front = screen.getByTestId('matrix-cell-1')
+-    expect(front).toHaveTextContent('2 riesgos')
+-    expect(front).toHaveTextContent('1 issue')
+-    expect(screen.getByTestId('matrix-sev-1')).toHaveTextContent('1')
+-    expect(screen.queryByTestId('matrix-cell-back-1')).not.toBeInTheDocument()
+-  })
+-
+-  it('al hacer click se voltea, muestra la cara trasera y dispara fetchItems para risk e issue', () => {
+-    const { fetchItems } = setup({ itemsByKey: { '1-risk': [], '1-issue': [] } })
+-
+-    fireEvent.click(screen.getByTestId('matrix-cell-1'))
+-
+-    expect(screen.getByTestId('matrix-cell-back-1')).toBeInTheDocument()
+-    expect(fetchItems).toHaveBeenCalledWith(1, 'risk')
+-    expect(fetchItems).toHaveBeenCalledWith(1, 'issue')
+-  })
+-
+-  it('renderiza links a riesgos e issues con su StatusBadge', () => {
+-    setup({
+-      itemsByKey: {
+-        '1-risk': [{ id: 'r1', title: 'Riesgo crítico', status: 'open' }],
+-        '1-issue': [{ id: 'i1', title: 'Issue crítico', status: 'closed' }],
+-      },
+-    })
+-
+-    fireEvent.click(screen.getByTestId('matrix-cell-1'))
+-
+-    const riskLink = screen.getByRole('link', { name: /Riesgo crítico/ })
+-    expect(riskLink).toHaveAttribute('href', '/risks/r1')
+-
+-    const issueLink = screen.getByRole('link', { name: /Issue crítico/ })
+-    expect(issueLink).toHaveAttribute('href', '/issues/i1')
+-  })
+-
+-  it('muestra mensajes cuando no hay riesgos ni issues para la severidad', () => {
+-    setup({ itemsByKey: { '1-risk': [], '1-issue': [] } })
+-
+-    fireEvent.click(screen.getByTestId('matrix-cell-1'))
+-
+-    expect(screen.getByText('No hay riesgos con esta severidad.')).toBeInTheDocument()
+-    expect(screen.getByText('No hay issues con esta severidad.')).toBeInTheDocument()
+-  })
+-
+-  it('el botón de cierre vuelve a la cara frontal', () => {
+-    setup({ itemsByKey: { '1-risk': [], '1-issue': [] } })
+-
+-    fireEvent.click(screen.getByTestId('matrix-cell-1'))
+-    expect(screen.getByTestId('matrix-cell-back-1')).toBeInTheDocument()
+-
+-    fireEvent.click(screen.getByTestId('flip-close-1'))
+-    expect(screen.queryByTestId('matrix-cell-back-1')).not.toBeInTheDocument()
+-  })
+-
+-  it('muestra un mensaje de error si fetchItems falló para riesgos, sin afectar la sección de issues', () => {
+-    setup({
+-      itemsByKey: { '1-issue': [] },
+-      errorByKey: { '1-risk': 'boom' },
+-    })
+-
+-    fireEvent.click(screen.getByTestId('matrix-cell-1'))
+-
+-    expect(screen.getByText('Error al cargar.')).toBeInTheDocument()
+-    expect(screen.queryByText('No hay riesgos con esta severidad.')).not.toBeInTheDocument()
+-    expect(screen.getByText('No hay issues con esta severidad.')).toBeInTheDocument()
+-  })
+-
+-  it('el botón frontal deja de ser focuseable y se oculta de lectores de pantalla al voltear', () => {
+-    setup({ itemsByKey: { '1-risk': [], '1-issue': [] } })
+-
+-    const front = screen.getByTestId('matrix-cell-1')
+-    expect(front).toHaveAttribute('tabIndex', '0')
+-    expect(front).toHaveAttribute('aria-hidden', 'false')
+-
+-    fireEvent.click(front)
+-
+-    expect(front).toHaveAttribute('tabIndex', '-1')
+-    expect(front).toHaveAttribute('aria-hidden', 'true')
+-  })
+-})
+diff --git a/frontend/src/__tests__/components/SeverityMatrixGrid.test.jsx b/frontend/src/__tests__/components/SeverityMatrixGrid.test.jsx
+index 78337c7..426ae7e 100644
+--- a/frontend/src/__tests__/components/SeverityMatrixGrid.test.jsx
++++ b/frontend/src/__tests__/components/SeverityMatrixGrid.test.jsx
+@@ -1,28 +1,30 @@
+ import { render, screen, fireEvent } from '@testing-library/react'
+ import { MemoryRouter } from 'react-router-dom'
+-import { describe, it, expect, vi, beforeEach } from 'vitest'
++import { describe, it, expect, vi } from 'vitest'
+ import SeverityMatrixGrid from '../../components/SeverityMatrixGrid'
+-import * as dashboardApi from '../../api/dashboard'
+-
+-vi.mock('../../api/dashboard')
+ 
+ const risksBySeverity = { 1: 3, 2: 0, 3: 1, 4: 0, 5: 2, 6: 0, 7: 0, 8: 0, 9: 4 }
+ const issuesBySeverity = { 1: 1, 2: 0, 3: 0, 4: 5, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 }
+ 
+-function renderGrid(risks = risksBySeverity, issues = issuesBySeverity) {
+-  return render(
++function renderGrid(props = {}) {
++  const onOpenDrawer = vi.fn()
++  const utils = render(
+     <MemoryRouter>
+-      <SeverityMatrixGrid risksBySeverity={risks} issuesBySeverity={issues} />
++      <SeverityMatrixGrid
++        risksBySeverity={risksBySeverity}
++        issuesBySeverity={issuesBySeverity}
++        groups={null}
++        groupsLoading={false}
++        groupsError={null}
++        onOpenDrawer={onOpenDrawer}
++        {...props}
++      />
+     </MemoryRouter>
+   )
++  return { ...utils, onOpenDrawer }
+ }
+ 
+ describe('SeverityMatrixGrid', () => {
+-  beforeEach(() => {
+-    vi.resetAllMocks()
+-    dashboardApi.getSeverityItems.mockResolvedValue({ items: [] })
+-  })
+-
+   it('renderiza las 9 celdas de severidad', () => {
+     renderGrid()
+     for (let s = 1; s <= 9; s++) {
+@@ -67,15 +69,32 @@ describe('SeverityMatrixGrid', () => {
+   })
+ 
+   it('no rompe si los maps vienen vacíos', () => {
+-    renderGrid({}, {})
++    renderGrid({ risksBySeverity: {}, issuesBySeverity: {} })
+     expect(screen.getByTestId('matrix-cell-1')).toHaveTextContent('0 riesgos')
+   })
+ 
+-  it('al hacer click sobre una celda se voltea y pide los riesgos/issues de esa severidad', () => {
+-    renderGrid()
++  it('al hacer click en una celda abre la bandeja y llama a onOpenDrawer', () => {
++    const { onOpenDrawer } = renderGrid({
++      groups: [{ severity: 1, items: [{ id: 'r1', title: 'Riesgo A', status: 'open', type: 'risk' }] }],
++    })
++
++    expect(screen.queryByTestId('severity-drawer')).not.toBeInTheDocument()
++
+     fireEvent.click(screen.getByTestId('matrix-cell-1'))
+-    expect(screen.getByTestId('matrix-cell-back-1')).toBeInTheDocument()
+-    expect(dashboardApi.getSeverityItems).toHaveBeenCalledWith(1, 'risk')
+-    expect(dashboardApi.getSeverityItems).toHaveBeenCalledWith(1, 'issue')
++
++    expect(onOpenDrawer).toHaveBeenCalledTimes(1)
++    expect(screen.getByTestId('severity-drawer')).toBeInTheDocument()
++    expect(screen.getByRole('link', { name: /Riesgo A/ })).toHaveAttribute('href', '/risks/r1')
++  })
++
++  it('un segundo click en cualquier celda cierra la bandeja sin volver a llamar onOpenDrawer', () => {
++    const { onOpenDrawer } = renderGrid({ groups: [] })
++
++    fireEvent.click(screen.getByTestId('matrix-cell-1'))
++    expect(screen.getByTestId('severity-drawer')).toBeInTheDocument()
++
++    fireEvent.click(screen.getByTestId('matrix-cell-5'))
++    expect(screen.queryByTestId('severity-drawer')).not.toBeInTheDocument()
++    expect(onOpenDrawer).toHaveBeenCalledTimes(1)
+   })
+ })
+diff --git a/frontend/src/__tests__/hooks/useSeverityItems.test.jsx b/frontend/src/__tests__/hooks/useSeverityItems.test.jsx
+deleted file mode 100644
+index b4a6bc3..0000000
+--- a/frontend/src/__tests__/hooks/useSeverityItems.test.jsx
++++ /dev/null
+@@ -1,72 +0,0 @@
+-import { renderHook, act } from '@testing-library/react'
+-import { describe, it, expect, vi, beforeEach } from 'vitest'
+-import { useSeverityItems } from '../../hooks/useSeverityItems'
+-import * as dashboardApi from '../../api/dashboard'
+-
+-vi.mock('../../api/dashboard')
+-
+-describe('useSeverityItems', () => {
+-  beforeEach(() => {
+-    vi.resetAllMocks()
+-  })
+-
+-  it('carga items para severity+type y los expone en itemsByKey', async () => {
+-    dashboardApi.getSeverityItems.mockResolvedValue({
+-      items: [{ id: '1', title: 'Risk 1', status: 'open' }],
+-    })
+-    const { result } = renderHook(() => useSeverityItems())
+-
+-    await act(async () => {
+-      await result.current.fetchItems(1, 'risk')
+-    })
+-
+-    expect(dashboardApi.getSeverityItems).toHaveBeenCalledWith(1, 'risk')
+-    expect(result.current.itemsByKey['1-risk']).toEqual([
+-      { id: '1', title: 'Risk 1', status: 'open' },
+-    ])
+-    expect(result.current.loadingByKey['1-risk']).toBe(false)
+-  })
+-
+-  it('no vuelve a pedir datos para la misma severity+type (cache)', async () => {
+-    dashboardApi.getSeverityItems.mockResolvedValue({ items: [] })
+-    const { result } = renderHook(() => useSeverityItems())
+-
+-    await act(async () => {
+-      await result.current.fetchItems(2, 'issue')
+-    })
+-    await act(async () => {
+-      await result.current.fetchItems(2, 'issue')
+-    })
+-
+-    expect(dashboardApi.getSeverityItems).toHaveBeenCalledTimes(1)
+-  })
+-
+-  it('cachea por separado severity+type distintos', async () => {
+-    dashboardApi.getSeverityItems.mockResolvedValue({ items: [] })
+-    const { result } = renderHook(() => useSeverityItems())
+-
+-    await act(async () => {
+-      await result.current.fetchItems(1, 'risk')
+-    })
+-    await act(async () => {
+-      await result.current.fetchItems(1, 'issue')
+-    })
+-
+-    expect(dashboardApi.getSeverityItems).toHaveBeenCalledTimes(2)
+-    expect(dashboardApi.getSeverityItems).toHaveBeenCalledWith(1, 'risk')
+-    expect(dashboardApi.getSeverityItems).toHaveBeenCalledWith(1, 'issue')
+-  })
+-
+-  it('expone error si la API falla', async () => {
+-    dashboardApi.getSeverityItems.mockRejectedValue(new Error('boom'))
+-    const { result } = renderHook(() => useSeverityItems())
+-
+-    await act(async () => {
+-      await result.current.fetchItems(3, 'risk')
+-    })
+-
+-    expect(result.current.errorByKey['3-risk']).toBe('boom')
+-    expect(result.current.loadingByKey['3-risk']).toBe(false)
+-    expect(result.current.itemsByKey['3-risk']).toBeUndefined()
+-  })
+-})
+diff --git a/frontend/src/api/dashboard.js b/frontend/src/api/dashboard.js
+index e259796..eb72727 100644
+--- a/frontend/src/api/dashboard.js
++++ b/frontend/src/api/dashboard.js
+@@ -2,8 +2,5 @@ import { apiGet } from './client'
+ 
+ export const getDashboardStats = () => apiGet('/api/v1/dashboard/stats')
+ 
+-export const getSeverityItems = (severity, type) =>
+-  apiGet(`/api/v1/dashboard/stats/severity/${severity}?type=${type}`)
+-
+ export const getSeverityGroups = () =>
+   apiGet('/api/v1/dashboard/stats/severity-items')
+diff --git a/frontend/src/components/SeverityCellFlip.jsx b/frontend/src/components/SeverityCellFlip.jsx
+deleted file mode 100644
+index 49b6cc1..0000000
+--- a/frontend/src/components/SeverityCellFlip.jsx
++++ /dev/null
+@@ -1,124 +0,0 @@
+-import { useState } from 'react'
+-import { Link } from 'react-router-dom'
+-import { motion } from 'framer-motion'
+-import { X } from 'lucide-react'
+-import { severityClass } from './SeverityBadge'
+-import StatusBadge from './StatusBadge'
+-import { useSeverityItems } from '../hooks/useSeverityItems'
+-
+-function plural(n, singular, pluralForm) {
+-  return `${n} ${n === 1 ? singular : pluralForm}`
+-}
+-
+-function ItemList({ items, loading, error, emptyLabel, basePath }) {
+-  if (loading) {
+-    return <p className="text-[10px] text-muted">Cargando...</p>
+-  }
+-  if (error) {
+-    return <p className="text-[10px] text-red-500">Error al cargar.</p>
+-  }
+-  if (!items || items.length === 0) {
+-    return <p className="text-[10px] text-muted">{emptyLabel}</p>
+-  }
+-  return (
+-    <div className="space-y-1">
+-      {items.map(item => (
+-        <Link
+-          key={item.id}
+-          to={`${basePath}/${item.id}`}
+-          className="flex items-center justify-between gap-2 text-[11px] hover:underline"
+-        >
+-          <span className="truncate">{item.title}</span>
+-          <StatusBadge status={item.status} />
+-        </Link>
+-      ))}
+-    </div>
+-  )
+-}
+-
+-// Celda de la matriz de severidad con flip 3D: la cara frontal muestra los
+-// conteos (igual que antes); al hacer click se voltea y la cara trasera
+-// lista los riesgos/issues de esa severidad, con link directo al detalle.
+-export default function SeverityCellFlip({ sev, risksCount, issuesCount }) {
+-  const [flipped, setFlipped] = useState(false)
+-  const { itemsByKey, loadingByKey, errorByKey, fetchItems } = useSeverityItems()
+-
+-  const openBack = () => {
+-    fetchItems(sev, 'risk')
+-    fetchItems(sev, 'issue')
+-    setFlipped(true)
+-  }
+-
+-  return (
+-    <div className="relative" style={{ perspective: '1000px' }}>
+-      <motion.div
+-        className="relative w-full"
+-        style={{ transformStyle: 'preserve-3d' }}
+-        animate={{ rotateY: flipped ? 180 : 0 }}
+-        transition={{ duration: 0.4, ease: 'easeInOut' }}
+-      >
+-        <button
+-          type="button"
+-          onClick={openBack}
+-          data-testid={`matrix-cell-${sev}`}
+-          tabIndex={flipped ? -1 : 0}
+-          aria-hidden={flipped}
+-          style={{ backfaceVisibility: 'hidden' }}
+-          className={`${severityClass(sev)} relative flex flex-col items-center justify-center gap-1.5 py-6 px-3 w-full`}
+-        >
+-          <span className="font-display text-2xl font-bold leading-none">
+-            {plural(risksCount, 'riesgo', 'riesgos')}
+-          </span>
+-          <span className="font-display text-lg font-semibold leading-none opacity-75">
+-            {plural(issuesCount, 'issue', 'issues')}
+-          </span>
+-          <span
+-            data-testid={`matrix-sev-${sev}`}
+-            className="absolute bottom-1.5 left-2 text-[10px] font-medium opacity-50 leading-none"
+-          >
+-            {sev}
+-          </span>
+-        </button>
+-
+-        {flipped && (
+-          <div
+-            data-testid={`matrix-cell-back-${sev}`}
+-            style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+-            className="absolute inset-0 flex flex-col gap-2 p-2 bg-surface border border-border overflow-hidden"
+-          >
+-            <button
+-              type="button"
+-              data-testid={`flip-close-${sev}`}
+-              onClick={() => setFlipped(false)}
+-              className="self-end text-muted hover:text-ink"
+-            >
+-              <X size={12} />
+-            </button>
+-
+-            <div className="flex-1 overflow-y-auto max-h-24">
+-              <p className="text-[10px] font-semibold text-muted mb-1">Riesgos</p>
+-              <ItemList
+-                items={itemsByKey[`${sev}-risk`]}
+-                loading={loadingByKey[`${sev}-risk`]}
+-                error={errorByKey[`${sev}-risk`]}
+-                emptyLabel="No hay riesgos con esta severidad."
+-                basePath="/risks"
+-              />
+-            </div>
+-
+-            <div className="flex-1 overflow-y-auto max-h-24">
+-              <p className="text-[10px] font-semibold text-muted mb-1">Issues</p>
+-              <ItemList
+-                items={itemsByKey[`${sev}-issue`]}
+-                loading={loadingByKey[`${sev}-issue`]}
+-                error={errorByKey[`${sev}-issue`]}
+-                emptyLabel="No hay issues con esta severidad."
+-                basePath="/issues"
+-              />
+-            </div>
+-          </div>
+-        )}
+-      </motion.div>
+-    </div>
+-  )
+-}
+diff --git a/frontend/src/components/SeverityMatrixGrid.jsx b/frontend/src/components/SeverityMatrixGrid.jsx
+index 57727e8..98a9c34 100644
+--- a/frontend/src/components/SeverityMatrixGrid.jsx
++++ b/frontend/src/components/SeverityMatrixGrid.jsx
+@@ -1,40 +1,81 @@
++import { useState } from 'react'
+ import { SEVERITY_MATRIX, PROXIMITY_LABELS, ZONE_LABELS } from '../utils/severityCalc'
+-import SeverityCellFlip from './SeverityCellFlip'
++import { severityClass } from './SeverityBadge'
++import SeverityDrawer from './SeverityDrawer'
+ 
+ const ZONES = ['bajo', 'medio', 'alto']
+ 
++function plural(n, singular, pluralForm) {
++  return `${n} ${n === 1 ? singular : pluralForm}`
++}
++
+ // Grilla 3×3 de la matriz de severidad (proximidad × zona de exposición).
+ // Cada celda corresponde a un único valor de severidad 1-9 (la matriz es
+-// biyectiva). Cada celda es un SeverityCellFlip: muestra conteos y, al
+-// hacer click, se voltea y lista los riesgos/issues de esa severidad.
+-export default function SeverityMatrixGrid({ risksBySeverity = {}, issuesBySeverity = {} }) {
++// biyectiva). Cualquier celda hace toggle de la bandeja única (SeverityDrawer)
++// debajo de la grilla, que lista todos los riesgos/issues agrupados por
++// severidad.
++export default function SeverityMatrixGrid({
++  risksBySeverity = {},
++  issuesBySeverity = {},
++  groups,
++  groupsLoading,
++  groupsError,
++  onOpenDrawer,
++}) {
++  const [open, setOpen] = useState(false)
++
++  const toggleDrawer = () => {
++    if (!open) onOpenDrawer()
++    setOpen(o => !o)
++  }
++
+   return (
+-    <div className="grid grid-cols-[auto_1fr_1fr_1fr] gap-2">
+-      <div />
+-      {ZONES.map(zone => (
+-        <div key={zone} className="text-xs font-medium text-muted text-center pb-1">
+-          Zona {ZONE_LABELS[zone]}
+-        </div>
+-      ))}
++    <div>
++      <div className="grid grid-cols-[auto_1fr_1fr_1fr] gap-2">
++        <div />
++        {ZONES.map(zone => (
++          <div key={zone} className="text-xs font-medium text-muted text-center pb-1">
++            Zona {ZONE_LABELS[zone]}
++          </div>
++        ))}
+ 
+-      {Object.entries(SEVERITY_MATRIX).map(([proximity, row]) => (
+-        <div key={proximity} className="contents">
+-          <div className="text-xs font-medium text-muted flex items-center pr-2">
+-            {PROXIMITY_LABELS[proximity]}
++        {Object.entries(SEVERITY_MATRIX).map(([proximity, row]) => (
++          <div key={proximity} className="contents">
++            <div className="text-xs font-medium text-muted flex items-center pr-2">
++              {PROXIMITY_LABELS[proximity]}
++            </div>
++            {ZONES.map(zone => {
++              const sev = row[zone]
++              const risks = risksBySeverity[sev] ?? 0
++              const issues = issuesBySeverity[sev] ?? 0
++              return (
++                <button
++                  key={zone}
++                  type="button"
++                  onClick={toggleDrawer}
++                  data-testid={`matrix-cell-${sev}`}
++                  className={`${severityClass(sev)} relative flex flex-col items-center justify-center gap-1.5 py-6 px-3 w-full`}
++                >
++                  <span className="font-display text-2xl font-bold leading-none">
++                    {plural(risks, 'riesgo', 'riesgos')}
++                  </span>
++                  <span className="font-display text-lg font-semibold leading-none opacity-75">
++                    {plural(issues, 'issue', 'issues')}
++                  </span>
++                  <span
++                    data-testid={`matrix-sev-${sev}`}
++                    className="absolute bottom-1.5 left-2 text-[10px] font-medium opacity-50 leading-none"
++                  >
++                    {sev}
++                  </span>
++                </button>
++              )
++            })}
+           </div>
+-          {ZONES.map(zone => {
+-            const sev = row[zone]
+-            return (
+-              <SeverityCellFlip
+-                key={zone}
+-                sev={sev}
+-                risksCount={risksBySeverity[sev] ?? 0}
+-                issuesCount={issuesBySeverity[sev] ?? 0}
+-              />
+-            )
+-          })}
+-        </div>
+-      ))}
++        ))}
++      </div>
++
++      <SeverityDrawer groups={groups} loading={groupsLoading} error={groupsError} open={open} />
+     </div>
+   )
+ }
+diff --git a/frontend/src/hooks/useSeverityItems.js b/frontend/src/hooks/useSeverityItems.js
+deleted file mode 100644
+index bfe9a07..0000000
+--- a/frontend/src/hooks/useSeverityItems.js
++++ /dev/null
+@@ -1,31 +0,0 @@
+-import { useState, useRef, useCallback } from 'react'
+-import * as dashboardApi from '../api/dashboard'
+-
+-// Hook con cache en memoria por clave `severity-type`, para que cada celda de
+-// la matriz de severidad pueda pedir sus riesgos/issues sin re-fetchear si
+-// ya se cargaron antes.
+-export function useSeverityItems() {
+-  const [itemsByKey, setItemsByKey] = useState({})
+-  const [loadingByKey, setLoadingByKey] = useState({})
+-  const [errorByKey, setErrorByKey] = useState({})
+-  const cache = useRef({})
+-
+-  const fetchItems = useCallback(async (severity, type) => {
+-    const key = `${severity}-${type}`
+-    if (cache.current[key]) return
+-
+-    setLoadingByKey(prev => ({ ...prev, [key]: true }))
+-    try {
+-      const res = await dashboardApi.getSeverityItems(severity, type)
+-      cache.current[key] = res.items
+-      setItemsByKey(prev => ({ ...prev, [key]: res.items }))
+-      setErrorByKey(prev => ({ ...prev, [key]: null }))
+-    } catch (e) {
+-      setErrorByKey(prev => ({ ...prev, [key]: e.message }))
+-    } finally {
+-      setLoadingByKey(prev => ({ ...prev, [key]: false }))
+-    }
+-  }, [])
+-
+-  return { itemsByKey, loadingByKey, errorByKey, fetchItems }
+-}
+diff --git a/frontend/src/pages/DashboardStatsPage.jsx b/frontend/src/pages/DashboardStatsPage.jsx
+index b30a1c0..ec4e275 100644
+--- a/frontend/src/pages/DashboardStatsPage.jsx
++++ b/frontend/src/pages/DashboardStatsPage.jsx
+@@ -4,12 +4,14 @@ import AppHeader from '../components/AppHeader'
+ import SeverityMatrixGrid from '../components/SeverityMatrixGrid'
+ import StatusBarChart from '../components/StatusBarChart'
+ import { useDashboardStats } from '../hooks/useDashboardStats'
++import { useSeverityGroups } from '../hooks/useSeverityGroups'
+ 
+ const RISK_STATUSES = ['open', 'in_progress', 'closed', 'derived']
+ const ISSUE_STATUSES = ['open', 'in_progress', 'closed']
+ 
+ export default function DashboardStatsPage() {
+   const { data, loading, error } = useDashboardStats()
++  const { data: severityGroups, loading: groupsLoading, error: groupsError, fetchGroups } = useSeverityGroups()
+ 
+   return (
+     <div className="min-h-screen bg-canvas">
+@@ -43,6 +45,10 @@ export default function DashboardStatsPage() {
+               <SeverityMatrixGrid
+                 risksBySeverity={data.risks.by_severity}
+                 issuesBySeverity={data.issues.by_severity}
++                groups={severityGroups}
++                groupsLoading={groupsLoading}
++                groupsError={groupsError}
++                onOpenDrawer={fetchGroups}
+               />
+             </section>
+ 

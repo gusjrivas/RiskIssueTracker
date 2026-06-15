@@ -1,0 +1,272 @@
+commit cef40c072340dccc73e63b6516a874bc5e6f7593
+Author: gusjrivas <54255294+gusjrivas@users.noreply.github.com>
+Date:   Sun Jun 14 21:26:54 2026 -0300
+
+    feat: endpoint agrupado de severidad para la bandeja del dashboard
+
+diff --git a/backend/app/api/dashboard.py b/backend/app/api/dashboard.py
+index f7a738c..7ce24d4 100644
+--- a/backend/app/api/dashboard.py
++++ b/backend/app/api/dashboard.py
+@@ -1,11 +1,8 @@
+-from typing import Literal
+-
+-from fastapi import APIRouter, Depends, Path, Query
++from fastapi import APIRouter, Depends
+ from sqlalchemy.orm import Session
+ 
+ from app.db.session import get_db
+-from app.schemas.common import EntityType
+-from app.schemas.dashboard import DashboardStatsResponse, SeverityItemsResponse
++from app.schemas.dashboard import DashboardStatsResponse, SeverityItemsGroupedResponse
+ from app.services import dashboard_service
+ from app.services.auth_service import get_current_user
+ 
+@@ -20,11 +17,9 @@ def get_dashboard_stats(
+     return dashboard_service.get_stats(db, current_user)
+ 
+ 
+-@router.get("/stats/severity/{severity}", response_model=SeverityItemsResponse)
+-def get_severity_items(
+-    severity: int = Path(ge=1, le=9),
+-    entity_type: Literal[EntityType.risk, EntityType.issue] = Query(..., alias="type"),
++@router.get("/stats/severity-items", response_model=SeverityItemsGroupedResponse)
++def get_severity_items_grouped(
+     db: Session = Depends(get_db),
+     current_user=Depends(get_current_user),
+ ):
+-    return dashboard_service.get_severity_items(db, severity, entity_type, current_user)
++    return dashboard_service.get_severity_groups(db, current_user)
+diff --git a/backend/app/schemas/dashboard.py b/backend/app/schemas/dashboard.py
+index 8291523..25056f5 100644
+--- a/backend/app/schemas/dashboard.py
++++ b/backend/app/schemas/dashboard.py
+@@ -2,6 +2,8 @@ import uuid
+ 
+ from pydantic import BaseModel
+ 
++from app.schemas.common import EntityType
++
+ 
+ class EntityStats(BaseModel):
+     total: int
+@@ -16,11 +18,17 @@ class DashboardStatsResponse(BaseModel):
+     issues: EntityStats
+ 
+ 
+-class SeverityItem(BaseModel):
++class SeverityGroupItem(BaseModel):
+     id: uuid.UUID
+     title: str
+     status: str
++    type: EntityType
++
++
++class SeverityGroup(BaseModel):
++    severity: int
++    items: list[SeverityGroupItem]
+ 
+ 
+-class SeverityItemsResponse(BaseModel):
+-    items: list[SeverityItem]
++class SeverityItemsGroupedResponse(BaseModel):
++    groups: list[SeverityGroup]
+diff --git a/backend/app/services/dashboard_service.py b/backend/app/services/dashboard_service.py
+index e2f6306..7f5cd3b 100644
+--- a/backend/app/services/dashboard_service.py
++++ b/backend/app/services/dashboard_service.py
+@@ -11,8 +11,9 @@ from app.schemas.common import EntityType, IssueStatus, RiskStatus, UserRole
+ from app.schemas.dashboard import (
+     DashboardStatsResponse,
+     EntityStats,
+-    SeverityItem,
+-    SeverityItemsResponse,
++    SeverityGroup,
++    SeverityGroupItem,
++    SeverityItemsGroupedResponse,
+ )
+ 
+ 
+@@ -71,26 +72,32 @@ def get_stats(db: Session, current_user: User) -> DashboardStatsResponse:
+     )
+ 
+ 
+-def get_severity_items(
+-    db: Session,
+-    severity: int,
+-    entity_type: EntityType,
+-    current_user: User,
+-) -> SeverityItemsResponse:
+-    model = Risk if entity_type == EntityType.risk else Issue
+-    conditions = [model.deleted_at.is_(None), model.severity == severity]
++def get_severity_groups(db: Session, current_user: User) -> SeverityItemsGroupedResponse:
++    groups: list[SeverityGroup] = []
+ 
+-    visibility = _visibility_clause(model, current_user)
+-    if visibility is not None:
+-        conditions.append(visibility)
++    for severity in range(1, 10):
++        items: list[SeverityGroupItem] = []
+ 
+-    rows = db.execute(
+-        select(model.id, model.title, model.status).where(*conditions)
+-    ).all()
++        for model, entity_type in ((Risk, EntityType.risk), (Issue, EntityType.issue)):
++            conditions = [model.deleted_at.is_(None), model.severity == severity]
++            visibility = _visibility_clause(model, current_user)
++            if visibility is not None:
++                conditions.append(visibility)
+ 
+-    return SeverityItemsResponse(
+-        items=[
+-            SeverityItem(id=row.id, title=row.title, status=row.status.value)
+-            for row in rows
+-        ]
+-    )
++            rows = db.execute(
++                select(model.id, model.title, model.status)
++                .where(*conditions)
++                .order_by(model.title)
++            ).all()
++
++            items.extend(
++                SeverityGroupItem(
++                    id=row.id, title=row.title, status=row.status.value, type=entity_type
++                )
++                for row in rows
++            )
++
++        if items:
++            groups.append(SeverityGroup(severity=severity, items=items))
++
++    return SeverityItemsGroupedResponse(groups=groups)
+diff --git a/backend/tests/integration/api/test_dashboard.py b/backend/tests/integration/api/test_dashboard.py
+index eacbcb8..38927a4 100644
+--- a/backend/tests/integration/api/test_dashboard.py
++++ b/backend/tests/integration/api/test_dashboard.py
+@@ -184,72 +184,75 @@ class TestDashboardStats:
+         assert all(v == 0 for v in body["risks"]["by_severity"].values())
+ 
+ 
+-def _get_severity_items(client, token, severity, type_):
++def _get_severity_items_grouped(client, token):
+     return client.get(
+-        f"/api/v1/dashboard/stats/severity/{severity}?type={type_}",
++        "/api/v1/dashboard/stats/severity-items",
+         headers={"Authorization": f"Bearer {token}"},
+     )
+ 
+ 
+ # ---------------------------------------------------------------------------
+-# GET /dashboard/stats/severity/{severity}
++# GET /dashboard/stats/severity-items
+ # ---------------------------------------------------------------------------
+ 
+-class TestSeverityItems:
++class TestSeverityItemsGrouped:
+     def test_requires_auth(self, client):
+-        resp = client.get("/api/v1/dashboard/stats/severity/1?type=risk")
++        resp = client.get("/api/v1/dashboard/stats/severity-items")
+         assert resp.status_code in (401, 403)
+ 
+-    def test_admin_sees_all_risks_for_severity(self, client, admin_token, seed):
+-        resp = _get_severity_items(client, admin_token, 1, "risk")
++    def test_admin_sees_all_grouped_by_severity(self, client, admin_token, seed):
++        resp = _get_severity_items_grouped(client, admin_token)
+         assert resp.status_code == 200
+-        items = resp.json()["items"]
+-        # risk_a1 (open) + risk_a3 (open, owner=regular_user) — ambos severidad 1
+-        assert len(items) == 2
+-        assert {i["title"] for i in items} == {"Risk sev 1"}
+-        assert {i["status"] for i in items} == {"open"}
+-
+-    def test_admin_sees_issue_for_severity(self, client, admin_token, seed):
+-        resp = _get_severity_items(client, admin_token, 9, "issue")
+-        assert resp.status_code == 200
+-        items = resp.json()["items"]
+-        assert len(items) == 1
+-        assert items[0]["title"] == "Issue sev 9"
+-        assert items[0]["status"] == "closed"
+-
+-    def test_regular_user_sees_only_visible_risks(self, client, user_token, seed):
+-        # severidad 1: solo ve risk_a3 (es owner), no risk_a1 (de admin)
+-        resp = _get_severity_items(client, user_token, 1, "risk")
+-        assert resp.status_code == 200
+-        assert len(resp.json()["items"]) == 1
+-
+-        # severidad 4: ve risk_b1 porque project_b es propio (created_by)
+-        resp_b = _get_severity_items(client, user_token, 4, "risk")
+-        items_b = resp_b.json()["items"]
+-        assert len(items_b) == 1
+-        assert items_b[0]["status"] == "derived"
++        groups = resp.json()["groups"]
++
++        severities = [g["severity"] for g in groups]
++        assert severities == [1, 3, 4, 5, 9]
++
++        group1 = next(g for g in groups if g["severity"] == 1)
++        assert len(group1["items"]) == 2
++        assert all(i["type"] == "risk" for i in group1["items"])
++        assert all(i["title"] == "Risk sev 1" for i in group1["items"])
++
++        group9 = next(g for g in groups if g["severity"] == 9)
++        assert len(group9["items"]) == 1
++        assert group9["items"][0]["title"] == "Issue sev 9"
++        assert group9["items"][0]["status"] == "closed"
++        assert group9["items"][0]["type"] == "issue"
++
++    def test_group_orders_risks_before_issues(self, client, admin_token, seed):
++        resp = _get_severity_items_grouped(client, admin_token)
++        group4 = next(g for g in resp.json()["groups"] if g["severity"] == 4)
++        assert [i["type"] for i in group4["items"]] == ["risk", "issue"]
++        assert group4["items"][0]["title"] == "Risk sev 4"
++        assert group4["items"][0]["status"] == "derived"
++        assert group4["items"][1]["title"] == "Issue sev 4"
++        assert group4["items"][1]["status"] == "in_progress"
+ 
+-    def test_regular_user_does_not_see_others_issues(self, client, user_token, seed):
+-        # severidad 9 (issue_a1) pertenece al admin en project_a -> no visible
+-        resp = _get_severity_items(client, user_token, 9, "issue")
++    def test_regular_user_sees_only_visible(self, client, user_token, seed):
++        resp = _get_severity_items_grouped(client, user_token)
+         assert resp.status_code == 200
+-        assert resp.json()["items"] == []
++        groups = resp.json()["groups"]
+ 
+-    def test_severity_out_of_range_returns_422(self, client, admin_token):
+-        assert _get_severity_items(client, admin_token, 0, "risk").status_code == 422
+-        assert _get_severity_items(client, admin_token, 10, "risk").status_code == 422
++        severities = [g["severity"] for g in groups]
++        assert severities == [1, 3, 4]
+ 
+-    def test_invalid_type_returns_422(self, client, admin_token):
+-        resp = _get_severity_items(client, admin_token, 1, "foo")
+-        assert resp.status_code == 422
++        group1 = next(g for g in groups if g["severity"] == 1)
++        assert len(group1["items"]) == 1
++        assert group1["items"][0]["type"] == "risk"
+ 
+-    def test_severity_without_items_returns_empty_list(self, client, admin_token, seed):
+-        resp = _get_severity_items(client, admin_token, 7, "risk")
+-        assert resp.status_code == 200
+-        assert resp.json()["items"] == []
++        group4 = next(g for g in groups if g["severity"] == 4)
++        assert [i["type"] for i in group4["items"]] == ["risk", "issue"]
++
++    def test_severities_without_visible_items_are_omitted(self, client, admin_token, seed):
++        resp = _get_severity_items_grouped(client, admin_token)
++        severities = [g["severity"] for g in resp.json()["groups"]]
++        # severidad 2 solo tiene el risk soft-deleted -> no aparece
++        assert 2 not in severities
++        assert 6 not in severities
++        assert 7 not in severities
++        assert 8 not in severities
+ 
+-    def test_deleted_risk_excluded(self, client, admin_token, seed):
+-        # risk_a4 (severidad 2) tiene deleted_at seteado en el seed
+-        resp = _get_severity_items(client, admin_token, 2, "risk")
++    def test_empty_db_returns_no_groups(self, client, admin_token):
++        resp = _get_severity_items_grouped(client, admin_token)
+         assert resp.status_code == 200
+-        assert resp.json()["items"] == []
++        assert resp.json()["groups"] == []

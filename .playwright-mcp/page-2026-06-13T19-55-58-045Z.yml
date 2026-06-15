@@ -1,0 +1,104 @@
+- generic [ref=e165]:
+  - banner [ref=e166]:
+    - generic [ref=e167]:
+      - button [ref=e168] [cursor=pointer]:
+        - img [ref=e169]
+      - generic [ref=e171]: Riesgo
+  - main [ref=e172]:
+    - generic [ref=e173]:
+      - generic [ref=e174]:
+        - generic [ref=e175]:
+          - heading "Riesgo de prueba" [level=1] [ref=e176]
+          - generic [ref=e177]:
+            - generic [ref=e178]:
+              - generic [ref=e179]: "1"
+              - generic [ref=e180]: Crítico
+            - generic [ref=e181]: En progreso
+            - generic [ref=e182]: Calendario
+        - button "Eliminar riesgo" [ref=e183] [cursor=pointer]:
+          - img [ref=e184]
+      - generic [ref=e187]:
+        - generic [ref=e188]:
+          - paragraph [ref=e189]: Probabilidad
+          - paragraph [ref=e190]: alta
+        - generic [ref=e191]:
+          - paragraph [ref=e192]: Impacto
+          - paragraph [ref=e193]: alto
+        - generic [ref=e194]:
+          - paragraph [ref=e195]: Proximidad
+          - paragraph [ref=e196]: corto plazo
+      - generic [ref=e197]:
+        - paragraph [ref=e198]: Responsable
+        - generic [ref=e200]:
+          - img [ref=e201]
+          - generic [ref=e204]: Sin responsable
+          - button "Cambiar responsable" [ref=e205] [cursor=pointer]:
+            - img [ref=e206]
+      - generic [ref=e210]:
+        - button "Cerrar" [ref=e213] [cursor=pointer]:
+          - img [ref=e214]
+          - text: Cerrar
+        - button "Derivar a Issue" [ref=e216] [cursor=pointer]:
+          - img [ref=e217]
+          - text: Derivar a Issue
+      - generic [ref=e221]:
+        - generic [ref=e222]:
+          - heading "Plan de mitigación" [level=2] [ref=e223]
+          - generic [ref=e224]:
+            - generic [ref=e225]:
+              - text: Estrategia de mitigación
+              - textbox "Describí la estrategia para reducir probabilidad o impacto..." [ref=e226]: test admdmdm
+            - generic [ref=e227]:
+              - text: Plan de contingencia
+              - textbox "¿Qué hacer si el riesgo se materializa?" [ref=e228]: test
+            - button "Guardar plan" [ref=e229] [cursor=pointer]:
+              - img [ref=e230]
+              - text: Guardar plan
+        - generic [ref=e234]:
+          - generic [ref=e235]:
+            - heading "Historial de estados" [level=2] [ref=e236]
+            - generic [ref=e241]:
+              - generic [ref=e242]:
+                - generic [ref=e243]: open
+                - generic [ref=e244]: →
+                - generic [ref=e245]: in_progress
+              - generic [ref=e246]:
+                - img [ref=e247]
+                - generic [ref=e250]: 31/5/26, 1:06 a. m.
+          - generic [ref=e251]:
+            - heading "Actividad" [level=2] [ref=e252]
+            - list [ref=e253]:
+              - listitem [ref=e254]:
+                - img [ref=e255]
+                - generic [ref=e257]:
+                  - paragraph [ref=e258]: Admin Test Modificó
+                  - list [ref=e259]:
+                    - listitem [ref=e260]: "Estrategia de mitigación: test → test admdmdm"
+                  - paragraph [ref=e261]: 06/06/2026, 08:03 p. m.
+              - listitem [ref=e262]:
+                - img [ref=e263]
+                - generic [ref=e265]:
+                  - paragraph [ref=e266]: Admin Test Cambió estado
+                  - paragraph [ref=e267]: Abierto → En progreso
+                  - paragraph [ref=e268]: 31/05/2026, 01:06 a. m.
+              - listitem [ref=e269]:
+                - img [ref=e270]
+                - generic [ref=e272]:
+                  - paragraph [ref=e273]: Admin Test Modificó
+                  - list [ref=e274]:
+                    - listitem [ref=e275]: "Plan de contingencia: — → —"
+                    - listitem [ref=e276]: "Estrategia de mitigación: — → —"
+                  - paragraph [ref=e277]: 31/05/2026, 12:24 a. m.
+              - listitem [ref=e278]:
+                - img [ref=e279]
+                - generic [ref=e281]:
+                  - paragraph [ref=e282]: Admin Test Modificó
+                  - list [ref=e283]:
+                    - listitem [ref=e284]: "Plan de contingencia: — → —"
+                    - listitem [ref=e285]: "Estrategia de mitigación: — → —"
+                  - paragraph [ref=e286]: 31/05/2026, 12:02 a. m.
+              - listitem [ref=e287]:
+                - img [ref=e288]
+                - generic [ref=e289]:
+                  - paragraph [ref=e290]: Admin Test Creó
+                  - paragraph [ref=e291]: 31/05/2026, 12:02 a. m.

@@ -1,0 +1,118 @@
+<h2>Bandeja de riesgos/issues por severidad</h2>
+<p class="subtitle">Al hacer click en cualquier celda de la matriz, ¿cómo debería aparecer la bandeja con los riesgos/issues agrupados por severidad (1 → 9)?</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">Desktop — Panel debajo de la matriz</div>
+        <div class="mockup-body">
+          <div class="placeholder" style="height:70px;">Matriz 3x3 (se mantiene visible)</div>
+          <div style="margin-top:8px; border:2px solid #888; border-radius:6px; padding:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong>Bandeja de riesgos / issues</strong>
+              <span style="font-size:12px;">✕ cerrar</span>
+            </div>
+            <div style="margin-top:6px; font-size:12px;">
+              <div style="font-weight:bold;">Severidad 1</div>
+              <div class="mock-input" style="margin:2px 0;">⚠ Riesgo A — en progreso</div>
+              <div class="mock-input" style="margin:2px 0;">⚠ Issue B — abierto</div>
+              <div style="font-weight:bold; margin-top:6px;">Severidad 2</div>
+              <div class="mock-input" style="margin:2px 0;">⚠ Riesgo C — abierto</div>
+              <div style="text-align:center; color:#999; margin-top:4px;">… severidades 3 a 9 …</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. Panel expandible debajo de la matriz</h3>
+      <p>La matriz queda arriba (siempre visible) y la bandeja se despliega debajo, ocupando todo el ancho. En mobile, la matriz queda chica arriba y la bandeja con scroll abajo.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">Desktop — La bandeja reemplaza la matriz</div>
+        <div class="mockup-body">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong>← Volver a la matriz</strong>
+            <span style="font-size:12px; color:#999;">Severidad seleccionada: 1</span>
+          </div>
+          <div style="margin-top:8px; border:2px solid #888; border-radius:6px; padding:8px; font-size:12px;">
+            <div style="font-weight:bold;">Severidad 1</div>
+            <div class="mock-input" style="margin:2px 0;">⚠ Riesgo A — en progreso</div>
+            <div class="mock-input" style="margin:2px 0;">⚠ Issue B — abierto</div>
+            <div style="font-weight:bold; margin-top:6px;">Severidad 2</div>
+            <div class="mock-input" style="margin:2px 0;">⚠ Riesgo C — abierto</div>
+            <div style="font-weight:bold; margin-top:6px;">Severidad 3</div>
+            <div class="mock-input" style="margin:2px 0;">⚠ Riesgo D — cerrado</div>
+            <div style="text-align:center; color:#999; margin-top:4px;">… severidades 4 a 9 …</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. La bandeja sustituye toda la sección</h3>
+      <p>Al hacer click, toda la zona de la matriz se transforma en la lista completa (con botón "Volver"). Máximo espacio disponible, ideal para mobile — no hay nada apretado.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">Desktop — Hoja deslizante (overlay)</div>
+        <div class="mockup-body" style="position:relative;">
+          <div class="placeholder" style="height:70px;">Matriz 3x3 (atenuada / debajo del overlay)</div>
+          <div style="position:absolute; top:6px; right:6px; bottom:0; left:40%; background:#fff; border:2px solid #888; border-radius:6px; padding:8px; box-shadow:-2px 0 6px rgba(0,0,0,0.15); font-size:12px;">
+            <div style="display:flex; justify-content:space-between;">
+              <strong>Riesgos / Issues</strong>
+              <span>✕</span>
+            </div>
+            <div style="font-weight:bold; margin-top:4px;">Severidad 1</div>
+            <div class="mock-input" style="margin:2px 0;">⚠ Riesgo A</div>
+            <div style="font-weight:bold; margin-top:4px;">Severidad 2</div>
+            <div class="mock-input" style="margin:2px 0;">⚠ Riesgo C</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. Hoja deslizante / overlay flotante</h3>
+      <p>Aparece como panel lateral (desktop) o "bottom sheet" que sube desde abajo (mobile), flotando sobre la matriz atenuada. La matriz no se mueve, pero queda tapada parcialmente.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="section" style="margin-top:24px;">
+  <h3>Notas sobre mobile</h3>
+  <div class="pros-cons">
+    <div class="pros">
+      <h4>A — Panel debajo</h4>
+      <ul>
+        <li>Simple de implementar, sin overlays</li>
+        <li>Matriz siempre visible como referencia</li>
+        <li>En mobile, hay que hacer scroll para ver la bandeja</li>
+      </ul>
+    </div>
+    <div class="pros">
+      <h4>B — Reemplazo total</h4>
+      <ul>
+        <li>Máximo espacio, mejor lectura en mobile</li>
+        <li>Requiere botón "Volver" claro</li>
+        <li>Pierde referencia visual de la matriz mientras se navega</li>
+      </ul>
+    </div>
+    <div class="pros">
+      <h4>C — Overlay/bottom sheet</h4>
+      <ul>
+        <li>Patrón mobile muy conocido (bottom sheet)</li>
+        <li>Mantiene contexto (matriz atenuada detrás)</li>
+        <li>Más complejo de animar correctamente</li>
+      </ul>
+    </div>
+  </div>
+</div>

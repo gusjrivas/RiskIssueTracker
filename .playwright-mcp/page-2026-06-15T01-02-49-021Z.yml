@@ -1,0 +1,98 @@
+- generic [ref=e219]:
+  - banner [ref=e220]:
+    - generic [ref=e221]:
+      - button [ref=e222] [cursor=pointer]:
+        - img [ref=e223]
+      - generic [ref=e225]: Riesgo
+  - main [ref=e226]:
+    - generic [ref=e227]:
+      - generic [ref=e228]:
+        - generic [ref=e229]:
+          - heading "Accesos a ambientes" [level=1] [ref=e230]
+          - generic [ref=e231]:
+            - generic [ref=e232]:
+              - generic [ref=e233]: "1"
+              - generic [ref=e234]: Crítico
+            - generic [ref=e235]: En progreso
+            - generic [ref=e236]: Calendario
+        - button "Eliminar riesgo" [ref=e237] [cursor=pointer]:
+          - img [ref=e238]
+      - paragraph [ref=e241]: Dado que no hay confirmacion del cliente sobre los accesos tanto al repositorio como a los ambientes de dev, qa, uat y prod entonces existe una alta probabilidad de no arrancar el proyecto con el cronograma planteado
+      - generic [ref=e242]:
+        - generic [ref=e243]:
+          - paragraph [ref=e244]: Probabilidad
+          - paragraph [ref=e245]: alta
+        - generic [ref=e246]:
+          - paragraph [ref=e247]: Impacto
+          - paragraph [ref=e248]: alto
+        - generic [ref=e249]:
+          - paragraph [ref=e250]: Proximidad
+          - paragraph [ref=e251]: corto plazo
+      - generic [ref=e252]:
+        - paragraph [ref=e253]: Responsable
+        - generic [ref=e255]:
+          - img [ref=e256]
+          - generic [ref=e259]: gus
+          - button "Cambiar responsable" [ref=e260] [cursor=pointer]:
+            - img [ref=e261]
+      - generic [ref=e265]:
+        - button "Cerrar" [ref=e268] [cursor=pointer]:
+          - img [ref=e269]
+          - text: Cerrar
+        - button "Derivar a Issue" [ref=e271] [cursor=pointer]:
+          - img [ref=e272]
+          - text: Derivar a Issue
+      - generic [ref=e276]:
+        - generic [ref=e277]:
+          - heading "Plan de mitigación" [level=2] [ref=e278]
+          - generic [ref=e279]:
+            - generic [ref=e280]:
+              - text: Estrategia de mitigación
+              - textbox "Describí la estrategia para reducir probabilidad o impacto..." [ref=e281]: Si accedemos al repositorio podemos armar el ambiente de dev local mientras el cliente despliega sus entornos se incorpora mas acciones para mitigar
+            - generic [ref=e282]:
+              - text: Plan de contingencia
+              - textbox "¿Qué hacer si el riesgo se materializa?" [ref=e283]: Se convertirá en problema
+            - button "Guardar plan" [ref=e284] [cursor=pointer]:
+              - img [ref=e285]
+              - text: Guardar plan
+        - generic [ref=e289]:
+          - generic [ref=e290]:
+            - heading "Historial de estados" [level=2] [ref=e291]
+            - generic [ref=e296]:
+              - generic [ref=e297]:
+                - generic [ref=e298]: open
+                - generic [ref=e299]: →
+                - generic [ref=e300]: in_progress
+              - generic [ref=e301]:
+                - img [ref=e302]
+                - generic [ref=e305]: 6/6/26, 6:54 p. m.
+          - generic [ref=e306]:
+            - heading "Actividad" [level=2] [ref=e307]
+            - list [ref=e308]:
+              - listitem [ref=e309]:
+                - img [ref=e310]
+                - generic [ref=e312]:
+                  - paragraph [ref=e313]: Admin Test Modificó
+                  - list [ref=e314]:
+                    - listitem [ref=e315]: "Plan de contingencia: → Se convertirá en problema"
+                    - listitem [ref=e316]: "Estrategia de mitigación: Si accedemos al repositorio podemos arma… → Si accedemos al repositorio podemos arma…"
+                  - paragraph [ref=e317]: 10/06/2026, 09:31 p. m.
+              - listitem [ref=e318]:
+                - img [ref=e319]
+                - generic [ref=e321]:
+                  - paragraph [ref=e322]: Admin Test Cambió estado
+                  - paragraph [ref=e323]: Abierto → En progreso
+                  - paragraph [ref=e324]: 06/06/2026, 06:54 p. m.
+              - listitem [ref=e325]:
+                - img [ref=e326]
+                - generic [ref=e328]:
+                  - paragraph [ref=e329]: Admin Test Modificó
+                  - list [ref=e330]:
+                    - listitem [ref=e331]: "Estrategia de mitigación: → Si accedemos al repositorio podemos arma…"
+                  - paragraph [ref=e332]: 06/06/2026, 06:53 p. m.
+              - listitem [ref=e333]:
+                - img [ref=e334]
+                - generic [ref=e335]:
+                  - paragraph [ref=e336]: Admin Test Creó
+                  - paragraph [ref=e337]: "Responsable: gus"
+                  - paragraph [ref=e338]: 06/06/2026, 06:52 p. m.

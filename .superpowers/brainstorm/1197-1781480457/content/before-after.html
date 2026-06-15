@@ -1,0 +1,74 @@
+<h2>¿Qué cambia vs. lo que ya existe hoy?</h2>
+<p class="subtitle">Comparación entre el comportamiento actual (PR #48, ya en el branch) y el nuevo diseño con la bandeja debajo de la matriz (Opción A)</p>
+
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">HOY — cada celda se "voltea" (flip 3D)</div>
+    <div class="mockup-body">
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
+        <div class="placeholder" style="height:60px;">Celda 1<br><small>2 riesgos / 1 issue</small></div>
+        <div style="border:2px solid #888; border-radius:6px; padding:6px; font-size:11px;">
+          <div style="display:flex; justify-content:space-between;"><strong>Celda 2 (volteada)</strong><span>✕</span></div>
+          <div style="margin-top:4px;">Riesgos:</div>
+          <div class="mock-input" style="margin:2px 0;">Riesgo X</div>
+          <div style="margin-top:4px;">Issues:</div>
+          <div class="mock-input" style="margin:2px 0;">Issue Y</div>
+        </div>
+        <div class="placeholder" style="height:60px;">Celda 3</div>
+        <div class="placeholder" style="height:60px;">Celda 4</div>
+        <div class="placeholder" style="height:60px;">Celda 5</div>
+        <div class="placeholder" style="height:60px;">Celda 6</div>
+        <div class="placeholder" style="height:60px;">Celda 7</div>
+        <div class="placeholder" style="height:60px;">Celda 8</div>
+        <div class="placeholder" style="height:60px;">Celda 9</div>
+      </div>
+      <div class="section" style="margin-top:10px; font-size:12px;">
+        <p><strong>Lo que existe hoy (se eliminaría):</strong></p>
+        <ul>
+          <li><code>SeverityCellFlip.jsx</code>: cada celda tiene su propia animación de flip y su propia mini-lista (riesgos/issues) en el reverso</li>
+          <li><code>useSeverityItems.js</code>: hook que pide datos celda por celda (severidad + tipo)</li>
+          <li>Endpoint <code>GET /stats/severity/{severity}?type=risk|issue</code>: devuelve la lista de UNA severidad y UN tipo a la vez</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-header">NUEVO — cualquier celda abre/cierra UNA bandeja única</div>
+    <div class="mockup-body">
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
+        <div class="placeholder" style="height:60px;">Celda 1<br><small>2 riesgos / 1 issue</small></div>
+        <div class="placeholder" style="height:60px;">Celda 2<br><small>(click aquí)</small></div>
+        <div class="placeholder" style="height:60px;">Celda 3</div>
+        <div class="placeholder" style="height:60px;">Celda 4</div>
+        <div class="placeholder" style="height:60px;">Celda 5</div>
+        <div class="placeholder" style="height:60px;">Celda 6</div>
+        <div class="placeholder" style="height:60px;">Celda 7</div>
+        <div class="placeholder" style="height:60px;">Celda 8</div>
+        <div class="placeholder" style="height:60px;">Celda 9</div>
+      </div>
+      <div style="margin-top:8px; border:2px solid #888; border-radius:6px; padding:8px; font-size:12px;">
+        <div style="display:flex; justify-content:space-between;"><strong>Bandeja (única, debajo de TODA la matriz)</strong><span>click de nuevo en cualquier celda = ocultar</span></div>
+        <div style="font-weight:bold; margin-top:4px;">Severidad 1</div>
+        <div class="mock-input" style="margin:2px 0;">[Riesgo] Riesgo A — en progreso</div>
+        <div class="mock-input" style="margin:2px 0;">[Issue] Issue B — abierto</div>
+        <div style="font-weight:bold; margin-top:4px;">Severidad 2</div>
+        <div class="mock-input" style="margin:2px 0;">[Riesgo] Riesgo C — abierto</div>
+        <div style="text-align:center; color:#999; margin-top:4px;">… severidades 3 a 9 (solo las que tengan items) …</div>
+      </div>
+      <div class="section" style="margin-top:10px; font-size:12px;">
+        <p><strong>Lo nuevo:</strong></p>
+        <ul>
+          <li>Las 9 celdas vuelven a ser simples (sin flip, sin mini-listas individuales) — solo conteos + click para abrir/cerrar la bandeja</li>
+          <li>Nuevo componente <code>SeverityDrawer.jsx</code>: la bandeja única, con todas las severidades 1-9 que tengan items, items de riesgos e issues mezclados con link directo</li>
+          <li>Nuevo hook <code>useSeverityGroups.js</code> + nuevo endpoint <code>GET /stats/severity-items</code> que devuelve TODO agrupado en una sola llamada</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:20px;">
+  <h3>En resumen</h3>
+  <p>El código que se agregó en el PR #48 para el "flip" individual por celda (animación 3D, mini-listas por celda, hook y endpoint por severidad+tipo) deja de usarse por completo y se borraría, reemplazándolo por: celdas simples (solo trigger) + una bandeja única + un nuevo endpoint que trae todo agrupado de una vez.</p>
+</div>
