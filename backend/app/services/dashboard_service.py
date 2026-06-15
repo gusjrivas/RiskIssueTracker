@@ -11,8 +11,9 @@ from app.schemas.common import EntityType, IssueStatus, RiskStatus, UserRole
 from app.schemas.dashboard import (
     DashboardStatsResponse,
     EntityStats,
-    SeverityItem,
-    SeverityItemsResponse,
+    SeverityGroup,
+    SeverityGroupItem,
+    SeverityItemsGroupedResponse,
 )
 
 
@@ -71,26 +72,32 @@ def get_stats(db: Session, current_user: User) -> DashboardStatsResponse:
     )
 
 
-def get_severity_items(
-    db: Session,
-    severity: int,
-    entity_type: EntityType,
-    current_user: User,
-) -> SeverityItemsResponse:
-    model = Risk if entity_type == EntityType.risk else Issue
-    conditions = [model.deleted_at.is_(None), model.severity == severity]
+def get_severity_groups(db: Session, current_user: User) -> SeverityItemsGroupedResponse:
+    groups: list[SeverityGroup] = []
 
-    visibility = _visibility_clause(model, current_user)
-    if visibility is not None:
-        conditions.append(visibility)
+    for severity in range(1, 10):
+        items: list[SeverityGroupItem] = []
 
-    rows = db.execute(
-        select(model.id, model.title, model.status).where(*conditions)
-    ).all()
+        for model, entity_type in ((Risk, EntityType.risk), (Issue, EntityType.issue)):
+            conditions = [model.deleted_at.is_(None), model.severity == severity]
+            visibility = _visibility_clause(model, current_user)
+            if visibility is not None:
+                conditions.append(visibility)
 
-    return SeverityItemsResponse(
-        items=[
-            SeverityItem(id=row.id, title=row.title, status=row.status.value)
-            for row in rows
-        ]
-    )
+            rows = db.execute(
+                select(model.id, model.title, model.status)
+                .where(*conditions)
+                .order_by(model.title)
+            ).all()
+
+            items.extend(
+                SeverityGroupItem(
+                    id=row.id, title=row.title, status=row.status.value, type=entity_type
+                )
+                for row in rows
+            )
+
+        if items:
+            groups.append(SeverityGroup(severity=severity, items=items))
+
+    return SeverityItemsGroupedResponse(groups=groups)

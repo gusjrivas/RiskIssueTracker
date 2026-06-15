@@ -2,6 +2,8 @@ import uuid
 
 from pydantic import BaseModel
 
+from app.schemas.common import EntityType
+
 
 class EntityStats(BaseModel):
     total: int
@@ -16,11 +18,17 @@ class DashboardStatsResponse(BaseModel):
     issues: EntityStats
 
 
-class SeverityItem(BaseModel):
+class SeverityGroupItem(BaseModel):
     id: uuid.UUID
     title: str
     status: str
+    type: EntityType
 
 
-class SeverityItemsResponse(BaseModel):
-    items: list[SeverityItem]
+class SeverityGroup(BaseModel):
+    severity: int
+    items: list[SeverityGroupItem]
+
+
+class SeverityItemsGroupedResponse(BaseModel):
+    groups: list[SeverityGroup]
