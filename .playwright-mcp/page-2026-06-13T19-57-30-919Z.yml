@@ -1,0 +1,25 @@
+- generic [ref=e292]:
+  - banner [ref=e293]:
+    - generic [ref=e294]:
+      - link "RiskTracker" [ref=e295] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e296]:
+        - generic [ref=e297]: Admin Test
+        - link "Dashboard" [ref=e298] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e299]
+          - text: Dashboard
+        - link "Administración" [ref=e301] [cursor=pointer]:
+          - /url: /admin
+          - img [ref=e302]
+          - text: Administración
+        - link "Mi Perfil" [ref=e305] [cursor=pointer]:
+          - /url: /profile
+          - img [ref=e306]
+          - text: Mi Perfil
+        - button "Salir" [ref=e310] [cursor=pointer]
+  - main [ref=e311]:
+    - generic [ref=e312]:
+      - heading "Dashboard" [level=2] [ref=e313]
+      - paragraph [ref=e314]
+    - img [ref=e316]

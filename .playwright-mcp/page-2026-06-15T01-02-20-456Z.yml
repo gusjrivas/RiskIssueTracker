@@ -1,0 +1,50 @@
+- generic [ref=e47]:
+  - banner [ref=e48]:
+    - generic [ref=e49]:
+      - link "RiskTracker" [ref=e50] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e51]:
+        - generic [ref=e52]: Admin Test
+        - link "Dashboard" [ref=e53] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e54]
+          - text: Dashboard
+        - link "Administración" [ref=e56] [cursor=pointer]:
+          - /url: /admin
+          - img [ref=e57]
+          - text: Administración
+        - link "Mi Perfil" [ref=e60] [cursor=pointer]:
+          - /url: /profile
+          - img [ref=e61]
+          - text: Mi Perfil
+        - button "Salir" [ref=e65] [cursor=pointer]
+  - main [ref=e66]:
+    - generic [ref=e67]:
+      - generic [ref=e68]:
+        - heading "Proyectos" [level=2] [ref=e69]
+        - paragraph [ref=e70]: 5 proyectos
+      - button "Nuevo proyecto" [ref=e71] [cursor=pointer]:
+        - img [ref=e72]
+        - text: Nuevo proyecto
+    - generic [ref=e73]:
+      - link "test" [ref=e75] [cursor=pointer]:
+        - /url: /projects/bab41d6a-90a7-4a2f-8f0c-51ec48141fd3/risks
+        - img [ref=e76]
+        - heading "test" [level=3] [ref=e78]
+      - link "Proyecto Test Cliente ABC" [ref=e80] [cursor=pointer]:
+        - /url: /projects/fa755816-3539-43f1-8dfd-5f4a1d5430df/risks
+        - img [ref=e81]
+        - heading "Proyecto Test" [level=3] [ref=e83]
+        - paragraph [ref=e84]: Cliente ABC
+      - link "ABC" [ref=e86] [cursor=pointer]:
+        - /url: /projects/ab1d297c-3999-45fa-b45a-782eb6119c66/risks
+        - img [ref=e87]
+        - heading "ABC" [level=3] [ref=e89]
+      - link "PPAY" [ref=e91] [cursor=pointer]:
+        - /url: /projects/bd08cec5-471a-42ac-86e9-6aa066402587/risks
+        - img [ref=e92]
+        - heading "PPAY" [level=3] [ref=e94]
+      - link "Proyecto Regresion E2E" [ref=e96] [cursor=pointer]:
+        - /url: /projects/cf03e4b7-e752-4af6-9128-b21f92dd09f4/risks
+        - img [ref=e97]
+        - heading "Proyecto Regresion E2E" [level=3] [ref=e99]

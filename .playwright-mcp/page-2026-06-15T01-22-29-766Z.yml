@@ -1,0 +1,213 @@
+- generic [ref=e5]:
+  - banner [ref=e6]:
+    - generic [ref=e7]:
+      - link "RiskTracker" [ref=e8] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e9]:
+        - generic [ref=e10]: Admin Test
+        - link "Dashboard" [ref=e11] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e12]
+          - text: Dashboard
+        - link "Administración" [ref=e14] [cursor=pointer]:
+          - /url: /admin
+          - img [ref=e15]
+          - text: Administración
+        - link "Mi Perfil" [ref=e18] [cursor=pointer]:
+          - /url: /profile
+          - img [ref=e19]
+          - text: Mi Perfil
+        - button "Salir" [ref=e23] [cursor=pointer]
+  - main [ref=e24]:
+    - generic [ref=e25]:
+      - heading "Dashboard" [level=2] [ref=e26]
+      - paragraph [ref=e27]: 10 riesgos · 5 issues
+    - generic [ref=e28]:
+      - generic [ref=e29]:
+        - heading "Severidad por proximidad y zona de exposición" [level=3] [ref=e30]
+        - generic [ref=e31]:
+          - generic [ref=e32]:
+            - generic [ref=e34]: Zona Bajo
+            - generic [ref=e35]: Zona Medio
+            - generic [ref=e36]: Zona Alto
+            - generic [ref=e37]:
+              - generic [ref=e38]: Corto plazo
+              - button "2 riesgos 0 issues 5" [expanded] [ref=e39] [cursor=pointer]:
+                - generic [ref=e40]: 2 riesgos
+                - generic [ref=e41]: 0 issues
+                - generic [ref=e42]: "5"
+              - button "0 riesgos 0 issues 2" [expanded] [ref=e43] [cursor=pointer]:
+                - generic [ref=e44]: 0 riesgos
+                - generic [ref=e45]: 0 issues
+                - generic [ref=e46]: "2"
+              - button "3 riesgos 2 issues 1" [expanded] [ref=e47] [cursor=pointer]:
+                - generic [ref=e48]: 3 riesgos
+                - generic [ref=e49]: 2 issues
+                - generic [ref=e50]: "1"
+            - generic [ref=e51]:
+              - generic [ref=e52]: Mediano plazo
+              - button "2 riesgos 0 issues 7" [expanded] [ref=e53] [cursor=pointer]:
+                - generic [ref=e54]: 2 riesgos
+                - generic [ref=e55]: 0 issues
+                - generic [ref=e56]: "7"
+              - button "0 riesgos 0 issues 4" [expanded] [ref=e57] [cursor=pointer]:
+                - generic [ref=e58]: 0 riesgos
+                - generic [ref=e59]: 0 issues
+                - generic [ref=e60]: "4"
+              - button "3 riesgos 3 issues 3" [expanded] [active] [ref=e61] [cursor=pointer]:
+                - generic [ref=e62]: 3 riesgos
+                - generic [ref=e63]: 3 issues
+                - generic [ref=e64]: "3"
+            - generic [ref=e65]:
+              - generic [ref=e66]: Largo plazo
+              - button "0 riesgos 0 issues 9" [expanded] [ref=e67] [cursor=pointer]:
+                - generic [ref=e68]: 0 riesgos
+                - generic [ref=e69]: 0 issues
+                - generic [ref=e70]: "9"
+              - button "0 riesgos 0 issues 8" [expanded] [ref=e71] [cursor=pointer]:
+                - generic [ref=e72]: 0 riesgos
+                - generic [ref=e73]: 0 issues
+                - generic [ref=e74]: "8"
+              - button "0 riesgos 0 issues 6" [expanded] [ref=e75] [cursor=pointer]:
+                - generic [ref=e76]: 0 riesgos
+                - generic [ref=e77]: 0 issues
+                - generic [ref=e78]: "6"
+          - generic [ref=e123]:
+            - generic [ref=e124]:
+              - generic [ref=e125]:
+                - generic [ref=e126]: "1"
+                - generic [ref=e127]: Crítico
+              - generic [ref=e128]:
+                - link "Riesgo Accesos a ambientes En progreso" [ref=e129] [cursor=pointer]:
+                  - /url: /risks/fbb6762a-dbd2-456c-bfb2-1a47da65d295
+                  - generic [ref=e130]:
+                    - generic [ref=e131]: Riesgo
+                    - generic [ref=e132]: Accesos a ambientes
+                  - generic [ref=e133]: En progreso
+                - link "Riesgo Retraso en despliegue MVP Derivado" [ref=e134] [cursor=pointer]:
+                  - /url: /risks/9197e894-c9b2-43b6-8108-e8a92f3163ce
+                  - generic [ref=e135]:
+                    - generic [ref=e136]: Riesgo
+                    - generic [ref=e137]: Retraso en despliegue MVP
+                  - generic [ref=e138]: Derivado
+                - link "Riesgo Riesgo de prueba En progreso" [ref=e139] [cursor=pointer]:
+                  - /url: /risks/49bd40b1-e262-4a39-9780-80e82ac26045
+                  - generic [ref=e140]:
+                    - generic [ref=e141]: Riesgo
+                    - generic [ref=e142]: Riesgo de prueba
+                  - generic [ref=e143]: En progreso
+                - link "Issue Retraso en despliegue MVP Cerrado" [ref=e144] [cursor=pointer]:
+                  - /url: /issues/85d2f7c7-d7d3-4386-9440-2864cba99c9d
+                  - generic [ref=e145]:
+                    - generic [ref=e146]: Issue
+                    - generic [ref=e147]: Retraso en despliegue MVP
+                  - generic [ref=e148]: Cerrado
+                - link "Issue salida de referente tecnico En progreso" [ref=e149] [cursor=pointer]:
+                  - /url: /issues/5ea47d75-330e-4d0b-a71f-2996924c0ec5
+                  - generic [ref=e150]:
+                    - generic [ref=e151]: Issue
+                    - generic [ref=e152]: salida de referente tecnico
+                  - generic [ref=e153]: En progreso
+            - generic [ref=e154]:
+              - generic [ref=e155]:
+                - generic [ref=e156]: "3"
+                - generic [ref=e157]: Crítico
+              - generic [ref=e158]:
+                - link "Riesgo Alcance modificado Derivado" [ref=e159] [cursor=pointer]:
+                  - /url: /risks/c340c108-70ea-42af-85ff-6834246688bb
+                  - generic [ref=e160]:
+                    - generic [ref=e161]: Riesgo
+                    - generic [ref=e162]: Alcance modificado
+                  - generic [ref=e163]: Derivado
+                - link "Riesgo Baja performance TL Abierto" [ref=e164] [cursor=pointer]:
+                  - /url: /risks/9c4a79be-8897-4ca2-8d8e-1de3bf60ecb6
+                  - generic [ref=e165]:
+                    - generic [ref=e166]: Riesgo
+                    - generic [ref=e167]: Baja performance TL
+                  - generic [ref=e168]: Abierto
+                - link "Riesgo Riesgo de regresion E2E Derivado" [ref=e169] [cursor=pointer]:
+                  - /url: /risks/902b4077-dcf8-49f5-b297-b377a6141bdd
+                  - generic [ref=e170]:
+                    - generic [ref=e171]: Riesgo
+                    - generic [ref=e172]: Riesgo de regresion E2E
+                  - generic [ref=e173]: Derivado
+                - link "Issue Alcance modificado En progreso" [ref=e174] [cursor=pointer]:
+                  - /url: /issues/960ef0f5-d5ae-4aa2-bf08-eb76ff08d3eb
+                  - generic [ref=e175]:
+                    - generic [ref=e176]: Issue
+                    - generic [ref=e177]: Alcance modificado
+                  - generic [ref=e178]: En progreso
+                - link "Issue Issue de prueba directo Abierto" [ref=e179] [cursor=pointer]:
+                  - /url: /issues/5c000571-2803-4130-8748-b001292da5c2
+                  - generic [ref=e180]:
+                    - generic [ref=e181]: Issue
+                    - generic [ref=e182]: Issue de prueba directo
+                  - generic [ref=e183]: Abierto
+                - link "Issue Riesgo de regresion E2E En progreso" [ref=e184] [cursor=pointer]:
+                  - /url: /issues/8a850478-6760-4186-9381-9559ad62b4f0
+                  - generic [ref=e185]:
+                    - generic [ref=e186]: Issue
+                    - generic [ref=e187]: Riesgo de regresion E2E
+                  - generic [ref=e188]: En progreso
+            - generic [ref=e189]:
+              - generic [ref=e190]:
+                - generic [ref=e191]: "5"
+                - generic [ref=e192]: Moderado
+              - generic [ref=e193]:
+                - link "Riesgo Comparativa preview branch actual Abierto" [ref=e194] [cursor=pointer]:
+                  - /url: /risks/3d72fb93-de74-4667-bab6-299c8c723483
+                  - generic [ref=e195]:
+                    - generic [ref=e196]: Riesgo
+                    - generic [ref=e197]: Comparativa preview branch actual
+                  - generic [ref=e198]: Abierto
+                - link "Riesgo prueba Cerrado" [ref=e199] [cursor=pointer]:
+                  - /url: /risks/bef644fc-79f5-40d2-be7b-edd8d667e73d
+                  - generic [ref=e200]:
+                    - generic [ref=e201]: Riesgo
+                    - generic [ref=e202]: prueba
+                  - generic [ref=e203]: Cerrado
+            - generic [ref=e204]:
+              - generic [ref=e205]:
+                - generic [ref=e206]: "7"
+                - generic [ref=e207]: Bajo
+              - generic [ref=e208]:
+                - link "Riesgo prueba riesgo Abierto" [ref=e209] [cursor=pointer]:
+                  - /url: /risks/d3da1100-8e66-4a76-8029-a9935dd77761
+                  - generic [ref=e210]:
+                    - generic [ref=e211]: Riesgo
+                    - generic [ref=e212]: prueba riesgo
+                  - generic [ref=e213]: Abierto
+                - link "Riesgo riesgo GR En progreso" [ref=e214] [cursor=pointer]:
+                  - /url: /risks/e4f6e1dc-9467-4b51-a242-26c925ac8d37
+                  - generic [ref=e215]:
+                    - generic [ref=e216]: Riesgo
+                    - generic [ref=e217]: riesgo GR
+                  - generic [ref=e218]: En progreso
+      - generic [ref=e79]:
+        - generic [ref=e81]:
+          - heading "Riesgos por estado" [level=3] [ref=e82]
+          - generic [ref=e83]:
+            - generic [ref=e84]:
+              - generic [ref=e85]: Abierto
+              - generic [ref=e88]: "3"
+            - generic [ref=e89]:
+              - generic [ref=e90]: En progreso
+              - generic [ref=e93]: "3"
+            - generic [ref=e94]:
+              - generic [ref=e95]: Cerrado
+              - generic [ref=e98]: "1"
+            - generic [ref=e99]:
+              - generic [ref=e100]: Derivado
+              - generic [ref=e103]: "3"
+        - generic [ref=e105]:
+          - heading "Issues por estado" [level=3] [ref=e106]
+          - generic [ref=e107]:
+            - generic [ref=e108]:
+              - generic [ref=e109]: Abierto
+              - generic [ref=e112]: "1"
+            - generic [ref=e113]:
+              - generic [ref=e114]: En progreso
+              - generic [ref=e117]: "3"
+            - generic [ref=e118]:
+              - generic [ref=e119]: Cerrado
+              - generic [ref=e122]: "1"

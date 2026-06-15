@@ -1,0 +1,29 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "RiskTracker" [ref=e6] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e7]:
+        - generic [ref=e8]: Admin Test
+        - link "Dashboard" [ref=e9] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e10]
+          - text: Dashboard
+        - link "Administración" [ref=e12] [cursor=pointer]:
+          - /url: /admin
+          - img [ref=e13]
+          - text: Administración
+        - link "Mi Perfil" [ref=e16] [cursor=pointer]:
+          - /url: /profile
+          - img [ref=e17]
+          - text: Mi Perfil
+        - button "Salir" [ref=e21] [cursor=pointer]
+  - main [ref=e22]:
+    - generic [ref=e23]:
+      - generic [ref=e24]:
+        - heading "Proyectos" [level=2] [ref=e25]
+        - paragraph [ref=e26]: 0 proyectos
+      - button "Nuevo proyecto" [ref=e27] [cursor=pointer]:
+        - img [ref=e28]
+        - text: Nuevo proyecto
+    - img [ref=e30]
