@@ -1,28 +1,30 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import SeverityMatrixGrid from '../../components/SeverityMatrixGrid'
-import * as dashboardApi from '../../api/dashboard'
-
-vi.mock('../../api/dashboard')
 
 const risksBySeverity = { 1: 3, 2: 0, 3: 1, 4: 0, 5: 2, 6: 0, 7: 0, 8: 0, 9: 4 }
 const issuesBySeverity = { 1: 1, 2: 0, 3: 0, 4: 5, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 }
 
-function renderGrid(risks = risksBySeverity, issues = issuesBySeverity) {
-  return render(
+function renderGrid(props = {}) {
+  const onOpenDrawer = vi.fn()
+  const utils = render(
     <MemoryRouter>
-      <SeverityMatrixGrid risksBySeverity={risks} issuesBySeverity={issues} />
+      <SeverityMatrixGrid
+        risksBySeverity={risksBySeverity}
+        issuesBySeverity={issuesBySeverity}
+        groups={null}
+        groupsLoading={false}
+        groupsError={null}
+        onOpenDrawer={onOpenDrawer}
+        {...props}
+      />
     </MemoryRouter>
   )
+  return { ...utils, onOpenDrawer }
 }
 
 describe('SeverityMatrixGrid', () => {
-  beforeEach(() => {
-    vi.resetAllMocks()
-    dashboardApi.getSeverityItems.mockResolvedValue({ items: [] })
-  })
-
   it('renderiza las 9 celdas de severidad', () => {
     renderGrid()
     for (let s = 1; s <= 9; s++) {
@@ -67,15 +69,32 @@ describe('SeverityMatrixGrid', () => {
   })
 
   it('no rompe si los maps vienen vacíos', () => {
-    renderGrid({}, {})
+    renderGrid({ risksBySeverity: {}, issuesBySeverity: {} })
     expect(screen.getByTestId('matrix-cell-1')).toHaveTextContent('0 riesgos')
   })
 
-  it('al hacer click sobre una celda se voltea y pide los riesgos/issues de esa severidad', () => {
-    renderGrid()
+  it('al hacer click en una celda abre la bandeja y llama a onOpenDrawer', () => {
+    const { onOpenDrawer } = renderGrid({
+      groups: [{ severity: 1, items: [{ id: 'r1', title: 'Riesgo A', status: 'open', type: 'risk' }] }],
+    })
+
+    expect(screen.queryByTestId('severity-drawer')).not.toBeInTheDocument()
+
     fireEvent.click(screen.getByTestId('matrix-cell-1'))
-    expect(screen.getByTestId('matrix-cell-back-1')).toBeInTheDocument()
-    expect(dashboardApi.getSeverityItems).toHaveBeenCalledWith(1, 'risk')
-    expect(dashboardApi.getSeverityItems).toHaveBeenCalledWith(1, 'issue')
+
+    expect(onOpenDrawer).toHaveBeenCalledTimes(1)
+    expect(screen.getByTestId('severity-drawer')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Riesgo A/ })).toHaveAttribute('href', '/risks/r1')
+  })
+
+  it('un segundo click en cualquier celda cierra la bandeja sin volver a llamar onOpenDrawer', () => {
+    const { onOpenDrawer } = renderGrid({ groups: [] })
+
+    fireEvent.click(screen.getByTestId('matrix-cell-1'))
+    expect(screen.getByTestId('severity-drawer')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByTestId('matrix-cell-5'))
+    expect(screen.queryByTestId('severity-drawer')).not.toBeInTheDocument()
+    expect(onOpenDrawer).toHaveBeenCalledTimes(1)
   })
 })
